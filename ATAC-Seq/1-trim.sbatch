@@ -18,6 +18,8 @@
 # Each job in the array should get 2 cores on the same node to accomodate
 # the cutadapt process and companion pigz/gzip process
 #SBATCH --array=1-18 --ntasks=2 --nodes=1
+# Temporary until all nodes are upgraded
+#SBATCH --exclude=compute-[001-008]
 #SBATCH --mem-per-cpu=100
 #SBATCH --output=1-trim/slurm-%A_%a.out
 #SBATCH --error=1-trim/slurm-%A_%a.err
@@ -29,8 +31,8 @@ if [ -e /sharedapps/pkg-2019Q2/bin/cutadapt ]; then
     module load /sharedapps/pkg-2019Q2/etc/modulefiles/pkgsrc/2019Q2
 fi
 
-input1="../Raw/190822_AHFN3KDRXX-Lane2/*_S${SLURM_ARRAY_TASK_ID}_*R1*"
-input2="../Raw/190822_AHFN3KDRXX-Lane2/*_S${SLURM_ARRAY_TASK_ID}_*R2*"
+input1="../Raw/190822_AHFN3KDRXX-Lane1/*_S${SLURM_ARRAY_TASK_ID}_*R1*"
+input2="../Raw/190822_AHFN3KDRXX-Lane1/*_S${SLURM_ARRAY_TASK_ID}_*R2*"
 base_name=$(basename $input1)
 stem=${base_name%%_R*.fastq.gz}
 

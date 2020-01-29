@@ -27,8 +27,8 @@ if [ -e /sharedapps/pkg-2019Q2/bin/fastqc ]; then
     module load /sharedapps/pkg-2019Q2/etc/modulefiles/pkgsrc/2019Q2
 fi
 
-raw1="../Raw/190822_AHFN3KDRXX-Lane2/*_S${SLURM_ARRAY_TASK_ID}_*R1*.fastq.gz"
-raw2="../Raw/190822_AHFN3KDRXX-Lane2/*_S${SLURM_ARRAY_TASK_ID}_*R2*.fastq.gz"
+raw1="../Raw/190822_AHFN3KDRXX-Lane1/*_S${SLURM_ARRAY_TASK_ID}_*R1*.fastq.gz"
+raw2="../Raw/190822_AHFN3KDRXX-Lane1/*_S${SLURM_ARRAY_TASK_ID}_*R2*.fastq.gz"
 trimmed1="1-trim/*_S${SLURM_ARRAY_TASK_ID}_*R1*.fastq.gz"
 trimmed2="1-trim/*_S${SLURM_ARRAY_TASK_ID}_*R2*.fastq.gz"
 printf "$raw1 $raw2 $trimmed1 $trimmed2\n"
