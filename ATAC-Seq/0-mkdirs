@@ -1,0 +1,3 @@
+#!/bin/sh -e
+
+mkdir -p 1-trim 2-qc
