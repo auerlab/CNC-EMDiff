@@ -1,0 +1,54 @@
+
+ectoderm
+    nervous system and skin
+    gradient
+    center - nervous
+    peripheral - skin
+    between - neural crest (top of tube in early dev)
+	migrate away from origin
+	peripheral nervous system
+	brain - other parts of tube
+
+head bones diff origin from rest of skeleton
+
+Maria
+    how to differentiate to chondrocytes or peripheral neurons
+    what's expressed in intermediate progenitor cells?
+    flow cytometry
+    day 4 and 14
+	rnaseq atacseq
+    3 biological replicates
+
+Ensembl
+GRCM38.P6 Sep 15 2017
+Exclude X chromosome
+
+CE1,2,3... bioreps
+A,B,C... time points
+A = day 0
+B = day 4 C, 2 N
+C = day 14, 6 N
+R1,2 = paired end
+S# = sample
+C = chrondrocyte
+N = neural
+
+trimgalore autosense adapters?
+spreadsheet with adapters?
+read length - see html file
+4^30 sufficient for mapping
+--trim2 or 3 for added safety
+file sizes?
+fastqc just on trimmed
+kallisto - build reference transcriptome using what?
+	   or does it already exist?
+
+Diff analysis
+    Sleuth (works with kallisto output)
+    Compares day x vs control
+    Expect thousands of genes
+    hierarchical clustering
+    visualize with R
+
+
+Read-length: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4531809/

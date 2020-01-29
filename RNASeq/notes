@@ -1,0 +1,22 @@
+
+GTF may include non-coding RNA
+cDNA should be limited to mRNA
+shorter min, multimap->thrown out
+
+Abundances:
+
+total xscripts est-counts min 10, probably higher
+estimating proportion of total mapped reads - sum of est_counts / total reads
+tpm depends on total reads in lib
+
+sleuth/deseq2
+normalization (total reads, etc)
+pathway analysis/clustering of de xscripts by tpm z-scores
+positive controls - 10 for each comparison
+go enrichment
+mgi page?
+    list of genes, geo analysis
+
+find out paired reads map vs individual reads
+est avg fragment length
+    ability to detect splicing (isoforms)

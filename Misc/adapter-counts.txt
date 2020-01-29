@@ -1,0 +1,216 @@
+
+CE1A_S1_L002_R1_001.fastq.gz:
+Total reads:	 35102650
+3' adapters:	    4051
+5' adapters:	    4051
+All adapters:	    4051
+
+CE1A_S1_L002_R2_001.fastq.gz:
+Total reads:	 35157499
+3' adapters:	    4015
+5' adapters:	    4015
+All adapters:	    4015
+
+CE1B_S2_L002_R1_001.fastq.gz:
+Total reads:	 45091398
+3' adapters:	    6179
+5' adapters:	    6179
+All adapters:	    6179
+
+CE1B_S2_L002_R2_001.fastq.gz:
+Total reads:	 45405217
+3' adapters:	    6133
+5' adapters:	    6133
+All adapters:	    6133
+
+CE1C_S3_L002_R1_001.fastq.gz:
+Total reads:	 37915526
+3' adapters:	   20234
+5' adapters:	   20234
+All adapters:	   20234
+
+CE1C_S3_L002_R2_001.fastq.gz:
+Total reads:	 38388326
+3' adapters:	   20339
+5' adapters:	   20339
+All adapters:	   20339
+
+CE2A_S4_L002_R1_001.fastq.gz:
+Total reads:	 45537796
+3' adapters:	    3228
+5' adapters:	    3228
+All adapters:	    3228
+
+CE2A_S4_L002_R2_001.fastq.gz:
+Total reads:	 46256000
+3' adapters:	    3185
+5' adapters:	    3185
+All adapters:	    3185
+
+CE2B_S5_L002_R1_001.fastq.gz:
+Total reads:	 34550828
+3' adapters:	    2027
+5' adapters:	    2027
+All adapters:	    2027
+
+CE2B_S5_L002_R2_001.fastq.gz:
+Total reads:	 34984469
+3' adapters:	    2016
+5' adapters:	    2016
+All adapters:	    2016
+
+CE2C_S6_L002_R1_001.fastq.gz:
+Total reads:	 44786927
+3' adapters:	    2798
+5' adapters:	    2798
+All adapters:	    2798
+
+CE2C_S6_L002_R2_001.fastq.gz:
+Total reads:	 45334697
+3' adapters:	    2816
+5' adapters:	    2816
+All adapters:	    2816
+
+CE3A_S7_L002_R1_001.fastq.gz:
+Total reads:	 34365445
+3' adapters:	    1877
+5' adapters:	    1877
+All adapters:	    1877
+
+CE3A_S7_L002_R2_001.fastq.gz:
+Total reads:	 34636450
+3' adapters:	    1858
+5' adapters:	    1858
+All adapters:	    1858
+
+CE3B_S8_L002_R1_001.fastq.gz:
+Total reads:	 39631735
+3' adapters:	    5455
+5' adapters:	    5455
+All adapters:	    5455
+
+CE3B_S8_L002_R2_001.fastq.gz:
+Total reads:	 39602433
+3' adapters:	    5431
+5' adapters:	    5431
+All adapters:	    5431
+
+CE3C_S9_L002_R1_001.fastq.gz:
+Total reads:	 42498022
+3' adapters:	    3679
+5' adapters:	    3679
+All adapters:	    3679
+
+CE3C_S9_L002_R2_001.fastq.gz:
+Total reads:	 42704893
+3' adapters:	    3694
+5' adapters:	    3694
+All adapters:	    3694
+
+NE1A_S10_L002_R1_001.fastq.gz:
+Total reads:	 38202519
+3' adapters:	   28500
+5' adapters:	   28500
+All adapters:	   28500
+
+NE1A_S10_L002_R2_001.fastq.gz:
+Total reads:	 38978972
+3' adapters:	   28129
+5' adapters:	   28129
+All adapters:	   28129
+
+NE1B_S11_L002_R1_001.fastq.gz:
+Total reads:	 39257430
+3' adapters:	    5721
+5' adapters:	    5721
+All adapters:	    5721
+
+NE1B_S11_L002_R2_001.fastq.gz:
+Total reads:	 39816229
+3' adapters:	    5611
+5' adapters:	    5611
+All adapters:	    5611
+
+NE1C_S12_L002_R1_001.fastq.gz:
+Total reads:	 53663081
+3' adapters:	    7010
+5' adapters:	    7010
+All adapters:	    7010
+
+NE1C_S12_L002_R2_001.fastq.gz:
+Total reads:	 54082482
+3' adapters:	    6975
+5' adapters:	    6975
+All adapters:	    6975
+
+NE2A_S13_L002_R1_001.fastq.gz:
+Total reads:	 31711450
+3' adapters:	    7344
+5' adapters:	    7344
+All adapters:	    7344
+
+NE2A_S13_L002_R2_001.fastq.gz:
+Total reads:	 31384036
+3' adapters:	    7339
+5' adapters:	    7339
+All adapters:	    7339
+
+NE2B_S14_L002_R1_001.fastq.gz:
+Total reads:	 39497227
+3' adapters:	    2936
+5' adapters:	    2936
+All adapters:	    2936
+
+NE2B_S14_L002_R2_001.fastq.gz:
+Total reads:	 40024759
+3' adapters:	    2914
+5' adapters:	    2914
+All adapters:	    2914
+
+NE2C_S15_L002_R1_001.fastq.gz:
+Total reads:	 41347343
+3' adapters:	    3520
+5' adapters:	    3520
+All adapters:	    3520
+
+NE2C_S15_L002_R2_001.fastq.gz:
+Total reads:	 41811998
+3' adapters:	    3454
+5' adapters:	    3454
+All adapters:	    3454
+
+NE3A_S16_L002_R1_001.fastq.gz:
+Total reads:	 42215408
+3' adapters:	    3166
+5' adapters:	    3166
+All adapters:	    3166
+
+NE3A_S16_L002_R2_001.fastq.gz:
+Total reads:	 42951102
+3' adapters:	    3096
+5' adapters:	    3096
+All adapters:	    3096
+
+NE3B_S17_L002_R1_001.fastq.gz:
+Total reads:	 38084187
+3' adapters:	    2733
+5' adapters:	    2733
+All adapters:	    2733
+
+NE3B_S17_L002_R2_001.fastq.gz:
+Total reads:	 38047675
+3' adapters:	    2721
+5' adapters:	    2721
+All adapters:	    2721
+
+NE3C_S18_L002_R1_001.fastq.gz:
+Total reads:	 39912463
+3' adapters:	   12452
+5' adapters:	   12452
+All adapters:	   12452
+
+NE3C_S18_L002_R2_001.fastq.gz:
+Total reads:	 40417348
+3' adapters:	   12212
+5' adapters:	   12212
+All adapters:	   12212

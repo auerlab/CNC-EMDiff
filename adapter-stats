@@ -1,0 +1,20 @@
+
+File size:
+
+zcat CE1A_S1_L002_R1_001.fastq.gz | wc -l
+ 129822188
+
+Adapter as suffix:
+
+zgrep AGATCGGAAGAGC\$ CE1A_S1_L002_R1_001.fastq.gz | wc -l
+    4051
+
+Adapter as prefix:
+
+zgrep ^AGATCGGAAGAGC CE1A_S1_L002_R1_001.fastq.gz | wc -l
+       3
+
+Adapter anywhere:
+
+zgrep AGATCGGAAGAGC CE1A_S1_L002_R1_001.fastq.gz | wc -l
+   35390

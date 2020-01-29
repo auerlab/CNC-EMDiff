@@ -1,0 +1,38 @@
+#!/bin/sh -e
+
+##########################################################################
+#   Script description:
+#       
+#   Arguments:
+#       
+#   Returns:
+#       
+#   History:
+#   Date        Name        Modification
+#   2019-09-15  Jason Wayne BaconBegin
+##########################################################################
+
+usage()
+{
+    printf "Usage: $0 position file\n"
+    exit 1
+}
+
+
+##########################################################################
+#   Main
+##########################################################################
+
+if [ $# != 2 ]; then
+    usage
+fi
+
+position=$1
+file="$2"
+printf "Total reads:\n"
+time zgrep -v -E '^\+|^F|^@|:|,' "$file" | wc -l
+# time gunzip -c "$file" | grep -v -E '^\+|^F|^@' | wc -l
+for base in A C G T; do
+    printf "\n$base in position $position:\n"
+    zgrep -v -E '^\+|^F|^@|:|,' "$file" | cut -c $position | fgrep $base | wc -l
+done

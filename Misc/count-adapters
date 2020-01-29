@@ -1,0 +1,39 @@
+#!/bin/sh -e
+
+##########################################################################
+#   Script description:
+#       
+#   Arguments:
+#       
+#   Returns:
+#       
+#   History:
+#   Date        Name        Modification
+#   2019-09-15  Jason Wayne BaconBegin
+##########################################################################
+
+usage()
+{
+    printf "Usage: $0 file [file ...]\n"
+    exit 1
+}
+
+
+##########################################################################
+#   Main
+##########################################################################
+
+if [ $# -lt 1 ]; then
+    usage
+fi
+
+for file in "$@"; do
+    printf "\n$file:\nTotal reads:\t"
+    zgrep -v -E '^\+|^F|^@|:|,' "$file" | wc -l
+    printf "3' adapters:\t"
+    zgrep AGATCGGAAGAGC\$ "$file" | wc -l
+    printf "5' adapters:\t"
+    zgrep AGATCGGAAGAGC\$ "$file" | wc -l
+    printf "All adapters:\t"
+    zgrep AGATCGGAAGAGC\$ "$file" | wc -l
+done

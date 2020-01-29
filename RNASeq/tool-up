@@ -1,0 +1,5 @@
+#!/bin/sh -e
+
+# tophat is only for gtf-to-fasta script cited in kallisto tutorial
+pkg install -y py36-cutadapt fastqc py36-multiqc tophat kallisto
+# R-cran-sleuth R-cran-deseq2

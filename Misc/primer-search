@@ -1,0 +1,6 @@
+#!/bin/sh
+
+for file in *.gz; do
+    echo $file
+    zgrep -v -E '^\+|^F|^@|:|,' "$file" | head -n 100000 | grep --color '^AAGGTACCAC'
+done
