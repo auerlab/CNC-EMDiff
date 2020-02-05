@@ -15,7 +15,7 @@ if [ -e /sharedapps/pkg-2019Q2/bin/kallisto ]; then
 fi
 
 save_cwd=$(pwd)
-cd ../Reference
+cd Reference
 
 ############################################################################
 # Choose cdna or gtf2fasta or copy the kallisto transcriptome.idx file from

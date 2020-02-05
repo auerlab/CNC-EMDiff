@@ -15,6 +15,9 @@
 #   Main
 ##########################################################################
 
+# Temporary until all nodes are upgraded
+#SBATCH --exclude=compute-[001-008,012]
+
 #SBATCH --array=1-18
 #SBATCH --mem=1g
 #SBATCH --output=2-qc/slurm-%A_%a.out
@@ -29,8 +32,11 @@ fi
 
 raw1="../Raw/190822_AHFN3KDRXX-Lane1/*_S${SLURM_ARRAY_TASK_ID}_*R1*.fastq.gz"
 raw2="../Raw/190822_AHFN3KDRXX-Lane1/*_S${SLURM_ARRAY_TASK_ID}_*R2*.fastq.gz"
+
+# Cutadapt output
 trimmed1="1-trim/*_S${SLURM_ARRAY_TASK_ID}_*R1*.fastq.gz"
 trimmed2="1-trim/*_S${SLURM_ARRAY_TASK_ID}_*R2*.fastq.gz"
+
 printf "$raw1 $raw2 $trimmed1 $trimmed2\n"
 mkdir -p 2-qc/Raw 2-qc/Trimmed
 
