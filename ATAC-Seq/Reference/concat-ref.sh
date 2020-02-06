@@ -3,7 +3,7 @@
 for variant in "" "_rm" "_sm"; do
     files=""
     chr=1
-    while [ $chr -le 22 ]; do
+    while [ $chr -le 19 ]; do
 	files="$files Mus_musculus.GRCm38.dna$variant.chromosome.$chr.fa.gz"
 	chr=$(( $chr + 1 ))
     done
