@@ -1,0 +1,3 @@
+#!/bin/sh -e
+
+printf "Reference/Mus_musculus.GRCm38.dna.autosomes.fa\n"
