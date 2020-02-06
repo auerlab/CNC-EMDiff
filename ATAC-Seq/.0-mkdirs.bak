@@ -1,3 +1,3 @@
 #!/bin/sh -e
 
-mkdir -p 1-trim 2-qc 3-BWA
+mkdir -p 1-trim 2-qc 4-BWA-mem 5-qc-sam
