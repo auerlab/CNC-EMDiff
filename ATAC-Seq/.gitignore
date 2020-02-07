@@ -2,6 +2,7 @@
 1-trim
 2-qc
 4-bwa-mem
+5-qc-sam
 Reference/*.gz
 Reference/*.fa*
 Reference/CHECKSUMS
