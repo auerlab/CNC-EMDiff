@@ -5,4 +5,5 @@
 Reference/*.gz
 Reference/*.fa*
 Reference/CHECKSUMS
+Reference/README
 */slurm-*
