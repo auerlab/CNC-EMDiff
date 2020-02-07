@@ -1,50 +1,47 @@
-#!/usr/bin/env bash
+#!/bin/sh -e
 
-## Convert SAM to BAM
-## Remove mitochondrial, duplicate reads, and multiple mapped reads using samtools
+#SBATCH --array=1-18
+# Just guessing
+#SBATCH --mem=1000
+#SBATCH --output=6-remove-duplicates/slurm-%A_%a.out
+#SBATCH --error=6-remove-duplicates/slurm-%A_%a.err
 
-mt=MT
-aligndir=~/Data/Optic-Regen/results/ATACseq/ALIGNED_TRANS/
-peaksdir=~/Data/Optic-Regen/results/ATACseq/PEAKS_TRANS/
+# Spoof SLURM_ARRAY_TASK_ID if not set for testing outside SLURM env
+: ${SLURM_ARRAY_TASK_ID:=1}
 
-sample=( 0ATAC-1 0ATAC-2 0ATAC-3 12ATAC-1 12ATAC-2 12ATAC-3 2ATAC-1 2ATAC-2 2ATAC-3 4ATAC-1 4ATAC-2 4ATAC-3 7ATAC-2 7ATAC-3 )
-for s in "${sample[@]}"
-do
+cd 6-remove-duplicates
 
-saminput=${aligndir}${s}_trans.sam
-baminput=${aligndir}${s}.bam
-bamsortedinput=${aligndir}${s}.sorted.bam
-# nomt=${aligndir}${s}.noMT.bam
-nodup=${aligndir}${s}.nodup.bam
-nodupunique=${aligndir}${s}.nodup.unique.bam
+# FIXME: Remove .save after benchmarking BWA
+# Variable assignments don't expand globbing patterns, so insert an ls command
+saminput=$(ls ../4-bwa-mem.save/*_S${SLURM_ARRAY_TASK_ID}_L001.sam)
+sorted=${saminput%.sam}-sorted.bam
+nodup=${saminput%.sam}-nodup.bam
+nodupunique=${saminput%.sam}-nodup-uniq.bam
 
-sbatch --mem-per-cpu=60000 --wrap="source /etc/bashrc
-module load /sharedapps/pkg-2017Q3/etc/modulefiles/pkgsrc/2017Q3
-echo Convert SAM to BAM, sort and index...
-samtools view -S -b ${saminput} > ${baminput}
-samtools sort ${baminput} -o ${bamsortedinput}
-samtools index ${bamsortedinput}
-samtools idxstats ${bamsortedinput} > ${bamsortedinput}.idxstats
-samtools flagstat ${bamsortedinput} > ${bamsortedinput}.flagstat
-# I REMOVED THIS SINCE IT DOESNT LOOK LIKE THERE ARE ANY ALIGNED TO MT READS?
-# echo Removing MT reads...
-# samtools idxstats $bamsortedinput | awk '{print $1}' | grep -v $mt | xargs samtools view -bh $baminput 
-# samtools index $nomt
-# samtools idxstats $nomt
-# samtools flagstat $nomt
-echo Removing duplicate reads...
-samtools sort -n -o ${bamsortedinput}.namesort ${bamsortedinput} 
-samtools fixmate -m ${bamsortedinput}.namesort ${bamsortedinput}.fixmate
-samtools sort -o ${bamsortedinput}.fixmate.sort ${bamsortedinput}.fixmate 
-samtools markdup -r -s ${bamsortedinput}.fixmate.sort ${nodup}
-samtools index ${nodup}
-samtools idxstats $nodup > ${nodup}.idxstats
-samtools flagstat $nodup > ${nodup}.flagstat
-echo Removing multiple mapped reads...
-samtools view -bq 1 ${nodup} > ${nodupunique}
-samtools index ${nodupunique}
-samtools idxstats ${nodupunique} > ${nodupunique}.idxstats
-samtools flagstat ${nodupunique} > ${nodupunique}.flagstat
-"
+printf 'Convert SAM to BAM, sort and index...\n'
+# Sort by leftmost coordinate
+samtools sort $saminput -o $sorted
 
-done
+samtools index $sorted
+samtools idxstats $sorted > $sorted.idxstats
+samtools flagstat $sorted > $sorted.flagstat
+
+# Can we remove duplicates before aligning?
+# Seems like this might save a lot of time on redundant alignments
+printf 'Removing duplicate reads...\n'
+samtools sort -n -o $sorted-namesort.bam $sorted 
+samtools fixmate -m $sorted-namesort.bam $sorted-fixmate.bam
+samtools sort -o $sorted-fixmate-sort.bam $sorted-fixmate.bam
+samtools markdup -l 100 -r -s $sorted.fixmate.sort $nodup
+
+samtools index $nodup
+samtools idxstats $nodup > $nodup.idxstats
+samtools flagstat $nodup > $nodup.flagstat
+
+printf 'Removing multiple mapped reads...\n'
+# Default quality min (-q) is 0
+samtools view -bq 1 $nodup > $nodupunique
+
+samtools index $nodupunique
+samtools idxstats $nodupunique > $nodupunique.idxstats
+samtools flagstat $nodupunique > $nodupunique.flagstat

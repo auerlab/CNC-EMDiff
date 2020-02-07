@@ -25,6 +25,9 @@
 #SBATCH --output=1-trim/slurm-%A_%a.out
 #SBATCH --error=1-trim/slurm-%A_%a.err
 
+# Spoof SLURM_ARRAY_TASK_ID if not set for testing outside SLURM env
+: ${SLURM_ARRAY_TASK_ID:=1}
+
 # CentOS pkgsrc
 if [ -e /sharedapps/pkg-2019Q2/bin/cutadapt ]; then
     # sh is bash on CentOS, so this is OK
