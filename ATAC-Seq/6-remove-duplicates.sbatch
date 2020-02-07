@@ -1,8 +1,8 @@
 #!/bin/sh -e
 
-#SBATCH --array=1-18
-# Just guessing
-#SBATCH --mem=1000
+#SBATCH --array=1-18%9
+# Totally lucky guess, confirmed on Peregrine
+#SBATCH --mem=1g
 #SBATCH --output=6-remove-duplicates/slurm-%A_%a.out
 #SBATCH --error=6-remove-duplicates/slurm-%A_%a.err
 
@@ -29,10 +29,14 @@ samtools flagstat $sorted > $sorted.flagstat
 # Can we remove duplicates before aligning?
 # Seems like this might save a lot of time on redundant alignments
 printf 'Removing duplicate reads...\n'
+
+# fixmate requires name-sorted input
 samtools sort -n -o $sorted-namesort.bam $sorted 
 samtools fixmate -m $sorted-namesort.bam $sorted-fixmate.bam
+
+# markdup requires coordinate-sorted input
 samtools sort -o $sorted-fixmate-sort.bam $sorted-fixmate.bam
-samtools markdup -l 100 -r -s $sorted.fixmate.sort $nodup
+samtools markdup -l 100 -r -s $sorted-fixmate-sort.bam $nodup
 
 samtools index $nodup
 samtools idxstats $nodup > $nodup.idxstats
