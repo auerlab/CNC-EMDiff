@@ -1,5 +1,6 @@
 #!/bin/sh -e
 
+# This script is I/O-intensive, so use slow nodes and limit concurrency
 #SBATCH --array=1-18%9
 # Totally lucky guess, confirmed on Peregrine
 #SBATCH --mem=1g
