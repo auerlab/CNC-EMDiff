@@ -4,11 +4,11 @@
 #SBATCH --output=Reference/slurm-%A_%a.out
 #SBATCH --error=Reference/slurm-%A_%a.err
 
-ref_file=$(./ref-file-name)
+cd Reference
+ref_file=$(./ref-file-name.sh)
 if [ ! -e $ref_file ]; then
-    cd Reference
     ./fetch-ref.sh
     ./concat-ref.sh
-    cd ..
+    bwa index $ref_file
 fi
-bwa index $ref_file
+

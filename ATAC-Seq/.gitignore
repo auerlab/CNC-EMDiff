@@ -1,0 +1,8 @@
+.*.bak
+1-trim
+2-qc
+4-bwa-mem
+Reference/*.gz
+Reference/*.fa*
+Reference/CHECKSUMS
+*/slurm-*
