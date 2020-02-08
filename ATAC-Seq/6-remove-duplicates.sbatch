@@ -18,45 +18,54 @@ sorted=${saminput%.sam}-sorted.bam
 nodup=${saminput%.sam}-nodup.bam
 nodupunique=${saminput%.sam}-nodup-uniq.bam
 
-printf 'Convert SAM to BAM, sort and index...\n'
+# Is it necessary to sort by coordinates before sorting by name?
+# printf 'Convert SAM to BAM, sort and index...\n'
 
 # Clean up from prior interrupted sort processes
 rm -f $sorted-*tmp*
 
 # Sort by leftmost coordinate
-samtools sort $saminput -o $sorted
+# samtools sort $saminput -o $sorted
 
-samtools index $sorted
+# samtools index $sorted
 # Are these used?
-samtools idxstats $sorted > $sorted.idxstats
-samtools flagstat $sorted > $sorted.flagstat
+# samtools idxstats $sorted > $sorted.idxstats
+# samtools flagstat $sorted > $sorted.flagstat
 
 # Can we remove duplicates before aligning?
 # Seems like this might save a lot of time on redundant alignments
-printf 'Removing duplicate reads...\n'
 
 # fixmate requires name-sorted input
-samtools sort -n -o $sorted-namesort.bam $sorted 
+# Apparently must be in a file, so we can't pipe sorted input to it?
+# samtools sort -n -o $sorted-namesort.bam $sorted 
+printf 'Sorting by name for fixmate...\n'
+samtools sort -n -m -o $sorted-namesort.bam $saminput
 rm -f $sorted $sorted.*
 
+printf 'Adding mate scores for markdup with fixmate...\n'
 samtools fixmate -m $sorted-namesort.bam $sorted-fixmate.bam
 rm -f $sorted-namesort.bam
 
 # markdup requires coordinate-sorted input
+printf 'Sorting by coordinates for markdup...\n'
 samtools sort -o $sorted-fixmate-sort.bam $sorted-fixmate.bam
+
+printf 'Removing duplicate reads with markdup...\n'
 samtools markdup -l 100 -r -s $sorted-fixmate-sort.bam $nodup
 rm -f $sorted-fixmate-sort.bam
 
-samtools index $nodup
+printf 'Generating index and stats...\n'
 # Are these used?
+samtools index $nodup
 samtools idxstats $nodup > $nodup.idxstats
 samtools flagstat $nodup > $nodup.flagstat
 
-printf 'Removing multiple mapped reads...\n'
+printf 'Removing reads with MAPQ < 1...\n'
 # Default quality min (-q) is 0
 samtools view -bq 1 $nodup > $nodupunique
 rm -f $nodup $nodup.*
 
+printf 'Generating index and stats...\n'
 samtools index $nodupunique
 samtools idxstats $nodupunique > $nodupunique.idxstats
 samtools flagstat $nodupunique > $nodupunique.flagstat
