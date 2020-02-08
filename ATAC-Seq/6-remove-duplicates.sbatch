@@ -12,18 +12,22 @@
 
 cd 6-remove-duplicates
 
-# FIXME: Remove .save after benchmarking BWA
 # Variable assignments don't expand globbing patterns, so insert an ls command
-saminput=$(ls ../4-bwa-mem.save/*_S${SLURM_ARRAY_TASK_ID}_L001.sam)
+saminput=$(ls ../4-bwa-mem/*_S${SLURM_ARRAY_TASK_ID}_L001.sam)
 sorted=${saminput%.sam}-sorted.bam
 nodup=${saminput%.sam}-nodup.bam
 nodupunique=${saminput%.sam}-nodup-uniq.bam
 
 printf 'Convert SAM to BAM, sort and index...\n'
+
+# Clean up from prior interrupted sort processes
+rm -f $sorted-*tmp*
+
 # Sort by leftmost coordinate
 samtools sort $saminput -o $sorted
 
 samtools index $sorted
+# Are these used?
 samtools idxstats $sorted > $sorted.idxstats
 samtools flagstat $sorted > $sorted.flagstat
 
@@ -33,19 +37,25 @@ printf 'Removing duplicate reads...\n'
 
 # fixmate requires name-sorted input
 samtools sort -n -o $sorted-namesort.bam $sorted 
+rm -f $sorted $sorted.*
+
 samtools fixmate -m $sorted-namesort.bam $sorted-fixmate.bam
+rm -f $sorted-namesort.bam
 
 # markdup requires coordinate-sorted input
 samtools sort -o $sorted-fixmate-sort.bam $sorted-fixmate.bam
 samtools markdup -l 100 -r -s $sorted-fixmate-sort.bam $nodup
+rm -f $sorted-fixmate-sort.bam
 
 samtools index $nodup
+# Are these used?
 samtools idxstats $nodup > $nodup.idxstats
 samtools flagstat $nodup > $nodup.flagstat
 
 printf 'Removing multiple mapped reads...\n'
 # Default quality min (-q) is 0
 samtools view -bq 1 $nodup > $nodupunique
+rm -f $nodup $nodup.*
 
 samtools index $nodupunique
 samtools idxstats $nodupunique > $nodupunique.idxstats
