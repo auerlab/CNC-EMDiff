@@ -10,6 +10,6 @@
 
 echo Peak calling, merging replicates across all time points, calling peaklets...
 # Does order of the filenames matter?
-macs2 callpeak --nomodel -t 4-bwa-mem/*_L001-nodup-uniq.bam \
+srun macs2 callpeak --nomodel -t 4-bwa-mem/*_L001-nodup-uniq.bam \
     -f BAMPE -g 1.37e+09 --call-summits -n ATAC.nodup.unique.macs.peaklets \
     --keep-dup all --outdir 7-macs-peaklets
