@@ -49,6 +49,7 @@ rm -f $sorted-namesort.bam
 # markdup requires coordinate-sorted input
 printf 'Sorting by coordinates for markdup...\n'
 samtools sort -o $sorted-fixmate-sort.bam $sorted-fixmate.bam
+rm -f $sorted-fixmate.bam
 
 printf 'Removing duplicate reads with markdup...\n'
 samtools markdup -l 100 -r -s $sorted-fixmate-sort.bam $nodup

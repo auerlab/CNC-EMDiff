@@ -3,6 +3,7 @@
 2-qc
 4-bwa-mem
 5-qc-sam
+7-macs-peaklets
 Reference/*.gz
 Reference/*.fa*
 Reference/CHECKSUMS
