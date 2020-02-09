@@ -4,7 +4,7 @@
 ## Then we can quantify peaks using featureCounts
 
 # Check this, just copied from Andrea's
-#SBATCH --mem=6g
+#SBATCH --mem=11g
 #SBATCH --output=7-macs-peaklets/slurm-%A_%a.out
 #SBATCH --error=7-macs-peaklets/slurm-%A_%a.err
 
