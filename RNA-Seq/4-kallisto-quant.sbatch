@@ -5,7 +5,7 @@
 #SBATCH --output=4-kallisto-quant/slurm-%A_%a.out
 #SBATCH --error=4-kallisto-quant/slurm-%A_%a.err
 #SBATCH --exclude=compute-[001-008,012]
-##SBATCH --partition=256g
+#SBATCH --partition=batch,256g
 
 # CentOS pkgsrc
 if [ -e /sharedapps/pkg-2019Q2/bin/kallisto ]; then
@@ -15,8 +15,10 @@ if [ -e /sharedapps/pkg-2019Q2/bin/kallisto ]; then
 fi
 
 # Run kallisto with 500 bootstraps for Sleuth
+# Use srun to trigger task affinity
 mkdir -p 4-kallisto-quant/$SLURM_ARRAY_TASK_ID
-kallisto quant \
+srun kallisto quant \
+    --pseudobam \
     -i 3-kallisto-index/all-but-xy.index \
     -o 4-kallisto-quant/$SLURM_ARRAY_TASK_ID \
     -b 500 \
