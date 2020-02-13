@@ -1,3 +1,3 @@
 #!/bin/sh -e
 
-mkdir -p 1-trim 2-qc 4-bwa-mem 5-qc-sam 6-remove-duplicates 7-macs-peaklets
+mkdir -p 1-trim 2-qc 4-bwa-mem 5-qc-sam 6-remove-duplicates 7-macs-peaklets 8-merge-bams

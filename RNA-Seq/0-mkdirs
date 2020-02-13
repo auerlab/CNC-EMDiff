@@ -1,3 +1,3 @@
 #!/bin/sh -e
 
-mkdir -p 1-trim 2-qc 3-kallisto-index 4-kallisto-quant
+mkdir -p 1-trim 2-qc 3-kallisto-index 4-kallisto-quant 5-sort-bams 6-merge-bams
