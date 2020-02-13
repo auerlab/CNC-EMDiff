@@ -1,0 +1,18 @@
+#!/bin/sh -e
+
+if hostname | fgrep peregrine; then
+    printf "Duh.\n"
+    exit 1
+fi
+
+# Sync output files, which are not (and should not be) added to the repo
+rna_dirs="1-trim 2-qc 3-kallisto-index 4-kallisto-quant 5-sort-bams 6-merge-bams"
+atac_dirs="1-trim 2-qc 4-bwa-mem 5-qc-sam 6-remove-duplicates 7-macs-peaklets"
+
+for file in $rna_dirs; do
+    rsync -av "$@" peregrine.hpc.uwm.edu:Data/CNC-EMDiff/RNA-Seq/$file RNA-Seq
+done
+
+for file in $atac_dirs; do
+    rsync -av "$@" peregrine.hpc.uwm.edu:Data/CNC-EMDiff/ATAC-Seq/$file ATAC-Seq
+done
