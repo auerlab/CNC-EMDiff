@@ -20,7 +20,7 @@
 #SBATCH --output=2-qc/slurm-%A_%a.out
 #SBATCH --error=2-qc/slurm-%A_%a.err
 
-# CentOS pkgsrc
+# Mortimer pkgsrc
 if [ -e /sharedapps/pkg-2019Q2/bin/fastqc ]; then
     # sh is bash on CentOS, so this is OK
     source /etc/bashrc

@@ -32,4 +32,7 @@ else
 fi
 
 # Kallisto quantification.  Requires trimming and indexing to be completed.
-sbatch $quant_dependency 4-kallisto-quant.sbatch
+quant_job_id=$(sbatch $quant_dependency 4-kallisto-quant.sbatch \
+    | awk '{ print $4 }')
+
+sbatch --dependency=afterok:$quant_job_id 5-merge-bams.sbatch

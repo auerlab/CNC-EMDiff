@@ -7,3 +7,6 @@
 3-kallisto-index-*
 4-kallisto-quant
 4-kallisto-quant-*
+5-merge-bams
+Reference/Mus_musculus*
+Reference/all-but-xy*
