@@ -3,7 +3,9 @@
 2-qc
 4-bwa-mem
 5-qc-sam
+6-remove-duplicates
 7-macs-peaklets
+8-merge-bams
 Reference/*.gz
 Reference/*.fa*
 Reference/CHECKSUMS
