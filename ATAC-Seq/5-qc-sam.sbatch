@@ -1,7 +1,7 @@
 #!/bin/sh -e
 
 #SBATCH --array=1-18
-# FIXME: Check this
+# FIXME: Check memory use
 #SBATCH --mem=1g
 #SBATCH --output=5-qc-sam/slurm-%A_%a.out
 #SBATCH --error=5-qc-sam/slurm-%A_%a.err
