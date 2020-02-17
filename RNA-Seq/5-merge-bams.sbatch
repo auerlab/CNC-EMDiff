@@ -23,17 +23,18 @@
 
 # Verify memory use
 #SBATCH --array=1-3,10-12 --mem=1g
-#SBATCH --output=6-merge-bams/slurm-%A_%a.out
-#SBATCH --error=6-merge-bams/slurm-%A_%a.err
+#SBATCH --output=5-merge-bams/slurm-%A_%a.out
+#SBATCH --error=5-merge-bams/slurm-%A_%a.err
 
-bam1=5-sort-bams/pseudoalignments-sorted-$SLURM_ARRAY_TASK_ID.bam
-bam2=5-sort-bams/pseudoalignments-sorted-$((SLURM_ARRAY_TASK_ID + 3)).bam
-bam3=5-sort-bams/pseudoalignments-sorted-$((SLURM_ARRAY_TASK_ID + 6)).bam
+bam1=4-kallisto-quant/$SLURM_ARRAY_TASK_ID/pseudoalignments.bam
+bam2=4-kallisto-quant/$((SLURM_ARRAY_TASK_ID + 3))/pseudoalignments.bam
+bam3=4-kallisto-quant/$((SLURM_ARRAY_TASK_ID + 6))/pseudoalignments.bam
 
 if [ $SLURM_ARRAY_TASK_ID -le 3 ]; then
-    output_bam=6-merge-bams/chondrocyte-$SLURM_ARRAY_TASK_ID.bam
+    output_bam=5-merge-bams/chondrocyte-$SLURM_ARRAY_TASK_ID.bam
 else
-    output_bam=6-merge-bams/neural-$((SLURM_ARRAY_TASK_ID - 9)).bam
+    output_bam=5-merge-bams/neural-$((SLURM_ARRAY_TASK_ID - 9)).bam
 fi
+
 samtools merge $output_bam $bam1 $bam2 $bam3
 samtools index $output_bam

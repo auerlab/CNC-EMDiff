@@ -22,12 +22,13 @@ cd Reference
 # ../Reference/mus_musculus.tar.gz to 3-kallisto-index/all-but-xy.index
 # and skip running this sbatch script.
 
-# ./cdna.sh           # Remove XY from Ensembl cdna transcriptome
-./gtf2fasta.sh      # Construct genome-XY and use Ensembl GTF
+./cdna.sh           # Remove XY from Ensembl cdna transcriptome
+# ./gtf2fasta.sh      # Construct genome-XY and use Ensembl GTF
 
 reference=$(./reference-filename.sh)
+samtools faidx $reference   # Needed for kiallisto --genombam?
 
 cd $save_cwd
 kallisto index \
     --index=3-kallisto-index/all-but-xy.index \
-    ../Reference/$reference
+    Reference/$reference
