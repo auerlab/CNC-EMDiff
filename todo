@@ -1,0 +1,6 @@
+
+Filter on last col of bed file: -log10 p value?
+Filter # peaks
+bedtools
+    take 250 bp each side of summit
+    merge overlapping peaklets
