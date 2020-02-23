@@ -20,7 +20,7 @@
 
 # Each job in the array should get 2 cores on the same node to accomodate
 # the cutadapt process and companion pigz/gzip process
-#SBATCH --array=1-18 --ntasks=2 --nodes=1
+#SBATCH --array=1-18 --cpus-per-task=2
 #SBATCH --mem-per-cpu=100
 #SBATCH --output=1-trim/slurm-%A_%a.out
 #SBATCH --error=1-trim/slurm-%A_%a.err

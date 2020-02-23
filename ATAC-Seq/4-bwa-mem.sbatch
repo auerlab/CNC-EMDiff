@@ -2,7 +2,7 @@
 
 # Not yet sure how many threads are useful
 # Maybe use --exclusive and all available cores?
-#SBATCH --array=1-18 --nodes=1 --cpus-per-task=8
+#SBATCH --array=1-18 --cpus-per-task=4
 # Andrea's script used 64000.  Just to force newer Mortimer nodes?
 ##SBATCH --mem=30000
 # Based on 12 threads on peregrine
