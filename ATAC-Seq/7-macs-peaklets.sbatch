@@ -3,17 +3,33 @@
 ## Make peaks from PE ATAC-seq aligned (BWA) reads using MACS2
 ## Then we can quantify peaks using featureCounts
 
-# Check this, just copied from Andrea's
-#SBATCH --mem=11g
+# Mem requirement observed on Peregrine
+#SBATCH --array=1-2
+#SBATCH --mem=4g
 #SBATCH --output=7-macs-peaklets/slurm-%A_%a.out
 #SBATCH --error=7-macs-peaklets/slurm-%A_%a.err
+
+case $SLURM_ARRAY_TASK_ID in
+1)
+    cell_type=CCA
+    ;;
+
+2)
+    cell_type=NCA
+    ;;
+
+*)
+    printf "Error: SLURM_ARRAY_TASK_ID must be 1 or 2.\n"
+    exit 1
+
+esac
 
 echo Peak calling, merging replicates across all time points, calling peaklets...
 # "mm" is the compiled-in Mus Musculus genome size.  See MACS2 docs.
 # BAMPE = BAM Paired End
 # Does order of the filenames matter?
-macs2 callpeak --nomodel -t 4-bwa-mem/*_L001-nodup-uniq.bam \
-    -f BAMPE -g mm --call-summits -n ATAC.nodup.unique.macs.peaklets \
+macs2 callpeak --nomodel -t 4-bwa-mem/$cell_type*_L001-nodup-uniq.bam \
+    -f BAMPE -g mm --call-summits -n ATAC-$cell_type-macs.peaklets \
     --keep-dup all --outdir 7-macs-peaklets
 
 ##########################################################################
@@ -25,8 +41,8 @@ macs2 callpeak --nomodel -t 4-bwa-mem/*_L001-nodup-uniq.bam \
 # explains nicely why you should use bedtools rather than just awk this.
 # 
 #awk '{ printf("%s\t%s\t%s\t%s\t%s\n", $1, $2-250, $2+250, $4, $5) }' \
-#    ATAC.nodup.unique.macs.peaklets_summits.bed \
-#    > ATAC.nodup.unique.macs.peaklets-500.bed
+#    ATAC-$cell_type-macs.peaklets_summits.bed \
+#    > ATAC-$cell_type-macs.peaklets-500.bed
 
 cd 7-macs-peaklets
 
@@ -34,36 +50,38 @@ cd 7-macs-peaklets
 #   Filter for high-confidence peaks: p-value < 1e-10
 ##########################################################################
 
-awk '$8 >= 10 { print $0 }' ATAC.nodup.unique.macs.peaklets_peaks.narrowPeak \
-    > high-confidence-narrow.bed
+awk '$8 >= 10 { print $0 }' ATAC-$cell_type-macs.peaklets_peaks.narrowPeak \
+    > high-confidence-$cell_type-narrow.bed
 awk -f ../filter.awk \
-    -v file_to_filter=ATAC.nodup.unique.macs.peaklets_summits.bed \
-    high-confidence-narrow.bed > high-confidence-summits.bed
+    -v file_to_filter=ATAC-$cell_type-macs.peaklets_summits.bed \
+    high-confidence-$cell_type-narrow.bed \
+    > high-confidence-$cell_type-summits.bed
 
 ##########################################################################
 #   Create intervals from summit +/-250 nt
 ##########################################################################
 
 # https://bedtools.readthedocs.io/en/latest/content/tools/slop.html
-bedtools slop -b 250 -i high-confidence-summits.bed \
+bedtools slop -b 250 -i high-confidence-$cell_type-summits.bed \
     -g ../../RNA-Seq/Reference/chromosome-sizes.tsv \
-    > high-confidence-500.bed
-head -4 high-confidence-summits.bed high-confidence-500.bed
+    > high-confidence-$cell_type-500.bed
+head -4 high-confidence-$cell_type-summits.bed \
+	high-confidence-$cell_type-500.bed
 
 ##########################################################################
 #   Merge overlapping peaklets
 ##########################################################################
 
 # https://bedtools.readthedocs.io/en/latest/content/tools/merge.html
-bedtools merge -i high-confidence-500.bed > high-confidence-500-merged.bed
-head -4 high-confidence-500-merged.bed
+bedtools merge -i high-confidence-$cell_type-500.bed \
+    > high-confidence-$cell_type-500-merged.bed
+head -4 high-confidence-$cell_type-500-merged.bed
 
 printf "\nWord counts:\n"
-wc ATAC.nodup.unique.macs.peaklets_summits.bed high-confidence-summits.bed \
-    high-confidence-500-merged.bed
+wc ATAC-$cell_type-macs.peaklets_summits.bed \
+    high-confidence-$cell_type-summits.bed \
+    high-confidence-$cell_type-500-merged.bed
 
-read -p "Remove intermediate files? [y]/n " cleanup
-if [ 0$cleanup != 0n ]; then
-    rm -f high-confidence-narrow.bed high-confidence-summits.bed \
-	high-confidence-500.bed
-fi
+rm -f high-confidence-$cell_type-narrow.bed \
+    high-confidence-$cell_type-summits.bed \
+    high-confidence-$cell_type-500.bed

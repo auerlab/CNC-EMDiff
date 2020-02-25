@@ -1,7 +1,5 @@
 
-Filter on last col of bed file: -log10 p value?
 Filter # peaks
-bedtools
-    take 250 bp each side of summit
-    filter out p-value < 1e-10 (col 8 of narrowPeak file)
-    merge overlapping peaklets
+Renumber scripts and output dirs in chronological order
+    1 = first
+    2a, 2b = second, can run at the same time
