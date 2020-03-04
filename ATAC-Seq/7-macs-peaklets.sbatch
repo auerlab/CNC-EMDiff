@@ -42,7 +42,7 @@ macs2 callpeak --nomodel -t 4-bwa-mem/$cell_type*_L001-nodup-uniq.bam \
 # 
 #awk '{ printf("%s\t%s\t%s\t%s\t%s\n", $1, $2-250, $2+250, $4, $5) }' \
 #    ATAC-$cell_type-macs.peaklets_summits.bed \
-#    > ATAC-$cell_type-macs.peaklets-500.bed
+#    > ATAC-$cell_type-macs.peaklets-501.bed
 
 cd 7-macs-peaklets
 
@@ -64,24 +64,24 @@ awk -f ../filter.awk \
 # https://bedtools.readthedocs.io/en/latest/content/tools/slop.html
 bedtools slop -b 250 -i high-confidence-$cell_type-summits.bed \
     -g ../../RNA-Seq/Reference/chromosome-sizes.tsv \
-    > high-confidence-$cell_type-500.bed
+    > high-confidence-$cell_type-501.bed
 head -4 high-confidence-$cell_type-summits.bed \
-	high-confidence-$cell_type-500.bed
+	high-confidence-$cell_type-501.bed
 
 ##########################################################################
 #   Merge overlapping peaklets
 ##########################################################################
 
 # https://bedtools.readthedocs.io/en/latest/content/tools/merge.html
-bedtools merge -i high-confidence-$cell_type-500.bed \
-    > high-confidence-$cell_type-500-merged.bed
-head -4 high-confidence-$cell_type-500-merged.bed
+bedtools merge -i high-confidence-$cell_type-501.bed \
+    > high-confidence-$cell_type-501-merged.bed
+head -4 high-confidence-$cell_type-501-merged.bed
 
 printf "\nWord counts:\n"
 wc ATAC-$cell_type-macs.peaklets_summits.bed \
     high-confidence-$cell_type-summits.bed \
-    high-confidence-$cell_type-500-merged.bed
+    high-confidence-$cell_type-501-merged.bed
 
 rm -f high-confidence-$cell_type-narrow.bed \
     high-confidence-$cell_type-summits.bed \
-    high-confidence-$cell_type-500.bed
+    high-confidence-$cell_type-501.bed
