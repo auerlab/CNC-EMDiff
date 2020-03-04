@@ -37,21 +37,19 @@ macs2 callpeak --nomodel -t 4-bwa-mem/$cell_type*_L001-nodup-uniq.bam \
 #   generate peaklets around summits, and merge overlapping peaklets.
 ##########################################################################
 
-# https://bedtools.readthedocs.io/en/latest/content/tools/slop.html
-# explains nicely why you should use bedtools rather than just awk this.
-# 
-#awk '{ printf("%s\t%s\t%s\t%s\t%s\n", $1, $2-250, $2+250, $4, $5) }' \
-#    ATAC-$cell_type-macs.peaklets_summits.bed \
-#    > ATAC-$cell_type-macs.peaklets-501.bed
-
 cd 7-macs-peaklets
 
 ##########################################################################
 #   Filter for high-confidence peaks: p-value < 1e-10
 ##########################################################################
 
+# https://github.com/taoliu/MACS
+# Col 8 or narrow peaks file is -log_10 p-value.
+# We want p-values <= 10^-10, so col 8 >= 10
 awk '$8 >= 10 { print $0 }' ATAC-$cell_type-macs.peaklets_peaks.narrowPeak \
     > high-confidence-$cell_type-narrow.bed
+
+# Remove same lines from summits file that were filtered out of narrowPeak
 awk -f ../filter.awk \
     -v file_to_filter=ATAC-$cell_type-macs.peaklets_summits.bed \
     high-confidence-$cell_type-narrow.bed \
@@ -62,9 +60,16 @@ awk -f ../filter.awk \
 ##########################################################################
 
 # https://bedtools.readthedocs.io/en/latest/content/tools/slop.html
+# explains nicely why you should use bedtools rather than just awk this.
+# 
+#awk '{ printf("%s\t%s\t%s\t%s\t%s\n", $1, $2-250, $2+250, $4, $5) }' \
+#    ATAC-$cell_type-macs.peaklets_summits.bed \
+#    > ATAC-$cell_type-macs.peaklets-501.bed
+
 bedtools slop -b 250 -i high-confidence-$cell_type-summits.bed \
     -g ../../RNA-Seq/Reference/chromosome-sizes.tsv \
     > high-confidence-$cell_type-501.bed
+
 head -4 high-confidence-$cell_type-summits.bed \
 	high-confidence-$cell_type-501.bed
 
