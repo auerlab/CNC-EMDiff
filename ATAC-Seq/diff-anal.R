@@ -65,7 +65,7 @@ library(GenomicRanges)
 #macsBed <- read.delim(paste0("PEAKS_TRANS_PEAKLETS_ALLTIMES/", 
 #                             "ATAC.nodup.unique.macs.peaklets_peaks.narrowPeak"), 
 #                      header=FALSE)
-macsBed <- read.delim(paste0("./", "temp.peaks"), header=FALSE)
+macsBed <- read.delim("ATAC-CCA-macs.peaklets_peaks.narrowPeak"), header=FALSE)
 ## Sort by p-value ($V8), only keep those with p-value < 10^-10 [44429]
 # keep - index vector
 # Done using awk
@@ -83,16 +83,16 @@ print(macs_all)
 # debug: How many rows were filtered out?
 cat(nrow(macsBed), "...", nrow(macs_all), "\n")
 
-## And write out merged : AR modified to use 500 bp regions
+## And write out merged : AR modified to use 501 bp regions
 # like bedtools - make peaklet around summit
 # col 2 = start, col 10 = distance from start to peak
 macs_all_GR <- GRanges(seqnames=as.vector(macs_all[,1]),
 		       IRanges(start=as.numeric(as.vector(macs_all[,2])) + 
 				 as.numeric(as.vector(macs_all[,10])) - 250,
 			       end=as.numeric(as.vector(macs_all[,2])) + 
-				 as.numeric(as.vector(macs_all[,10])) + 249),
+				 as.numeric(as.vector(macs_all[,10])) + 250),
 		       strand=rep("*", nrow(macs_all)))
-print('max_all_GR: 500 nt generated peaks')
+print('max_all_GR: 501 nt generated peaks')
 print(macs_all_GR)
 
 # add metadata to table
@@ -131,8 +131,8 @@ macsGR_bed[index, "end"] <- 3763; macsGR_bed[index, "starts"] <- macsGR_bed[inde
 index <- which(macsGR_bed$chr == "KN150391.1" & macsGR_bed$end == 26616)
 macsGR_bed[index, "end"] <- 26543; macsGR_bed[index, "starts"] <- macsGR_bed[index, "end"] - 499
 #write.table(macsGR_bed, paste0("PEAKS_TRANS_PEAKLETS_ALLTIMES/",
-# "ALLMERGED_ATAC.nodup.unique.macs.peaklets_peaks.pvalsort.narrowPeak_500bp.bed")
-write.table(macsGR_bed, "merged-peaks.bed",
+# "ALLMERGED_ATAC.nodup.unique.macs.peaklets_peaks.pvalsort.narrowPeak_501bp.bed")
+write.table(macsGR_bed, "CCA-merged-peaks.bed",
 	    col.names=FALSE, row.names=FALSE, quote=FALSE, sep="\t")
 
 print('macsGR_bed: Merged peaks')
@@ -182,8 +182,8 @@ print(bamReads)
 # Peaks <- paste0("PEAKS_TRANS_PEAKLETS_ALLTIMES/", Condition, 
 #                 "ATAC.nodup.unique.macs_peaks.pvalsort.narrowPeak.bed")
 # Peaks <- paste0("PEAKS_TRANS_PEAKLETS_ALLTIMES/",
-#                 "ALLMERGED_ATAC.nodup.unique.macs.peaklets_peaks.pvalsort.narrowPeak_500bp.bed")
-Peaks <- paste0("merged-peaks.bed")
+#                 "ALLMERGED_ATAC.nodup.unique.macs.peaklets_peaks.pvalsort.narrowPeak_501bp.bed")
+Peaks <- "merged-peaks.bed"
 print('Peaks')
 print(Peaks)
 
@@ -210,20 +210,32 @@ dev.off()   # close() pdf
 print('Running dba.count(peaksets_pvalsort)')
 readcounts_pvalsort <- dba.count(peaksets_pvalsort)
 print(readcounts_pvalsort)
+# Save this one object from the session
+# load("readcounts_pvalsort.RData") to view
+save(list="readcounts_pvalsort", file="readcounts_pvalsort.RData")
+save(list=c("samples", "readcounts_pvalsort"), file="sampledata.RData")
+write.table(readcounts_pvalsort, file="readcounts_pvalsort.table",
+	    quote=FALSE, sep="\t")
 
 # debug
 pdf("readcounts_pvalsort_overall-clustering.pdf")
 plot(readcounts_pvalsort)
 dev.off()
-stop()
 
 ## Differential analysis (DESeq2) comparing all time points to 0
+# colData <- samples is sufficient here
 colData <- data.frame(samples)  
+
+# Extract data we really need
 # [[]] means list
 rowData_pvalsort <- readcounts_pvalsort$peaks[[1]][,1:3]
+
 # Get read counts for all peaks
+# Organize as a table with each sample as a column
 counts_pvalsort <- lapply(readcounts_pvalsort$peaks, function(x) x$Reads) %>%
   do.call("cbind", .)
+
+# Recode X variable as a numeric indicator variable
 # factor level variable instead of character for regression
 colData$time_factor <- factor(colData$Condition)
 
@@ -235,7 +247,9 @@ dds_pvalsort <- DESeqDataSetFromMatrix(countData = counts_pvalsort,
 
 # Run differential analysis
 dds_pvalsort <- DESeq(dds_pvalsort)
+stop()
 
+# Generate data for Excel file
 ## 184 total are differential (down from 208 in previous analysis)
 res_pvalsort_2vs0 <- results(dds_pvalsort, contrast = c("time_factor", 2, 0))
 res_pvalsort_4vs0 <- results(dds_pvalsort, contrast = c("time_factor", 4, 0))
@@ -291,15 +305,15 @@ for(i in c(2,4,12)) {
   allpeaks_pvalsort$new_seqnames <- paste0(allpeaks_pvalsort$seqnames,
 					   ":", allpeaks_pvalsort$start,
 					   "-", allpeaks_pvalsort$end)
-  saveRDS(sigpeaks_pvalsort_order, paste0("DIFFERENTIAL_vs0/sigpeaks_pvalsort_order_", i, "vs0_peaklets_500bp.rds"))
-  saveRDS(allpeaks_pvalsort, paste0("DIFFERENTIAL_vs0/allpeaks_pvalsort_", i, "vs0_peaklets_500bp.rds"))
-    saveRDS(res_pvalsort, paste0("DIFFERENTIAL_vs0/res_pvalsort_", i, "vs0_peaklets_500bp.rds"))
-  write.csv(sigpeaks_pvalsort_order, paste0("DIFFERENTIAL_vs0/res_pvalsort_", i, "vs0_peaklets_500bp.csv"))
+  saveRDS(sigpeaks_pvalsort_order, paste0("DIFFERENTIAL_vs0/sigpeaks_pvalsort_order_", i, "vs0_peaklets_501bp.rds"))
+  saveRDS(allpeaks_pvalsort, paste0("DIFFERENTIAL_vs0/allpeaks_pvalsort_", i, "vs0_peaklets_501bp.rds"))
+    saveRDS(res_pvalsort, paste0("DIFFERENTIAL_vs0/res_pvalsort_", i, "vs0_peaklets_501bp.rds"))
+  write.csv(sigpeaks_pvalsort_order, paste0("DIFFERENTIAL_vs0/res_pvalsort_", i, "vs0_peaklets_501bp.csv"))
 }
 
 
-saveRDS(dds_pvalsort, "DIFFERENTIAL_vs0/dds_pvalsort_peaklets_500bp.rds")
-save.image("DIFFERENTIAL_vs0/differential-analysis_diffBind_pvalsort_trans_peaklets_500bp.RData")
+saveRDS(dds_pvalsort, "DIFFERENTIAL_vs0/dds_pvalsort_peaklets_501bp.rds")
+save.image("DIFFERENTIAL_vs0/differential-analysis_diffBind_pvalsort_trans_peaklets_501bp.RData")
 
 # peaks opening or closing from time 0
 ## Count number of overall differential / nondifferential
@@ -336,17 +350,17 @@ tmp_all <- data.frame(chr=character(), start=numeric(), end=numeric(),
 		      stringsAsFactors = FALSE)
 for(i in c(2,4,12)) {
   tmp <- readRDS(paste0("DIFFERENTIAL_vs0/sigpeaks_pvalsort_order_", i, 
-			"vs0_peaklets_500bp.rds"))
+			"vs0_peaklets_501bp.rds"))
   tmp_bed <- tmp %>%
     select(chr=seqnames, start, end)
   write.table(tmp_bed, file = paste0("DIFFERENTIAL_vs0/sigpeaks_", i, 
-				     "vs0_peaklets_500bp.bed"),
+				     "vs0_peaklets_501bp.bed"),
 	      row.names=FALSE, col.names=FALSE, quote=FALSE)
   tmp_all <- bind_rows(tmp_all, tmp_bed)
 }
 
 tmp_all <- unique(tmp_all)
-write.table(tmp_all, file = paste0("DIFFERENTIAL_vs0/sigpeaks_all_peaklets_500bp.bed"),
+write.table(tmp_all, file = paste0("DIFFERENTIAL_vs0/sigpeaks_all_peaklets_501bp.bed"),
 	    row.names=FALSE, col.names=FALSE, quote=FALSE)
 
 
@@ -356,7 +370,7 @@ write.table(tmp_all, file = paste0("DIFFERENTIAL_vs0/sigpeaks_all_peaklets_500bp
 
 for(i in c(2,12)) {
       tmp <- readRDS(paste0("DIFFERENTIAL_vs0/sigpeaks_pvalsort_order_", i, 
-			"vs0_peaklets_500bp.rds"))
+			"vs0_peaklets_501bp.rds"))
   for(type in c("up", "down")) {
     tmp_bed <- tmp %>%
       mutate(sign = ifelse(log2FoldChange > 0, "up", "down")) %>%
@@ -364,7 +378,7 @@ for(i in c(2,12)) {
       select(chr=seqnames, start, end)
     print(dim(tmp_bed))
     write.table(tmp_bed, file = paste0("DIFFERENTIAL_vs0/sigpeaks_", i, 
-				       "vs0_peaklets_500bp_", type, ".bed"),
+				       "vs0_peaklets_501bp_", type, ".bed"),
 		row.names=FALSE, col.names=FALSE, quote=FALSE, sep="\t")
   }
 
@@ -372,10 +386,10 @@ for(i in c(2,12)) {
 
 
 tmp_2 <- readRDS(paste0("DIFFERENTIAL_vs0/sigpeaks_pvalsort_order_", 2, 
-			"vs0_peaklets_500bp.rds")) %>%
+			"vs0_peaklets_501bp.rds")) %>%
   select(new_seqnames) %>% unlist()
 tmp_12 <- readRDS(paste0("DIFFERENTIAL_vs0/sigpeaks_pvalsort_order_", 12, 
-			"vs0_peaklets_500bp.rds")) %>%
+			"vs0_peaklets_501bp.rds")) %>%
   select(new_seqnames) %>% unlist()
 tmp <- c(tmp_2, tmp_12)
 tmp[duplicated(tmp)]
