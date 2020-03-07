@@ -65,7 +65,7 @@ library(GenomicRanges)
 #macsBed <- read.delim(paste0("PEAKS_TRANS_PEAKLETS_ALLTIMES/", 
 #                             "ATAC.nodup.unique.macs.peaklets_peaks.narrowPeak"), 
 #                      header=FALSE)
-macsBed <- read.delim("ATAC-CCA-macs.peaklets_peaks.narrowPeak"), header=FALSE)
+macsBed <- read.delim("7-macs-peaklets/ATAC-CCA-macs.peaklets_peaks.narrowPeak", header=FALSE)
 ## Sort by p-value ($V8), only keep those with p-value < 10^-10 [44429]
 # keep - index vector
 # Done using awk
@@ -77,8 +77,8 @@ print(keep)
 
 # new table, keep rows in "keep"
 macs_all <- macsBed[keep,]
-print('macs_all (peaks with p < 10^-10)')
-print(macs_all)
+# print('macs_all (peaks with p < 10^-10)')
+# print(macs_all)
 
 # debug: How many rows were filtered out?
 cat(nrow(macsBed), "...", nrow(macs_all), "\n")
@@ -145,8 +145,10 @@ print(macsGR_bed)
 # https://github.com/andreamrau/OpticRegen_2019/blob/master/1_preprocessing/ATACseq/7_remove_MTduplicates.sh
 # Example OpticRegen filename: ALIGNED_TRANS/12ATAC-3.bam
 # Condition = 12, replicate = 3
+# Example CNC-EMDiff filename: CCA1A_S1_L001-nodup-uniq.bam
+# "1A": 1 = condition, A = time point
 # SampleID <- strsplit(dir("ALIGNED_TRANS/"), split=".", fixed=TRUE) %>%
-SampleID <- strsplit(dir("4-bwa-mem/", pattern=".*.bam"), split=".", fixed=TRUE) %>%
+SampleID <- strsplit(dir("4-bwa-mem/", pattern="CCA.*.bam"), split=".", fixed=TRUE) %>%
   lapply(., function(x) x[1]) %>%
   unlist() %>%
   unique()
@@ -156,14 +158,14 @@ print('SampleID')
 print(SampleID)
 
 # Condition <- strsplit(SampleID, split="ATAC", fixed=TRUE) %>%
-Condition <- substr(SampleID, 1, 4) %>% unlist()
+Condition <- substr(SampleID, 5, 5) %>% unlist()
 # 12
 
 print('Condition')
 print(Condition)
 
 # Replicate <- strsplit(SampleID, split="-", fixed=TRUE) %>%
-Replicate <- substr(SampleID, 5, 5)%>% unlist()
+Replicate <- substr(SampleID, 4, 4)%>% unlist()
 # %>% as.numeric()
 # 3
 
@@ -174,7 +176,7 @@ print(Replicate)
 # bamReads <- paste0("ALIGNED_TRANS/",
 #                dir("ALIGNED_TRANS/")[-grep("bam.", dir("ALIGNED_TRANS/"))])
 bamReads <- paste0("4-bwa-mem/",
-		 dir("4-bwa-mem/", pattern=".*.bam$"))
+		 dir("4-bwa-mem/", pattern="CCA.*.bam$"))
 
 print('bamReads')
 print(bamReads)
@@ -183,7 +185,7 @@ print(bamReads)
 #                 "ATAC.nodup.unique.macs_peaks.pvalsort.narrowPeak.bed")
 # Peaks <- paste0("PEAKS_TRANS_PEAKLETS_ALLTIMES/",
 #                 "ALLMERGED_ATAC.nodup.unique.macs.peaklets_peaks.pvalsort.narrowPeak_501bp.bed")
-Peaks <- "merged-peaks.bed"
+Peaks <- "CCA-merged-peaks.bed"
 print('Peaks')
 print(Peaks)
 
@@ -210,17 +212,20 @@ dev.off()   # close() pdf
 print('Running dba.count(peaksets_pvalsort)')
 readcounts_pvalsort <- dba.count(peaksets_pvalsort)
 print(readcounts_pvalsort)
-# Save this one object from the session
-# load("readcounts_pvalsort.RData") to view
-save(list="readcounts_pvalsort", file="readcounts_pvalsort.RData")
-save(list=c("samples", "readcounts_pvalsort"), file="sampledata.RData")
-write.table(readcounts_pvalsort, file="readcounts_pvalsort.table",
-	    quote=FALSE, sep="\t")
 
 # debug
 pdf("readcounts_pvalsort_overall-clustering.pdf")
 plot(readcounts_pvalsort)
 dev.off()
+
+# Save this one object from the session
+# load("readcounts_pvalsort.RData") to view
+save(list="readcounts_pvalsort", file="readcounts_pvalsort.RData")
+save(list=c("samples", "readcounts_pvalsort"), file="sampledata.RData")
+
+# Does not work: "Cannot coerc" error
+#write.table(readcounts_pvalsort, file="readcounts_pvalsort.table",
+#            quote=FALSE, sep="\t")
 
 ## Differential analysis (DESeq2) comparing all time points to 0
 # colData <- samples is sufficient here
@@ -249,6 +254,8 @@ dds_pvalsort <- DESeqDataSetFromMatrix(countData = counts_pvalsort,
 dds_pvalsort <- DESeq(dds_pvalsort)
 stop()
 
+# Adjust this for Maria's time points:
+# 
 # Generate data for Excel file
 ## 184 total are differential (down from 208 in previous analysis)
 res_pvalsort_2vs0 <- results(dds_pvalsort, contrast = c("time_factor", 2, 0))
