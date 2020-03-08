@@ -65,6 +65,7 @@ library(GenomicRanges)
 #macsBed <- read.delim(paste0("PEAKS_TRANS_PEAKLETS_ALLTIMES/", 
 #                             "ATAC.nodup.unique.macs.peaklets_peaks.narrowPeak"), 
 #                      header=FALSE)
+
 macsBed <- read.delim("7-macs-peaklets/ATAC-CCA-macs.peaklets_peaks.narrowPeak", header=FALSE)
 ## Sort by p-value ($V8), only keep those with p-value < 10^-10 [44429]
 # keep - index vector
@@ -72,12 +73,12 @@ macsBed <- read.delim("7-macs-peaklets/ATAC-CCA-macs.peaklets_peaks.narrowPeak",
 
 # Why p value and not q value?
 keep <- which(macsBed$V8 > -log(10^-10))
-print('keep (rows where p < 10^-10)')
+print("keep (rows where p < 10^-10)")
 print(keep)
 
 # new table, keep rows in "keep"
 macs_all <- macsBed[keep,]
-# print('macs_all (peaks with p < 10^-10)')
+# print("macs_all (peaks with p < 10^-10)")
 # print(macs_all)
 
 # debug: How many rows were filtered out?
@@ -92,7 +93,7 @@ macs_all_GR <- GRanges(seqnames=as.vector(macs_all[,1]),
 			       end=as.numeric(as.vector(macs_all[,2])) + 
 				 as.numeric(as.vector(macs_all[,10])) + 250),
 		       strand=rep("*", nrow(macs_all)))
-print('max_all_GR: 501 nt generated peaks')
+print("max_all_GR: 501 nt generated peaks")
 print(macs_all_GR)
 
 # add metadata to table
@@ -135,7 +136,7 @@ macsGR_bed[index, "end"] <- 26543; macsGR_bed[index, "starts"] <- macsGR_bed[ind
 write.table(macsGR_bed, "CCA-merged-peaks.bed",
 	    col.names=FALSE, row.names=FALSE, quote=FALSE, sep="\t")
 
-print('macsGR_bed: Merged peaks')
+print("macsGR_bed: Merged peaks")
 print(macsGR_bed)
 
 #------------------------------------------------------------------------------------
@@ -154,14 +155,14 @@ SampleID <- strsplit(dir("4-bwa-mem/", pattern="CCA.*.bam"), split=".", fixed=TR
   unique()
 # 12ATAC-3
 
-print('SampleID')
+print("SampleID")
 print(SampleID)
 
 # Condition <- strsplit(SampleID, split="ATAC", fixed=TRUE) %>%
 Condition <- substr(SampleID, 5, 5) %>% unlist()
 # 12
 
-print('Condition')
+print("Condition")
 print(Condition)
 
 # Replicate <- strsplit(SampleID, split="-", fixed=TRUE) %>%
@@ -169,7 +170,7 @@ Replicate <- substr(SampleID, 4, 4)%>% unlist()
 # %>% as.numeric()
 # 3
 
-print('Replicate')
+print("Replicate")
 print(Replicate)
 
 # Filter out bam.*, presumably leaving only .bam files
@@ -178,7 +179,7 @@ print(Replicate)
 bamReads <- paste0("4-bwa-mem/",
 		 dir("4-bwa-mem/", pattern="CCA.*.bam$"))
 
-print('bamReads')
+print("bamReads")
 print(bamReads)
 
 # Peaks <- paste0("PEAKS_TRANS_PEAKLETS_ALLTIMES/", Condition, 
@@ -186,42 +187,52 @@ print(bamReads)
 # Peaks <- paste0("PEAKS_TRANS_PEAKLETS_ALLTIMES/",
 #                 "ALLMERGED_ATAC.nodup.unique.macs.peaklets_peaks.pvalsort.narrowPeak_501bp.bed")
 Peaks <- "CCA-merged-peaks.bed"
-print('Peaks')
+print("Peaks")
 print(Peaks)
 
 # rep = repeat
 PeakCaller <- rep("narrow", length(SampleID))
-print('PeakCaller')
+print("PeakCaller")
 print(PeakCaller)
 
 # Create new table from existing vectors
 samples <- data.frame(SampleID, Condition, Replicate, bamReads, Peaks, PeakCaller)
-print('samples')
+print("samples")
 print(samples)
+    
+read_counts <- "readcounts_pvalsort.RData"
+if ( file.exists(read_counts) ) {
+    print("Using saved dba.count() results...")
+    print(paste("Remove ", read_counts,
+	" before running this script if anything has changed"))
+    readcounts_pvalsort <- load(read_counts)
+} else {
+    print("Running dba(sampleSheet=samples)")
+    peaksets_pvalsort <- dba(sampleSheet=samples)
+    pdf("peaksets_pvalsort_overall-clustering.pdf")
+    # Debug?
+    plot(peaksets_pvalsort)
+    dev.off()   # close() pdf
+    
+    ## Count overlapping reads (did not recenter around peaks)
+    # Count bam pileups over peaks
+    # dba.count() takes a long time so use saved results if available
+    # Remove the file before running this script if anything has changed
 
-# dba() is a diffbind function
-print('Running dba(sampleSheet=samples)')
-peaksets_pvalsort <- dba(sampleSheet=samples)
-pdf("peaksets_pvalsort_overall-clustering.pdf")
-# Debug?
-plot(peaksets_pvalsort)
-dev.off()   # close() pdf
-
-## Count overlapping reads (did not recenter around peaks)
-# Count bam pileups over peaks
-print('Running dba.count(peaksets_pvalsort)')
-readcounts_pvalsort <- dba.count(peaksets_pvalsort)
-print(readcounts_pvalsort)
-
-# debug
-pdf("readcounts_pvalsort_overall-clustering.pdf")
-plot(readcounts_pvalsort)
-dev.off()
-
-# Save this one object from the session
-# load("readcounts_pvalsort.RData") to view
-save(list="readcounts_pvalsort", file="readcounts_pvalsort.RData")
-save(list=c("samples", "readcounts_pvalsort"), file="sampledata.RData")
+    print("Running dba.count(peaksets_pvalsort)")
+    readcounts_pvalsort <- dba.count(peaksets_pvalsort)
+    print(readcounts_pvalsort)
+    
+    # debug
+    pdf("readcounts_pvalsort_overall-clustering.pdf")
+    plot(readcounts_pvalsort)
+    dev.off()
+    
+    # Save this one object from the session
+    # load("readcounts_pvalsort.RData") to view
+    save(list="readcounts_pvalsort", file=read_counts)
+    #save(list=c("samples", "readcounts_pvalsort"), file="sampledata.RData")
+}
 
 # Does not work: "Cannot coerc" error
 #write.table(readcounts_pvalsort, file="readcounts_pvalsort.table",
@@ -230,9 +241,13 @@ save(list=c("samples", "readcounts_pvalsort"), file="sampledata.RData")
 ## Differential analysis (DESeq2) comparing all time points to 0
 # colData <- samples is sufficient here
 colData <- data.frame(samples)  
+stop()
 
 # Extract data we really need
 # [[]] means list
+
+# Dies here:
+# Error in readcounts_pvalsort$peaks : $ operator is invalid for atomic vectors
 rowData_pvalsort <- readcounts_pvalsort$peaks[[1]][,1:3]
 
 # Get read counts for all peaks
@@ -252,7 +267,6 @@ dds_pvalsort <- DESeqDataSetFromMatrix(countData = counts_pvalsort,
 
 # Run differential analysis
 dds_pvalsort <- DESeq(dds_pvalsort)
-stop()
 
 # Adjust this for Maria's time points:
 # 
@@ -261,7 +275,7 @@ stop()
 res_pvalsort_2vs0 <- results(dds_pvalsort, contrast = c("time_factor", 2, 0))
 res_pvalsort_4vs0 <- results(dds_pvalsort, contrast = c("time_factor", 4, 0))
 res_pvalsort_7vs0 <- results(dds_pvalsort, contrast = c("time_factor", 7, 0))
-res_pvalsort_12vs0 <- results(dds_pvalsort, contrast = c("time_factor", 12, 0))
+stop()
 
 summary(res_pvalsort_2vs0, alpha=0.05) ## Previously 104
 # out of 42198 with nonzero total read count
