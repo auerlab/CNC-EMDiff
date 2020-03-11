@@ -3,6 +3,12 @@ library(dplyr)
 library(DESeq2)
 library(GenomicRanges)
 
+pause <- function()
+{
+    cat("Press Enter to continue...")
+    invisible(b <- scan("stdin", character(), nlines=1, quiet=TRUE))
+}
+
 # Update Jan 26, 2018: p-value sort on transgene alignment --------------------
 # Peaks re-aligned to include transgene as well
 # Use only high-quality macs2 peaks
@@ -73,8 +79,8 @@ macsBed <- read.delim("7-macs-peaklets/ATAC-CCA-macs.peaklets_peaks.narrowPeak",
 
 # Why p value and not q value?
 keep <- which(macsBed$V8 > -log(10^-10))
-print("keep (rows where p < 10^-10)")
-print(keep)
+#print("keep (rows where p < 10^-10)")
+#print(keep)
 
 # new table, keep rows in "keep"
 macs_all <- macsBed[keep,]
@@ -95,6 +101,8 @@ macs_all_GR <- GRanges(seqnames=as.vector(macs_all[,1]),
 		       strand=rep("*", nrow(macs_all)))
 print("max_all_GR: 501 nt generated peaks")
 print(macs_all_GR)
+# line <- readline(prompt="Press [enter] to continue")
+pause()
 
 # add metadata to table
 # Remove columns 1-3
@@ -136,8 +144,9 @@ macsGR_bed[index, "end"] <- 26543; macsGR_bed[index, "starts"] <- macsGR_bed[ind
 write.table(macsGR_bed, "CCA-merged-peaks.bed",
 	    col.names=FALSE, row.names=FALSE, quote=FALSE, sep="\t")
 
-print("macsGR_bed: Merged peaks")
-print(macsGR_bed)
+#print("macsGR_bed: Merged peaks")
+#print(macsGR_bed)
+#pause()
 
 #------------------------------------------------------------------------------------
 
@@ -164,6 +173,7 @@ Condition <- substr(SampleID, 5, 5) %>% unlist()
 
 print("Condition")
 print(Condition)
+pause()
 
 # Replicate <- strsplit(SampleID, split="-", fixed=TRUE) %>%
 Replicate <- substr(SampleID, 4, 4)%>% unlist()
@@ -172,6 +182,7 @@ Replicate <- substr(SampleID, 4, 4)%>% unlist()
 
 print("Replicate")
 print(Replicate)
+pause()
 
 # Filter out bam.*, presumably leaving only .bam files
 # bamReads <- paste0("ALIGNED_TRANS/",
@@ -181,6 +192,7 @@ bamReads <- paste0("4-bwa-mem/",
 
 print("bamReads")
 print(bamReads)
+pause()
 
 # Peaks <- paste0("PEAKS_TRANS_PEAKLETS_ALLTIMES/", Condition, 
 #                 "ATAC.nodup.unique.macs_peaks.pvalsort.narrowPeak.bed")
@@ -189,26 +201,33 @@ print(bamReads)
 Peaks <- "CCA-merged-peaks.bed"
 print("Peaks")
 print(Peaks)
+pause()
 
 # rep = repeat
 PeakCaller <- rep("narrow", length(SampleID))
 print("PeakCaller")
 print(PeakCaller)
+pause()
 
 # Create new table from existing vectors
 samples <- data.frame(SampleID, Condition, Replicate, bamReads, Peaks, PeakCaller)
 print("samples")
 print(samples)
-    
-read_counts <- "readcounts_pvalsort.RData"
-if ( file.exists(read_counts) ) {
+pause()
+
+readcounts_file <- "readcounts_pvalsort.RData"
+if ( file.exists(readcounts_file) ) {
     print("Using saved dba.count() results...")
-    print(paste("Remove ", read_counts,
+    print(paste("Remove ", readcounts_file,
 	" before running this script if anything has changed"))
-    readcounts_pvalsort <- load(read_counts)
+    load(readcounts_file)
 } else {
     print("Running dba(sampleSheet=samples)")
+    start_time <- Sys.time()
     peaksets_pvalsort <- dba(sampleSheet=samples)
+    end_time <- Sys.time()
+    print("dba() time:")
+    print(end_time - start_time)
     pdf("peaksets_pvalsort_overall-clustering.pdf")
     # Debug?
     plot(peaksets_pvalsort)
@@ -220,8 +239,11 @@ if ( file.exists(read_counts) ) {
     # Remove the file before running this script if anything has changed
 
     print("Running dba.count(peaksets_pvalsort)")
+    start_time <- Sys.time()
     readcounts_pvalsort <- dba.count(peaksets_pvalsort)
-    print(readcounts_pvalsort)
+    end_time <- Sys.time()
+    print("dba.count() time:")
+    print(end_time - start_time)
     
     # debug
     pdf("readcounts_pvalsort_overall-clustering.pdf")
@@ -230,9 +252,12 @@ if ( file.exists(read_counts) ) {
     
     # Save this one object from the session
     # load("readcounts_pvalsort.RData") to view
-    save(list="readcounts_pvalsort", file=read_counts)
+    save(list="readcounts_pvalsort", file=readcounts_file)
     #save(list=c("samples", "readcounts_pvalsort"), file="sampledata.RData")
 }
+print("readcounts_pvalsort:")
+print(readcounts_pvalsort)
+pause()
 
 # Does not work: "Cannot coerc" error
 #write.table(readcounts_pvalsort, file="readcounts_pvalsort.table",
@@ -240,24 +265,31 @@ if ( file.exists(read_counts) ) {
 
 ## Differential analysis (DESeq2) comparing all time points to 0
 # colData <- samples is sufficient here
-colData <- data.frame(samples)  
-stop()
+colData <- data.frame(samples)
+print("colData:")
+print(colData)
+pause()
 
 # Extract data we really need
 # [[]] means list
-
-# Dies here:
-# Error in readcounts_pvalsort$peaks : $ operator is invalid for atomic vectors
 rowData_pvalsort <- readcounts_pvalsort$peaks[[1]][,1:3]
+print("rowData_pvalsort:")
+print(rowData_pvalsort)
+pause()
 
 # Get read counts for all peaks
 # Organize as a table with each sample as a column
 counts_pvalsort <- lapply(readcounts_pvalsort$peaks, function(x) x$Reads) %>%
   do.call("cbind", .)
+#print("counts_pvalsort:")
+#print(counts_pvalsort)
 
 # Recode X variable as a numeric indicator variable
 # factor level variable instead of character for regression
 colData$time_factor <- factor(colData$Condition)
+print("colData$time_factor:")
+print(colData$time_factor)
+pause()
 
 # Organize input
 dds_pvalsort <- DESeqDataSetFromMatrix(countData = counts_pvalsort,
@@ -266,18 +298,21 @@ dds_pvalsort <- DESeqDataSetFromMatrix(countData = counts_pvalsort,
 				       design = ~ time_factor)
 
 # Run differential analysis
+print("Running DESeq...")
 dds_pvalsort <- DESeq(dds_pvalsort)
+print("dds_pvalsort:")
+print(dds_pvalsort)
+pause()
 
 # Adjust this for Maria's time points:
 # 
 # Generate data for Excel file
 ## 184 total are differential (down from 208 in previous analysis)
-res_pvalsort_2vs0 <- results(dds_pvalsort, contrast = c("time_factor", 2, 0))
-res_pvalsort_4vs0 <- results(dds_pvalsort, contrast = c("time_factor", 4, 0))
-res_pvalsort_7vs0 <- results(dds_pvalsort, contrast = c("time_factor", 7, 0))
-stop()
+res_pvalsort_BvsA <- results(dds_pvalsort, contrast = c("time_factor", B, A))
+res_pvalsort_CvsA <- results(dds_pvalsort, contrast = c("time_factor", C, A))
+res_pvalsort_CvsB <- results(dds_pvalsort, contrast = c("time_factor", C, B))
 
-summary(res_pvalsort_2vs0, alpha=0.05) ## Previously 104
+summary(res_pvalsort_BvsA, alpha=0.05) ## Previously 104
 # out of 42198 with nonzero total read count
 # adjusted p-value < 0.05
 # LFC > 0 (up)     : 141, 0.33% 
@@ -285,7 +320,7 @@ summary(res_pvalsort_2vs0, alpha=0.05) ## Previously 104
 # outliers [1]     : 0, 0% 
 # low counts [2]   : 14726, 35% 
 # (mean count < 31)
-summary(res_pvalsort_4vs0, alpha=0.05) ## Previously 0
+summary(res_pvalsort_CvsA, alpha=0.05) ## Previously 0
 # out of 42198 with nonzero total read count
 # adjusted p-value < 0.05
 # LFC > 0 (up)     : 1, 0.0024% 
@@ -293,7 +328,7 @@ summary(res_pvalsort_4vs0, alpha=0.05) ## Previously 0
 # outliers [1]     : 0, 0% 
 # low counts [2]   : 0, 0% 
 # (mean count < 1)
-summary(res_pvalsort_7vs0, alpha=0.05)
+summary(res_pvalsort_CvsB, alpha=0.05)
 # out of 42198 with nonzero total read count
 # adjusted p-value < 0.05
 # LFC > 0 (up)     : 0, 0% 
@@ -301,14 +336,7 @@ summary(res_pvalsort_7vs0, alpha=0.05)
 # outliers [1]     : 0, 0% 
 # low counts [2]   : 0, 0% 
 # (mean count < 1)
-summary(res_pvalsort_12vs0, alpha=0.05) ## Previously 80
-# out of 42198 with nonzero total read count
-# adjusted p-value < 0.05
-# LFC > 0 (up)     : 6, 0.014% 
-# LFC < 0 (down)   : 78, 0.18% 
-# outliers [1]     : 0, 0% 
-# low counts [2]   : 40088, 95% 
-# (mean count < 195)
+stop()
 
 # Create CSVs with differntially accessible peaks
 ## No differential peaks at 7 to 0
