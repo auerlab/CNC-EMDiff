@@ -9,6 +9,9 @@ pause <- function()
     invisible(b <- scan("stdin", character(), nlines=1, quiet=TRUE))
 }
 
+# Keep print() from spewing huge tables to stdout
+options(max.print=60)
+
 # Update Jan 26, 2018: p-value sort on transgene alignment --------------------
 # Peaks re-aligned to include transgene as well
 # Use only high-quality macs2 peaks
