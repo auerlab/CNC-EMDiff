@@ -75,7 +75,9 @@ options(max.print=60)
 #                             "ATAC.nodup.unique.macs.peaklets_peaks.narrowPeak"), 
 #                      header=FALSE)
 
-macsBed <- read.delim("7-macs-peaklets/ATAC-CCA-macs.peaklets_peaks.narrowPeak", header=FALSE)
+cell_type <- "NCA"
+macsBed <- read.delim(paste0("7-macs-peaklets/ATAC-", cell_type,
+    "-macs.peaklets_peaks.narrowPeak"), header=FALSE)
 ## Sort by p-value ($V8), only keep those with p-value < 10^-10 [44429]
 # keep - index vector
 # Done using awk
@@ -144,7 +146,7 @@ index <- which(macsGR_bed$chr == "KN150391.1" & macsGR_bed$end == 26616)
 macsGR_bed[index, "end"] <- 26543; macsGR_bed[index, "starts"] <- macsGR_bed[index, "end"] - 499
 #write.table(macsGR_bed, paste0("PEAKS_TRANS_PEAKLETS_ALLTIMES/",
 # "ALLMERGED_ATAC.nodup.unique.macs.peaklets_peaks.pvalsort.narrowPeak_501bp.bed")
-write.table(macsGR_bed, "CCA-merged-peaks.bed",
+write.table(macsGR_bed, paste0(cell_type, "-merged-peaks.bed"),
 	    col.names=FALSE, row.names=FALSE, quote=FALSE, sep="\t")
 
 #print("macsGR_bed: Merged peaks")
@@ -161,7 +163,7 @@ write.table(macsGR_bed, "CCA-merged-peaks.bed",
 # Example CNC-EMDiff filename: CCA1A_S1_L001-nodup-uniq.bam
 # "1A": 1 = condition, A = time point
 # SampleID <- strsplit(dir("ALIGNED_TRANS/"), split=".", fixed=TRUE) %>%
-SampleID <- strsplit(dir("4-bwa-mem/", pattern="CCA.*.bam"), split=".", fixed=TRUE) %>%
+SampleID <- strsplit(dir("4-bwa-mem/", pattern=paste0(cell_type, ".*.bam")), split=".", fixed=TRUE) %>%
   lapply(., function(x) x[1]) %>%
   unlist() %>%
   unique()
@@ -191,7 +193,7 @@ pause()
 # bamReads <- paste0("ALIGNED_TRANS/",
 #                dir("ALIGNED_TRANS/")[-grep("bam.", dir("ALIGNED_TRANS/"))])
 bamReads <- paste0("4-bwa-mem/",
-		 dir("4-bwa-mem/", pattern="CCA.*.bam$"))
+		 dir("4-bwa-mem/", pattern=paste0(cell_type, ".*.bam$")))
 
 print("bamReads")
 print(bamReads)
@@ -201,7 +203,7 @@ pause()
 #                 "ATAC.nodup.unique.macs_peaks.pvalsort.narrowPeak.bed")
 # Peaks <- paste0("PEAKS_TRANS_PEAKLETS_ALLTIMES/",
 #                 "ALLMERGED_ATAC.nodup.unique.macs.peaklets_peaks.pvalsort.narrowPeak_501bp.bed")
-Peaks <- "CCA-merged-peaks.bed"
+Peaks <- paste0(cell_type, "-merged-peaks.bed")
 print("Peaks")
 print(Peaks)
 pause()
@@ -218,7 +220,7 @@ print("samples")
 print(samples)
 pause()
 
-readcounts_file <- "readcounts_pvalsort.RData"
+readcounts_file <- paste0(cell_type, "-readcounts_pvalsort.RData")
 if ( file.exists(readcounts_file) ) {
     print("Using saved dba.count() results...")
     print(paste("Remove ", readcounts_file,
@@ -311,9 +313,9 @@ pause()
 # 
 # Generate data for Excel file
 ## 184 total are differential (down from 208 in previous analysis)
-res_pvalsort_BvsA <- results(dds_pvalsort, contrast = c("time_factor", B, A))
-res_pvalsort_CvsA <- results(dds_pvalsort, contrast = c("time_factor", C, A))
-res_pvalsort_CvsB <- results(dds_pvalsort, contrast = c("time_factor", C, B))
+res_pvalsort_BvsA <- results(dds_pvalsort, contrast = c("time_factor", "B", "A"))
+res_pvalsort_CvsA <- results(dds_pvalsort, contrast = c("time_factor", "C", "A"))
+res_pvalsort_CvsB <- results(dds_pvalsort, contrast = c("time_factor", "C", "B"))
 
 summary(res_pvalsort_BvsA, alpha=0.05) ## Previously 104
 # out of 42198 with nonzero total read count
