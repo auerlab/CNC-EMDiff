@@ -75,7 +75,10 @@ options(max.print=60)
 #                             "ATAC.nodup.unique.macs.peaklets_peaks.narrowPeak"), 
 #                      header=FALSE)
 
-cell_type <- "NCA"
+Sys.umask(mode = 007)   # Make all output group-writable
+
+cell_type <- "NCA"      # Choose CCA for chondro or NCA for neuro
+
 macsBed <- read.delim(paste0("7-macs-peaklets/ATAC-", cell_type,
     "-macs.peaklets_peaks.narrowPeak"), header=FALSE)
 ## Sort by p-value ($V8), only keep those with p-value < 10^-10 [44429]
