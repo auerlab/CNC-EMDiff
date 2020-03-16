@@ -50,6 +50,8 @@ awk '$8 >= 10 { print $0 }' ATAC-$cell_type-macs.peaklets_peaks.narrowPeak \
     > high-confidence-$cell_type-narrow.bed
 
 # Remove same lines from summits file that were filtered out of narrowPeak
+# FIXME: This can all be done with just the narrow peaks file
+#        The summits file is redundant
 awk -f ../filter.awk \
     -v file_to_filter=ATAC-$cell_type-macs.peaklets_summits.bed \
     high-confidence-$cell_type-narrow.bed \
@@ -78,9 +80,13 @@ head -4 high-confidence-$cell_type-summits.bed \
 ##########################################################################
 
 # https://bedtools.readthedocs.io/en/latest/content/tools/merge.html
+merged=high-confidence-$cell_type-501-merged.bed
 bedtools merge -i high-confidence-$cell_type-501.bed \
-    > high-confidence-$cell_type-501-merged.bed
-head -4 high-confidence-$cell_type-501-merged.bed
+    > $merged
+head -4 $merged
+# Add 3 dummy fields ". . *" to match format of Andrea's merged BED files
+awk '{ printf("%s\t.\t.\t*\n", $0) }' $merged > $merged.tmp
+mv -f $merged.tmp $merged
 
 printf "\nWord counts:\n"
 wc ATAC-$cell_type-macs.peaklets_summits.bed \

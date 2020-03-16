@@ -136,14 +136,15 @@ index <- which(macsGR_bed$starts < 1)
 macsGR_bed[index, "end"] <- macsGR_bed[index, "end"] - macsGR_bed[index, "starts"] + 1
 macsGR_bed[index, "starts"] <- 1
 ## Note: some of the peaks need to be recentered (too long)
-index <- which(macsGR_bed$chr == "KN149934.1" & macsGR_bed$end == 12555)
-macsGR_bed[index, "end"] <- 12451; macsGR_bed[index, "starts"] <- macsGR_bed[index, "end"] - 499
-index <- which(macsGR_bed$chr == "KN149962.1" & macsGR_bed$end == 136196)
-macsGR_bed[index, "end"] <- 136181; macsGR_bed[index, "starts"] <- macsGR_bed[index, "end"] - 499
-index <- which(macsGR_bed$chr == "KN150281.1" & macsGR_bed$end == 3781)
-macsGR_bed[index, "end"] <- 3763; macsGR_bed[index, "starts"] <- macsGR_bed[index, "end"] - 499
-index <- which(macsGR_bed$chr == "KN150391.1" & macsGR_bed$end == 26616)
-macsGR_bed[index, "end"] <- 26543; macsGR_bed[index, "starts"] <- macsGR_bed[index, "end"] - 499
+# This look useless for CNC-EMDiff.  What was it for in OpticRegen?
+#index <- which(macsGR_bed$chr == "KN149934.1" & macsGR_bed$end == 12555)
+#macsGR_bed[index, "end"] <- 12451; macsGR_bed[index, "starts"] <- macsGR_bed[index, "end"] - 499
+#index <- which(macsGR_bed$chr == "KN149962.1" & macsGR_bed$end == 136196)
+#macsGR_bed[index, "end"] <- 136181; macsGR_bed[index, "starts"] <- macsGR_bed[index, "end"] - 499
+#index <- which(macsGR_bed$chr == "KN150281.1" & macsGR_bed$end == 3781)
+#macsGR_bed[index, "end"] <- 3763; macsGR_bed[index, "starts"] <- macsGR_bed[index, "end"] - 499
+#index <- which(macsGR_bed$chr == "KN150391.1" & macsGR_bed$end == 26616)
+#macsGR_bed[index, "end"] <- 26543; macsGR_bed[index, "starts"] <- macsGR_bed[index, "end"] - 499
 #write.table(macsGR_bed, paste0("PEAKS_TRANS_PEAKLETS_ALLTIMES/",
 # "ALLMERGED_ATAC.nodup.unique.macs.peaklets_peaks.pvalsort.narrowPeak_501bp.bed")
 write.table(macsGR_bed, paste0(cell_type, "-merged-peaks.bed"),
@@ -163,10 +164,9 @@ write.table(macsGR_bed, paste0(cell_type, "-merged-peaks.bed"),
 # Example CNC-EMDiff filename: CCA1A_S1_L001-nodup-uniq.bam
 # "1A": 1 = condition, A = time point
 # SampleID <- strsplit(dir("ALIGNED_TRANS/"), split=".", fixed=TRUE) %>%
-SampleID <- strsplit(dir("4-bwa-mem/", pattern=paste0(cell_type, ".*.bam")), split=".", fixed=TRUE) %>%
-  lapply(., function(x) x[1]) %>%
-  unlist() %>%
-  unique()
+SampleID <- strsplit(dir("4-bwa-mem/", pattern=paste0(cell_type, ".*.bam")),
+  split=".", fixed=TRUE) %>% lapply(., function(x) x[1]) %>%
+  unlist() %>% unique()
 # 12ATAC-3
 
 print("SampleID")
@@ -220,12 +220,12 @@ print("samples")
 print(samples)
 pause()
 
-readcounts_file <- paste0(cell_type, "-readcounts_pvalsort.RData")
-if ( file.exists(readcounts_file) ) {
+readcounts_filename <- paste0(cell_type, "-readcounts_pvalsort.RData")
+if ( file.exists(readcounts_filename) ) {
     print("Using saved dba.count() results...")
-    print(paste("Remove ", readcounts_file,
+    print(paste("Remove ", readcounts_filename,
 	" before running this script if anything has changed"))
-    load(readcounts_file)
+    load(readcounts_filename)
 } else {
     print("Running dba(sampleSheet=samples)")
     start_time <- Sys.time()
@@ -257,7 +257,7 @@ if ( file.exists(readcounts_file) ) {
     
     # Save this one object from the session
     # load("readcounts_pvalsort.RData") to view
-    save(list="readcounts_pvalsort", file=readcounts_file)
+    save(list="readcounts_pvalsort", file=readcounts_filename)
     #save(list=c("samples", "readcounts_pvalsort"), file="sampledata.RData")
 }
 print("readcounts_pvalsort:")
