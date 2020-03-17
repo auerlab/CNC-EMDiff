@@ -1,5 +1,7 @@
 #!/bin/sh -e
 
+#SBATCH --array=1-2
+
 ##########################################################################
 #   In MACS2 peak call output, filter for high-confidence peaks,
 #   generate peaklets around summits, and merge overlapping peaklets.
@@ -39,8 +41,8 @@ awk -v p_value=$p_value '$8 >= p_value { print $0 }' \
 #        The summits file is redundant
 awk -f ../filter.awk \
     -v file_to_filter=ATAC-$cell_type-macs.peaklets_summits.bed \
-    high-confidence-$cell_type-narrow.bed \
-    > high-confidence-$cell_type-summits.bed
+    high-confidence-p$p_value-$cell_type-narrow.bed \
+    > high-confidence-p$p_value-$cell_type-summits.bed
 
 ##########################################################################
 #   Create intervals from summit +/-250 nt
@@ -53,20 +55,20 @@ awk -f ../filter.awk \
 #    ATAC-$cell_type-macs.peaklets_summits.bed \
 #    > ATAC-$cell_type-macs.peaklets-501.bed
 
-bedtools slop -b 250 -i high-confidence-$cell_type-summits.bed \
+bedtools slop -b 250 -i high-confidence-p$p_value-$cell_type-summits.bed \
     -g ../../RNA-Seq/Reference/chromosome-sizes.tsv \
-    > high-confidence-$cell_type-501.bed
+    > high-confidence-p$p_value-$cell_type-501.bed
 
-head -4 high-confidence-$cell_type-summits.bed \
-	high-confidence-$cell_type-501.bed
+head -4 high-confidence-p$p_value-$cell_type-summits.bed \
+	high-confidence-p$p_value-$cell_type-501.bed
 
 ##########################################################################
 #   Merge overlapping peaklets
 ##########################################################################
 
 # https://bedtools.readthedocs.io/en/latest/content/tools/merge.html
-merged=high-confidence-$cell_type-501-merged.bed
-bedtools merge -i high-confidence-$cell_type-501.bed \
+merged=high-confidence-p$p_value-$cell_type-501-merged.bed
+bedtools merge -i high-confidence-p$p_value-$cell_type-501.bed \
     > $merged
 head -4 $merged
 # Add 3 dummy fields ". . *" to match format of Andrea's merged BED files
@@ -75,9 +77,9 @@ mv -f $merged.tmp $merged
 
 printf "\nWord counts:\n"
 wc ATAC-$cell_type-macs.peaklets_summits.bed \
-    high-confidence-$cell_type-summits.bed \
-    high-confidence-$cell_type-501-merged.bed
+    high-confidence-p$p_value-$cell_type-summits.bed \
+    high-confidence-p$p_value-$cell_type-501-merged.bed
 
-rm -f high-confidence-$cell_type-narrow.bed \
-    high-confidence-$cell_type-summits.bed \
-    high-confidence-$cell_type-501.bed
+rm -f high-confidence-p$p_value-$cell_type-narrow.bed \
+    high-confidence-p$p_value-$cell_type-summits.bed \
+    high-confidence-p$p_value-$cell_type-501.bed
