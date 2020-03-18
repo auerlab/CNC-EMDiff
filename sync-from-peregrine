@@ -12,10 +12,10 @@ atac_dirs="1-trim 2-qc 4-bwa-mem 5-qc-sam 6-remove-duplicates 7-macs-peaklets 8-
 for file in $rna_dirs; do
     list="$list peregrine.hpc.uwm.edu:Data/CNC-EMDiff/RNA-Seq/$file"
 done
-rsync -av "$@" $list RNA-Seq
+rsync -av --size-only "$@" $list RNA-Seq
 
 for file in $atac_dirs; do
     list="$list peregrine.hpc.uwm.edu:Data/CNC-EMDiff/ATAC-Seq/$file"
 done
-rsync -av "$@" $list ATAC-Seq
+rsync -av --size-only "$@" $list ATAC-Seq
 
