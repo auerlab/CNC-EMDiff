@@ -31,7 +31,7 @@ cd 7-macs-peaklets
 # https://github.com/taoliu/MACS
 # Col 8 or narrow peaks file is -log_10 p-value.
 # We want p-values <= 10^-10, so col 8 >= 10
-p_value=5
+p_value=10
 awk -v p_value=$p_value '$8 >= p_value { print $0 }' \
     ATAC-$cell_type-macs.peaklets_peaks.narrowPeak \
     > high-confidence-p$p_value-$cell_type-narrow.bed
