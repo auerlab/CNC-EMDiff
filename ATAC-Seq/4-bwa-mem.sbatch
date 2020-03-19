@@ -7,7 +7,8 @@
 ##SBATCH --mem=30000
 # Based on 12 threads on peregrine
 #SBATCH --mem=6g
-##SBATCH --partition=batch,256g --exclude=compute-[001-008,012]
+#SBATCH --partition=batch,256g 
+# --exclude=compute-[001-008,012]
 #SBATCH --output=4-bwa-mem/slurm-%A_%a.out
 #SBATCH --error=4-bwa-mem/slurm-%A_%a.err
 

@@ -28,6 +28,7 @@ echo Peak calling, merging replicates across all time points, calling peaklets..
 # "mm" is the compiled-in Mus Musculus genome size.  See MACS2 docs.
 # BAMPE = BAM Paired End
 # Does order of the filenames matter?
+# Could we use the merged BAMs from 8- instead?
 macs2 callpeak --nomodel -t 4-bwa-mem/$cell_type*_L001-nodup-uniq.bam \
     -f BAMPE -g mm --call-summits -n ATAC-$cell_type-macs.peaklets \
     --keep-dup all --outdir 7-macs-peaklets

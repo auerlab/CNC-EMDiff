@@ -7,7 +7,7 @@
 #SBATCH --output=6-remove-duplicates/slurm-%A_%a.out
 #SBATCH --error=6-remove-duplicates/slurm-%A_%a.err
 
-# Spoof SLURM_ARRAY_TASK_ID if not set for testing outside SLURM env
+# Spoof SLURM_ARRAY_TASK_ID if not set, for testing outside SLURM env
 : ${SLURM_ARRAY_TASK_ID:=1}
 
 cd 6-remove-duplicates

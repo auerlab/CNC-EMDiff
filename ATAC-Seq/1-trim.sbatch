@@ -15,9 +15,6 @@
 #   Main
 ##########################################################################
 
-# Temporary until all nodes are upgraded
-#SBATCH --exclude=compute-[001-008,012]
-
 # Each job in the array should get 2 cores on the same node to accomodate
 # the cutadapt process and companion pigz/gzip process
 #SBATCH --array=1-18 --cpus-per-task=2
@@ -58,8 +55,6 @@ adapter=CTGTCTCTTATACACATCT
 # Most quality scores are above 30, so we can be pickier thant the usual
 # cut-off of 20
 # Not sure about min length for ATAC
-
-set -x
 cutadapt \
     --quality-cutoff=24 \
     -u +15 -U +15 \
