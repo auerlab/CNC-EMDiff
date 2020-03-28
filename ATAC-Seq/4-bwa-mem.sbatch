@@ -2,12 +2,15 @@
 
 # Not yet sure how many threads are useful
 # Maybe use --exclusive and all available cores?
-#SBATCH --array=1-18 --cpus-per-task=4
+# If cores are limited, smaller thread counts are usually more efficient
+# as they will require less communication overhead
+#SBATCH --array=1-18 --cpus-per-task=2
 # Andrea's script used 64000.  Just to force newer Mortimer nodes?
 ##SBATCH --mem=30000
-# Based on 12 threads on peregrine
-#SBATCH --mem=6g
-#SBATCH --partition=batch,256g 
+# Based on 2 threads on albacore
+# 12 threads on peregrine used close to 6g
+#SBATCH --mem=5g
+##SBATCH --partition=batch,256g 
 # --exclude=compute-[001-008,012]
 #SBATCH --output=4-bwa-mem/slurm-%A_%a.out
 #SBATCH --error=4-bwa-mem/slurm-%A_%a.err
