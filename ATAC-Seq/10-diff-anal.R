@@ -126,9 +126,7 @@ if ( TRUE )
     print("macsGR_bed: Merged peaks")
     print(macsGR_bed)
     pause()
-}
-else
-{
+} else {
     # Generated externally using bedtools
     Peaks <- paste0("7-macs-peaklets/high-confidence-p10-",
 		    cell_type, "-501-merged.bed")
@@ -213,7 +211,7 @@ if ( file.exists(readcounts_filename) ) {
     print(end_time - start_time)
     
     # debug
-    pdf(paste0("readcounts-pvalsort-overall-clustering", cell_type, ".pdf")
+    pdf(paste0("readcounts-pvalsort-overall-clustering", cell_type, ".pdf"))
     plot(readcounts_pvalsort)
     dev.off()
     
