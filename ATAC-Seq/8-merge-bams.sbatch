@@ -12,6 +12,7 @@
 # The # following _S is the sample ID
 # A, B, and C are time points, see:
 # Illumina Sequencing Samples_UDVADIA_OUR REFERENCE KEY, updated 082919.xlsx
+# Note: This may be wrong due to a mixup in prep or sequencing!
 # 1, 4, and 7 are Chondrocyte time 1
 # 2, 5, and 8 are Chondrocyte time 2
 # 10, 13, and 16 are Neural time 1
