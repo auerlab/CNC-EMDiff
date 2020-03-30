@@ -17,6 +17,14 @@ if ( (length(args) != 1) || ((args[1] != "CCA") && (args[1] != "NCA")) )
 }
 cell_type <- args[1]
 
+# Compensate for misnamed sequence files.
+flip_rep_and_cond <- TRUE
+
+# Process MACS2 peaks.  If FALSE, use peaks processed externally using
+# bedtools instead. If you change this, you must rerun dba() and dba.count().
+# Remove <cell_type>-readcounts_pvalsort.RData to make this happen.
+process_peaks_in_R <- FALSE
+
 # Loading libraries takes 20 seconds or more
 library(DiffBind)
 library(dplyr)
@@ -42,9 +50,7 @@ options(max.print=60)
 Sys.umask(mode = 007)
 
 # Generate merged peaks file
-# Done externally using bedtools instead if FALSE here
-# Select matching peaks file below
-if ( TRUE )
+if ( process_peaks_in_R )
 {
     macsBed <- read.delim(paste0("7-macs-peaklets/ATAC-", cell_type,
 	"-macs.peaklets_peaks.narrowPeak"), header=FALSE)
@@ -52,7 +58,7 @@ if ( TRUE )
     # keep - index vector
     # Done using awk
     
-    # Why p value and not q value?
+    # V8 = p-value.  Could use q-value as well.
     keep <- which(macsBed$V8 > -log(10^-10))
     #print("keep (rows where p < 10^-10)")
     #print(keep)
@@ -148,14 +154,22 @@ SampleID <- strsplit(dir("4-bwa-mem/", pattern=paste0(cell_type, ".*.bam")),
 print("SampleID")
 print(SampleID)
 
-# Condition <- substr(SampleID, 5, 5) %>% unlist()
-Condition <- substr(SampleID, 4, 4) %>% unlist()    # Flip condition/replicate
+if ( flip_rep_and_cond )
+{
+    Condition <- substr(SampleID, 4, 4) %>% unlist()    # Flip condition/replicate
+} else {
+    Condition <- substr(SampleID, 5, 5) %>% unlist()
+}
 
 print("Condition")
 print(Condition)
 
-# Replicate <- substr(SampleID, 4, 4)%>% unlist()
-Replicate <- substr(SampleID, 5, 5)%>% unlist()     # Flip condition/replicate
+if ( flip_rep_and_cond )
+{
+    Replicate <- substr(SampleID, 5, 5)%>% unlist()     # Flip condition/replicate
+} else {
+    Replicate <- substr(SampleID, 4, 4)%>% unlist()
+}
 
 print("Replicate")
 print(Replicate)
@@ -265,7 +279,7 @@ vsd <- vst(dds_pvalsort, blind=FALSE)
 sampleDists <- dist(t(assay(vsd)))
 sampleDistMatrix <- as.matrix(sampleDists)
 rownames(sampleDistMatrix) <- paste(vsd$SampleID)
-colnames(sampleDistMatrix) <- NULL
+colnames(sampleDistMatrix) <- paste(vsd$SampleID)
 colors <- colorRampPalette( rev(brewer.pal(9, "Blues")) )(255)
 pdf(paste0("heatmap-Sample-Similarity-", cell_type, ".pdf"),
     height=8, width=11)
@@ -287,14 +301,17 @@ pause()
 # According to file naming conventions.  Does not work: Almost no differential
 # peaks.  Are we comparing replicates rather than time points due to a sample
 # mixup?
-# res_pvalsort_BvsA <- results(dds_pvalsort, contrast = c("time_factor", "B", "A"))
-# res_pvalsort_CvsA <- results(dds_pvalsort, contrast = c("time_factor", "C", "A"))
-# res_pvalsort_CvsB <- results(dds_pvalsort, contrast = c("time_factor", "C", "B"))
-
-# Flip condition/replicate
-res_pvalsort_BvsA <- results(dds_pvalsort, contrast = c("time_factor", "2", "1"))
-res_pvalsort_CvsA <- results(dds_pvalsort, contrast = c("time_factor", "3", "1"))
-res_pvalsort_CvsB <- results(dds_pvalsort, contrast = c("time_factor", "3", "2"))
+if ( flip_rep_and_cond )
+{
+    # Flip condition/replicate
+    res_pvalsort_BvsA <- results(dds_pvalsort, contrast = c("time_factor", "2", "1"))
+    res_pvalsort_CvsA <- results(dds_pvalsort, contrast = c("time_factor", "3", "1"))
+    res_pvalsort_CvsB <- results(dds_pvalsort, contrast = c("time_factor", "3", "2"))
+} else {
+    res_pvalsort_BvsA <- results(dds_pvalsort, contrast = c("time_factor", "B", "A"))
+    res_pvalsort_CvsA <- results(dds_pvalsort, contrast = c("time_factor", "C", "A"))
+    res_pvalsort_CvsB <- results(dds_pvalsort, contrast = c("time_factor", "C", "B"))
+}
 
 print(paste0(cell_type, " day 2 vs day 0"))
 summary(res_pvalsort_BvsA, alpha=0.05) ## Previously 104
