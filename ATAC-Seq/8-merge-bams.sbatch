@@ -1,22 +1,26 @@
 #!/bin/sh -e
 
-# Verify memory use
-#SBATCH --mem=1g
+# About 10M on Albacore
+#SBATCH --mem=20
 # Each job uses sample X, X+3, and X+6
-#SBATCH --array=1-3,10-12
+#SBATCH --array=1-6
 #SBATCH --output=8-merge-bams/slurm-%A_%a.out
 #SBATCH --error=8-merge-bams/slurm-%A_%a.err
+
+# Albacore compute-003 has RAID
+#SBATCH --nodelist=compute-003
 
 # Samples 1-9 are Chondrocyte and 10-18 are Neural
 # Every third sample is from the same time point, e.g.
 # The # following _S is the sample ID
 # A, B, and C are time points, see:
 # Illumina Sequencing Samples_UDVADIA_OUR REFERENCE KEY, updated 082919.xlsx
-# Note: This may be wrong due to a mixup in prep or sequencing!
 # 1, 4, and 7 are Chondrocyte time 1
 # 2, 5, and 8 are Chondrocyte time 2
 # 10, 13, and 16 are Neural time 1
 # ...
+#
+# Note: This may be wrong due to a mixup in prep or sequencing!
 #
 # CCA1A_S1_L001-nodup-uniq.bam
 # CCA1B_S2_L001-nodup-uniq.bam
@@ -41,9 +45,39 @@
 # Example input file: CCA1A_S1_L001-nodup-uniq.bam
 # Wildcards are not expanded in the RHS of a normal variable assignment
 # so run a command in ``
-input_bam1=`echo 4-bwa-mem/*_S${SLURM_ARRAY_TASK_ID}_L001-nodup-uniq.bam`
-input_bam2=`echo 4-bwa-mem/*_S$((SLURM_ARRAY_TASK_ID + 3))_L001-nodup-uniq.bam`
-input_bam3=`echo 4-bwa-mem/*_S$((SLURM_ARRAY_TASK_ID + 6))_L001-nodup-uniq.bam`
+
+: ${SLURM_ARRAY_TASK_ID:=1}
+
+#input_bam1=`echo 4-bwa-mem/*_S${SLURM_ARRAY_TASK_ID}_L001-nodup-uniq.bam`
+#input_bam2=`echo 4-bwa-mem/*_S$((SLURM_ARRAY_TASK_ID + 3))_L001-nodup-uniq.bam`
+#input_bam3=`echo 4-bwa-mem/*_S$((SLURM_ARRAY_TASK_ID + 6))_L001-nodup-uniq.bam`
+
+case $SLURM_ARRAY_TASK_ID in
+1)
+    #input_bams=`ls 4-bwa-mem/CCA*A*.bam`
+    input_bams=`ls 4-bwa-mem/CCA1*.bam`     # Flip condition and replicate
+    ;;
+2)
+    #input_bams=`ls 4-bwa-mem/CCA*B*.bam`
+    input_bams=`ls 4-bwa-mem/CCA2*.bam`     # Flip condition and replicate
+    ;;
+3)
+    #input_bams=`ls 4-bwa-mem/CCA*C*.bam`
+    input_bams=`ls 4-bwa-mem/CCA3*.bam`     # Flip condition and replicate
+    ;;
+4)
+    #input_bams=`ls 4-bwa-mem/NCA*A*.bam`
+    input_bams=`ls 4-bwa-mem/NCA1*.bam`     # Flip condition and replicate
+    ;;
+5)
+    #input_bams=`ls 4-bwa-mem/NCA*B*.bam`
+    input_bams=`ls 4-bwa-mem/NCA2*.bam`     # Flip condition and replicate
+    ;;
+6)
+    #input_bams=`ls 4-bwa-mem/NCA*C*.bam`
+    input_bams=`ls 4-bwa-mem/NCA3*.bam`     # Flip condition and replicate
+    ;;
+esac
 
 if [ $SLURM_ARRAY_TASK_ID -le 3 ]; then
     output_bam=8-merge-bams/atac-chondrocyte-$SLURM_ARRAY_TASK_ID.bam
@@ -51,5 +85,5 @@ else
     output_bam=8-merge-bams/atac-neural-$((SLURM_ARRAY_TASK_ID - 9)).bam
 fi
 set -x
-samtools merge $output_bam $input_bam1 $input_bam2 $input_bam3
+samtools merge $output_bam $input_bams
 samtools index $output_bam
