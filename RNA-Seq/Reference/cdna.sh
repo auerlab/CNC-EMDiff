@@ -9,8 +9,10 @@ if [ $0 != "$proper_name" ]; then
     exit 1
 fi
 
+# Need GTF for kallisto quant --genomebam in any case
+./fetch-gtf.sh
+
 fetch="$(./find-fetch.sh)"
-set -x
 
 # Can't guarantee this file will always be available.
 # You may need to edit this.

@@ -4,8 +4,8 @@
 #SBATCH --array=1-18
 #SBATCH --output=4-kallisto-quant/slurm-%A_%a.out
 #SBATCH --error=4-kallisto-quant/slurm-%A_%a.err
-#SBATCH --exclude=compute-[001-008,012]
-#SBATCH --partition=batch,256g
+##SBATCH --exclude=compute-[001-008,012]
+##SBATCH --partition=batch,256g
 
 # Mortimer pkgsrc
 if [ -e /sharedapps/pkg-2019Q2/bin/kallisto ]; then
@@ -24,6 +24,7 @@ fi
 # using an Ensemble GFF with Reference/create-chrom-sizes.sh
 
 mkdir -p 4-kallisto-quant/$SLURM_ARRAY_TASK_ID
+set -x
 kallisto quant \
     --genomebam \
 	--gtf=Reference/Mus_musculus.GRCm38.98.gtf \

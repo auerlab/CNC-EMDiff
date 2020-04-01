@@ -34,20 +34,24 @@ input2="../Raw/190822_AHFN3KDRXX-Lane2/*_S${SLURM_ARRAY_TASK_ID}_*R2*"
 base_name=$(basename $input1)
 stem=${base_name%%_R*.fastq.gz}
 
-# TrimGalore cannot cut a fixed number of bases at the same time as trimming
-# adapters.  ( -u and -U in cutadapt )
+# TrimGalore is just a wrapper around cutadapt and it cannot cut a fixed
+# number of bases at the same time as trimming adapters ( -u and -U in
+# cutadapt ), so we run cutadapt directly.
+
 #trim_galore --illumina --stringency 3 -q 20 --paired -o 1-trim \
 #    $input1 $input2 > 1-trim/${stem}-trash.out
 #trim_galore --illumina --stringency 3 -q 20 --paired --trim1 -o 1-trim-trim1 \
 #    $input1 $input2 > 1-trim-trim1/${stem}-trash.out
 
-# From trim_galore log: cutadapt -j 1 -e 0.1 -q 20 -O 3 -a AGATCGGAAGAGC
-# -j 1 -O 3 -e 0.1 are default for cutadapt
+# Command from trim_galore log:
+#   cutadapt -j 1 -e 0.1 -q 20 -O 3 -a AGATCGGAAGAGC
+#   -j 1 -O 3 -e 0.1 are default for cutadapt
 # Remove bases at 5' end due to bias and last base at 3' end
 
 set -x
 cutadapt \
     --quality-cutoff=24 \
+    -u -3 -U -3 \
     -u +15 -U +15 \
     -a AGATCGGAAGAGCACAC -A AGATCGGAAGAGCGTCG \
     --minimum-length=30 \
