@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-#SBATCH --mem-per-cpu=4g
+#SBATCH --mem-per-cpu=4000
 #SBATCH --array=1-18
 #SBATCH --output=4-kallisto-quant/slurm-%A_%a.out
 #SBATCH --error=4-kallisto-quant/slurm-%A_%a.err
