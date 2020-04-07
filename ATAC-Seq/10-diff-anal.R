@@ -221,7 +221,7 @@ if ( file.exists(readcounts_filename) ) {
     # Remove the file before running this script if anything has changed
     print("Running dba.count(peaksets_pvalsort)")
     start_time <- Sys.time()
-    readcounts_pvalsort <- dba.count(peaksets_pvalsort)
+    readcounts_pvalsort <- dba.count(peaksets_pvalsort, bParallel=FALSE)
     end_time <- Sys.time()
     print("dba.count() time:")
     print(end_time - start_time)
