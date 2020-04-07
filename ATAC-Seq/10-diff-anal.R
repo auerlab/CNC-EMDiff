@@ -1,3 +1,5 @@
+#!/usr/bin/env Rscript
+
 ############################################################################
 #   CNC-EMDiff differential peak analysis
 #   Jason W. Bacon
