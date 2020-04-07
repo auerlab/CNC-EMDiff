@@ -22,7 +22,7 @@ cd Reference
 # Probably not much difference between these two methods
 # Either works fine for a basic kallisto quantification
 ./cdna.sh           # Remove XY from Ensembl cdna transcriptome
-# ./gtf2fasta.sh      # Construct genome-XY and use Ensembl GTF
+# ./gtf2fasta.sh      # Construct genome minus XY using Ensembl GTF
 
 reference=$(./reference-filename.sh)
 samtools faidx $reference   # Needed for kiallisto --genomebam?

@@ -15,9 +15,6 @@
 #   Main
 ##########################################################################
 
-# Temporary until all nodes are upgraded
-#SBATCH --exclude=compute-[001-008,012]
-
 #SBATCH --array=1-18
 #SBATCH --mem=1g
 #SBATCH --output=2-qc/slurm-%A_%a.out
