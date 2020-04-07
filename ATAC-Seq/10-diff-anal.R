@@ -211,7 +211,7 @@ if ( file.exists(readcounts_filename) ) {
     print(end_time - start_time)
     
     # Debug
-    pdf(paste0("-peaksets-pvalsort-overall-clustering", cell_type, ".pdf"))
+    pdf(paste0("peaksets-pvalsort-overall-clustering-", cell_type, ".pdf"))
     plot(peaksets_pvalsort)
     dev.off()   # close() pdf
     
@@ -227,7 +227,7 @@ if ( file.exists(readcounts_filename) ) {
     print(end_time - start_time)
     
     # debug
-    pdf(paste0("readcounts-pvalsort-overall-clustering", cell_type, ".pdf"))
+    pdf(paste0("readcounts-pvalsort-overall-clustering-", cell_type, ".pdf"))
     plot(readcounts_pvalsort)
     dev.off()
     
