@@ -2,6 +2,8 @@
 
 #SBATCH --array=1-2
 #SBATCH --mem=3g
+#SBATCH --output=10-diff-anal/slurm-%A_%a.out
+#SBATCH --error=10-diff-anal/slurm-%A_%a.err
 
 case $SLURM_ARRAY_TASK_ID in
 1)
@@ -12,4 +14,5 @@ case $SLURM_ARRAY_TASK_ID in
     ;;
 esac
 
-Rscript 10-diff-anal.R $cell_type
+cd 10-diff-anal
+../10-diff-anal.R $cell_type

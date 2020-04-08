@@ -1,11 +1,14 @@
 .*.bak
 1-trim
 2-qc
+3-bwa-index
 4-bwa-mem
 5-qc-sam
 6-remove-duplicates
 7-macs-peaklets
 8-merge-bams
+9-process-peaks
+10-diff-anal
 Reference/*.gz
 Reference/*.fa*
 Reference/CHECKSUMS

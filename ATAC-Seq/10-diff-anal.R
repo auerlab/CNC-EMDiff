@@ -38,6 +38,7 @@ library(pheatmap)
 # Pause until user presses enter
 pause <- function()
 {
+    # Change to TRUE for interactive run
     if ( FALSE )
     {
 	cat("Press Enter to continue...")
@@ -54,7 +55,7 @@ Sys.umask(mode = 007)
 # Generate merged peaks file
 if ( process_peaks_in_R )
 {
-    macsBed <- read.delim(paste0("7-macs-peaklets/ATAC-", cell_type,
+    macsBed <- read.delim(paste0("../9-process-peaks/ATAC-", cell_type,
 	"-macs.peaklets_peaks.narrowPeak"), header=FALSE)
     ## Sort by p-value ($V8), only keep those with p-value < 10^-10 [44429]
     # keep - index vector
@@ -136,7 +137,7 @@ if ( process_peaks_in_R )
     pause()
 } else {
     # Generated externally using bedtools
-    Peaks <- paste0("7-macs-peaklets/high-confidence-p10-",
+    Peaks <- paste0("../9-process-peaks/high-confidence-p10-",
 		    cell_type, "-501-merged.bed")
 }
 
@@ -149,7 +150,7 @@ print(Peaks)
 # "1A": 1 = condition, A = time point
 # SampleID <- strsplit(dir("ALIGNED_TRANS/"), split=".", fixed=TRUE) %>%
 # Could this just as well use the merged BAMs in 8-?
-SampleID <- strsplit(dir("4-bwa-mem/", pattern=paste0(cell_type, ".*.bam")),
+SampleID <- strsplit(dir("../4-bwa-mem/", pattern=paste0(cell_type, ".*.bam")),
   split=".", fixed=TRUE) %>% lapply(., function(x) x[1]) %>%
   unlist() %>% unique()
 
@@ -178,8 +179,8 @@ print(Replicate)
 pause()
 
 # Select only .bam files
-bamReads <- paste0("4-bwa-mem/",
-		   dir("4-bwa-mem/", pattern=paste0(cell_type, ".*.bam$")))
+bamReads <- paste0("../4-bwa-mem/",
+		   dir("../4-bwa-mem/", pattern=paste0(cell_type, ".*.bam$")))
 
 print("bamReads")
 print(bamReads)

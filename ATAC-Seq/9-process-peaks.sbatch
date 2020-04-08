@@ -1,6 +1,9 @@
 #!/bin/sh -e
 
 #SBATCH --array=1-2
+#SBATCH --mem=100
+#SBATCH --output=9-process-peaks/slurm-%A_%a.out
+#SBATCH --error=9-process-peaks/slurm-%A_%a.err
 
 ##########################################################################
 #   In MACS2 peak call output, filter for high-confidence peaks,
@@ -22,7 +25,8 @@ case $SLURM_ARRAY_TASK_ID in
 
 esac
 
-cd 7-macs-peaklets
+cd 9-process-peaks
+macs_dir=../7-macs-peaklets
 
 ##########################################################################
 #   Filter for high-confidence peaks: p-value < 1e-10
@@ -34,14 +38,14 @@ cd 7-macs-peaklets
 p_value=10
 
 awk -v p_value=$p_value '$8 >= p_value { print $0 }' \
-    ATAC-$cell_type-macs.peaklets_peaks.narrowPeak \
+    $macs_dir/ATAC-$cell_type-macs.peaklets_peaks.narrowPeak \
     > high-confidence-p$p_value-$cell_type-narrow.bed
 
 # Remove same lines from summits file that were filtered out of narrowPeak
 # FIXME: This can all be done with just the narrow peaks file
 #        The summits file is redundant
 awk -f ../filter.awk \
-    -v file_to_filter=ATAC-$cell_type-macs.peaklets_summits.bed \
+    -v file_to_filter=$macs_dir/ATAC-$cell_type-macs.peaklets_summits.bed \
     high-confidence-p$p_value-$cell_type-narrow.bed \
     > high-confidence-p$p_value-$cell_type-summits.bed
 
@@ -77,7 +81,7 @@ awk '{ printf("%s\t.\t.\t*\n", $0) }' $merged > $merged.tmp
 mv -f $merged.tmp $merged
 
 printf "\nWord counts:\n"
-wc ATAC-$cell_type-macs.peaklets_summits.bed \
+wc $macs_dir/ATAC-$cell_type-macs.peaklets_summits.bed \
     high-confidence-p$p_value-$cell_type-summits.bed \
     high-confidence-p$p_value-$cell_type-501-merged.bed
 
