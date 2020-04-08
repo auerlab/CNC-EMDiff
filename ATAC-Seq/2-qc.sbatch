@@ -42,5 +42,7 @@ mkdir -p 2-qc/Raw 2-qc/Trimmed
 
 fastqc $raw1 -o 2-qc/Raw
 fastqc $raw2 -o 2-qc/Raw
+(cd 2-qc/Raw && multiqc .)
 fastqc $trimmed1 -o 2-qc/Trimmed
 fastqc $trimmed2 -o 2-qc/Trimmed
+(cd 2-qc/Trimmed && multiqc .)

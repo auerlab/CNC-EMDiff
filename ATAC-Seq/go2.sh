@@ -47,7 +47,7 @@ merge_bams_job_id=$(sbatch "$@" --dependency=afterok:$remove_dups_job_id \
 		     8-merge-bams.sbatch | awk '{ print $4 }')
 
 process_peaks_job_id=$(sbatch "$@" --dependency=afterok:$macs_job_id \
-		       9-process-peaks.sbatch | awk '{ print $4 }'
+		       9-process-peaks.sbatch | awk '{ print $4 }')
 
 # Create an sbatch script to run the R script on both cell types
-# sbatch "$@" --dependency=afterok:$process_peaks_job_id 10-diff-anal.sbatch
+sbatch "$@" --dependency=afterok:$process_peaks_job_id 10-diff-anal.sbatch
