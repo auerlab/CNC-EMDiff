@@ -1,7 +1,7 @@
 #!/bin/sh -e
 
 # Don't clobber previous results
-for dir in 4-bwa-mem 5-qc-sam 6-remove-duplicates 7-macs-peaks\
+for dir in 3-bwa-index 4-bwa-mem 5-qc-sam 6-remove-duplicates 7-macs-peaks \
 	   8-merge-bams; do
     if [ -e $dir ]; then
 	pre_existing="$pre_existing $dir"

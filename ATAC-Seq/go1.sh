@@ -18,3 +18,5 @@ fi
 
 # Trim adapters and low-quality data
 trim_job_id=$(sbatch 1-trim.sbatch | awk '{ print $4 }')
+
+sbatch --dependency=afterok:$trim_job_id 2-qc.sbatch

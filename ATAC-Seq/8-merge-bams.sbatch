@@ -7,9 +7,6 @@
 #SBATCH --output=8-merge-bams/slurm-%A_%a.out
 #SBATCH --error=8-merge-bams/slurm-%A_%a.err
 
-# Albacore compute-003 has RAID
-#SBATCH --nodelist=compute-003
-
 # Samples 1-9 are Chondrocyte and 10-18 are Neural
 # Every third sample is from the same time point, e.g.
 # The # following _S is the sample ID
