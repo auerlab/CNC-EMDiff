@@ -29,12 +29,12 @@ fi
 # Run kallisto index if necessary. This is independent of the samples, so
 # it may be left alone between quantification runs.
 if [ ! -e 3-kallisto-index/all-but-xy.index ]; then
-    index_job_id=$(sbatch 3-kallisto-index.sbatch | awk '{ print $4 }')
+    index_job_id=$(sbatch "$@" 3-kallisto-index.sbatch | awk '{ print $4 }')
     quant_dependency="--dependency=afterok:$index_job_id"
 fi
 
 # Kallisto quantification.  Requires trimming and indexing to be completed.
-quant_job_id=$(sbatch $quant_dependency 4-kallisto-quant.sbatch \
+quant_job_id=$(sbatch "$@" $quant_dependency 4-kallisto-quant.sbatch \
     | awk '{ print $4 }')
 
-sbatch --dependency=afterok:$quant_job_id 5-merge-bams.sbatch
+sbatch "$@" --dependency=afterok:$quant_job_id 5-merge-bams.sbatch

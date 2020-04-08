@@ -57,6 +57,7 @@ adapter=CTGTCTCTTATACACATCT
 # Not sure about min length for ATAC
 cutadapt \
     --quality-cutoff=24 \
+    -u -3 -U -3 \
     -u +15 -U +15 \
     -a $adapter -A $adapter \
     --minimum-length=20 \

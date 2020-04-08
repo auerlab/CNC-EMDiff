@@ -28,26 +28,26 @@ fi
 ./0-mkdirs
 
 # Generate genome index for BWA
-bwa_index_job_id=$(sbatch 3-bwa-index.sbatch | awk '{ print $4 }')
+bwa_index_job_id=$(sbatch "$@" 3-bwa-index.sbatch | awk '{ print $4 }')
 
 # Align reads to genome
-bwa_mem_job_id=$(sbatch --dependency=afterok:$bwa_index_job_id \
+bwa_mem_job_id=$(sbatch "$@" --dependency=afterok:$bwa_index_job_id \
 		 4-bwa-mem.sbatch | awk '{ print $4 }')
 
 # QC alignments
-sbatch --dependency=afterok:$bwa_mem_job_id 5-qc-sam.sbatch
+sbatch "$@" --dependency=afterok:$bwa_mem_job_id 5-qc-sam.sbatch
 
-remove_dups_job_id=$(sbatch --dependency=afterok:$bwa_mem_job_id \
+remove_dups_job_id=$(sbatch "$@" --dependency=afterok:$bwa_mem_job_id \
 		     6-remove-duplicates.sbatch | awk '{ print $4 }')
 
-macs_job_id=$(sbatch --dependency=afterok:$remove_dups_job_id \
+macs_job_id=$(sbatch "$@" --dependency=afterok:$remove_dups_job_id \
 		     7-macs-peaklets.sbatch | awk '{ print $4 }')
 
-merge_bams_job_id=$(sbatch --dependency=afterok:$remove_dups_job_id \
+merge_bams_job_id=$(sbatch "$@" --dependency=afterok:$remove_dups_job_id \
 		     8-merge-bams.sbatch | awk '{ print $4 }')
 
-process_peaks_job_id=$(sbatch --dependency=afterok:$macs_job_id \
+process_peaks_job_id=$(sbatch "$@" --dependency=afterok:$macs_job_id \
 		       9-process-peaks.sbatch | awk '{ print $4 }'
 
 # Create an sbatch script to run the R script on both cell types
-# sbatch --dependency=afterok:$process_peaks_job_id 10-diff-anal.sbatch
+# sbatch "$@" --dependency=afterok:$process_peaks_job_id 10-diff-anal.sbatch
