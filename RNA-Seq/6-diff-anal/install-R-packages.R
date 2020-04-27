@@ -6,9 +6,17 @@ local({r <- getOption("repos")
        options(repos=r)
 })
 
-#.libPaths(c("/usr/home/bacon/R/amd64-portbld-freebsd12.0-library/3.6",.libPaths()))
-#.libPaths()
+# R_LIBS_USER should be set in ~/.Renviron.
 
 install.packages("remotes")
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
+
+# Instructions at https://pachterlab.github.io/sleuth/download do not work
+#source("http://bioconductor.org/biocLite.R")
+#biocLite("rhdf5")
+#install.packages("devtools")
+#devtools::install_github("pachterlab/sleuth")
+
+# This seems to work
+BiocManager::install("pachterlab/sleuth")
