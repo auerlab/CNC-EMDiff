@@ -10,6 +10,9 @@
 #   generate peaklets around summits, and merge overlapping peaklets.
 ##########################################################################
 
+# Spoof SLURM_ARRAY_TASK_ID if not set for testing outside SLURM env
+: ${SLURM_ARRAY_TASK_ID:=1}
+
 case $SLURM_ARRAY_TASK_ID in
 1)
     cell_type=CCA

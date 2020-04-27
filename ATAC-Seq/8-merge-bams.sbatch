@@ -43,6 +43,7 @@
 # Wildcards are not expanded in the RHS of a normal variable assignment
 # so run a command in ``
 
+# Spoof SLURM_ARRAY_TASK_ID if not set for testing outside SLURM env
 : ${SLURM_ARRAY_TASK_ID:=1}
 
 #input_bam1=`echo 4-bwa-mem/*_S${SLURM_ARRAY_TASK_ID}_L001-nodup-uniq.bam`
