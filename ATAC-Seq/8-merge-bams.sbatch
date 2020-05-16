@@ -8,19 +8,21 @@
 #SBATCH --error=8-merge-bams/slurm-%A_%a.err
 
 # Samples 1-9 are Chondrocyte and 10-18 are Neural
-# Every third sample is from the same time point, e.g.
-# The # following _S is the sample ID
-# A, B, and C are time points, see:
-# Illumina Sequencing Samples_UDVADIA_OUR REFERENCE KEY, updated 082919.xlsx
-# 1, 4, and 7 are Chondrocyte time 1
-# 2, 5, and 8 are Chondrocyte time 2
-# 10, 13, and 16 are Neural time 1
-# ...
+# How things are supposed to be:
+#   Every third sample is from the same time point, e.g.
+#   The # following _S is the sample ID
+#   A, B, and C are time points, see:
+#   Illumina Sequencing Samples_UDVADIA_OUR REFERENCE KEY, updated 082919.xlsx
+#   1, 4, and 7 are Chondrocyte time 1
+#   2, 5, and 8 are Chondrocyte time 2
+#   10, 13, and 16 are Neural time 1
 #
-# Note: This may be wrong due to a mixup in prep or sequencing!
+#   This may be wrong due to a mixup in prep, time points and replicates
+#   are reversed.  So for ATAC (not for RNA) A, B, and C are replicates
+#   and 1, 2, and 3 are time points.
 #
-# CCA1A_S1_L001-nodup-uniq.bam
-# CCA1B_S2_L001-nodup-uniq.bam
+# CCA1A_S1_L001-nodup-uniq.bam      Replicate 1, time 1
+# CCA1B_S2_L001-nodup-uniq.bam      Replicate 2, time 1
 # CCA1C_S3_L001-nodup-uniq.bam
 # CCA2A_S4_L001-nodup-uniq.bam
 # CCA2B_S5_L001-nodup-uniq.bam
@@ -44,7 +46,14 @@
 # so run a command in ``
 
 # Spoof SLURM_ARRAY_TASK_ID if not set for testing outside SLURM env
-: ${SLURM_ARRAY_TASK_ID:=1}
+if [ -z $SLURM_ARRAY_TASK_ID ]; then
+    if [ $# != 1 ]; then
+	printf "You must provide an index between 1 to 6 when running outside SLURM.\n"
+	exit 1
+    else
+	SLURM_ARRAY_TASK_ID=$1
+    fi
+fi
 
 #input_bam1=`echo 4-bwa-mem/*_S${SLURM_ARRAY_TASK_ID}_L001-nodup-uniq.bam`
 #input_bam2=`echo 4-bwa-mem/*_S$((SLURM_ARRAY_TASK_ID + 3))_L001-nodup-uniq.bam`

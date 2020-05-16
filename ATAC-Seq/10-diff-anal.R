@@ -147,7 +147,8 @@ print(Peaks)
 ## Read in peaksets, identify consensus
 # %>% = pipe
 # Example CNC-EMDiff filename: CCA1A_S1_L001-nodup-uniq.bam
-# "1A": 1 = condition, A = time point
+# "1A": 1 = replicate, A = time point
+# Due to data mislabling, 1 = time point (condition) and A is replicate
 # SampleID <- strsplit(dir("ALIGNED_TRANS/"), split=".", fixed=TRUE) %>%
 # Could this just as well use the merged BAMs in 8-?
 SampleID <- strsplit(dir("../4-bwa-mem/", pattern=paste0(cell_type, ".*.bam")),
