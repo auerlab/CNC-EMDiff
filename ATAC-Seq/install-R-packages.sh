@@ -48,12 +48,14 @@ if ! fgrep -q 'r["CRAN"]' $profile; then
     cat << EOM >> $profile
 local({
   r <- getOption("repos")
-  r[\"CRAN\"] <- \"$url\"
+  r["CRAN"] <- "$url"
   options(repos = r)
 })
 EOM
 else
     printf 'r["CRAN"] already set.\n'
 fi
+
+mkdir -p $prefix
 
 Rscript install-R-packages.R
