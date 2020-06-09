@@ -1,0 +1,3 @@
+#!/bin/sh -e
+
+pkg install -y librsvg2 v8 pkgconf
