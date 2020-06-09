@@ -319,6 +319,8 @@ if ( flip_rep_and_cond )
 
 print(paste0(cell_type, " day 2 vs day 0"))
 summary(res_pvalsort_BvsA, alpha=0.05) ## Previously 104
+print("res_pvalsort_BvsA:")
+print(res_pvalsort_BvsA)
 
 print(paste0(cell_type, " day 6 vs day 0"))
 summary(res_pvalsort_CvsA, alpha=0.05) ## Previously 0
