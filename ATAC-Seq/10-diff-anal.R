@@ -323,28 +323,26 @@ pause()
 if ( swap_replicate_and_condition )
 {
     # Flip condition/replicate
-    res_pvalsort_2vs0 <- results(dds_pvalsort, contrast = c("time_factor", "2", "1"))
-    res_pvalsort_CvsA <- results(dds_pvalsort, contrast = c("time_factor", "3", "1"))
-    res_pvalsort_CvsB <- results(dds_pvalsort, contrast = c("time_factor", "3", "2"))
+    res_pvalsort_T1vsT0 <- results(dds_pvalsort, contrast = c("time_factor", "2", "1"))
+    res_pvalsort_T2vsT0 <- results(dds_pvalsort, contrast = c("time_factor", "3", "1"))
+    res_pvalsort_T2vsT1 <- results(dds_pvalsort, contrast = c("time_factor", "3", "2"))
 } else {
-    res_pvalsort_2vs0 <- results(dds_pvalsort, contrast = c("time_factor", "B", "A"))
-    res_pvalsort_CvsA <- results(dds_pvalsort, contrast = c("time_factor", "C", "A"))
-    res_pvalsort_CvsB <- results(dds_pvalsort, contrast = c("time_factor", "C", "B"))
+    res_pvalsort_T1vsT0 <- results(dds_pvalsort, contrast = c("time_factor", "B", "A"))
+    res_pvalsort_T2vsT0 <- results(dds_pvalsort, contrast = c("time_factor", "C", "A"))
+    res_pvalsort_T2vsT1 <- results(dds_pvalsort, contrast = c("time_factor", "C", "B"))
 }
 
-print(paste0(cell_type, " day 2 vs day 0"))
-summary(res_pvalsort_2vs0, alpha=0.05) ## Previously 104
-print("res_pvalsort_2vs0:")
-# print(res_pvalsort_2vs0)
-write.table(res_pvalsort_2vs0, paste0(cell_type, "-day-2-vs-0.tsv"),
+print(paste0(cell_type, " T1 vs T0"))
+summary(res_pvalsort_T1vsT0, alpha=0.05) ## Previously 104
+write.table(res_pvalsort_T1vsT0, paste0(cell_type, "-T1-vs-T0.tsv"),
 	    col.names = FALSE)
 
-print(paste0(cell_type, " day 6 vs day 0"))
-summary(res_pvalsort_CvsA, alpha=0.05) ## Previously 0
-write.table(res_pvalsort_CvsA, paste0(cell_type, "-day-6-vs-0.tsv"),
+print(paste0(cell_type, " T2 vs T0"))
+summary(res_pvalsort_T2vsT0, alpha=0.05) ## Previously 0
+write.table(res_pvalsort_T2vsT0, paste0(cell_type, "-T2-vs-T0.tsv"),
 	    col.names = FALSE)
 
-print(paste0(cell_type, " day 6 vs day 2"))
-summary(res_pvalsort_CvsB, alpha=0.05)
-write.table(res_pvalsort_CvsB, paste0(cell_type, "-day-6-vs-2.tsv"),
+print(paste0(cell_type, " T2 vs T1"))
+summary(res_pvalsort_T2vsT1, alpha=0.05)
+write.table(res_pvalsort_T2vsT1, paste0(cell_type, "-T2-vs-T1.tsv"),
 	    col.names = FALSE)
