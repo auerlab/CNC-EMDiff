@@ -20,7 +20,7 @@ if ( (length(args) != 1) || ((args[1] != "CCA") && (args[1] != "NCA")) )
 cell_type <- args[1]
 
 # Compensate for misnamed sequence files.
-flip_rep_and_cond <- TRUE
+swap_replicate_and_condition <- TRUE
 
 # Process MACS2 peaks.  If FALSE, use peaks processed externally using
 # bedtools instead. If you change this, you must rerun dba() and dba.count().
@@ -52,7 +52,13 @@ options(max.print=60)
 # Make all output group-writable
 Sys.umask(mode = 007)
 
+setwd("10-diff-anal")
+
 # Generate merged peaks file
+# This if statement just presents two alternative ways to generate peaklets
+# representing the summit +/- 250 nt.  It doesn't matter which one you use
+# but if process_peaks_in_R is FALSE, then you need to run
+# 9-process-peaks.sbatch first.
 if ( process_peaks_in_R )
 {
     macsBed <- read.delim(paste0("../9-process-peaks/ATAC-", cell_type,
@@ -139,6 +145,11 @@ if ( process_peaks_in_R )
     # Generated externally using bedtools
     Peaks <- paste0("../9-process-peaks/high-confidence-p10-",
 		    cell_type, "-501-merged.bed")
+    if ( ! file.exists(Peaks) ) {
+	print(paste0("Error: File ", Peaks))
+	print("does not exist and process_peaks_in_R is false.")
+	stop()
+    }
 }
 
 print("Peaks")
@@ -157,8 +168,12 @@ SampleID <- strsplit(dir("../4-bwa-mem/", pattern=paste0(cell_type, ".*.bam")),
 
 print("SampleID")
 print(SampleID)
+if ( ! exists("SampleID") ) {
+    print("Error: Could not generate SampleID from ../4-bwa-mem/*.bam")
+    stop()
+}
 
-if ( flip_rep_and_cond )
+if ( swap_replicate_and_condition )
 {
     Condition <- substr(SampleID, 4, 4) %>% unlist()    # Flip condition/replicate
 } else {
@@ -168,7 +183,7 @@ if ( flip_rep_and_cond )
 print("Condition")
 print(Condition)
 
-if ( flip_rep_and_cond )
+if ( swap_replicate_and_condition )
 {
     Replicate <- substr(SampleID, 5, 5)%>% unlist()     # Flip condition/replicate
 } else {
@@ -305,25 +320,28 @@ pause()
 # According to file naming conventions.  Does not work: Almost no differential
 # peaks.  Are we comparing replicates rather than time points due to a sample
 # mixup?
-if ( flip_rep_and_cond )
+if ( swap_replicate_and_condition )
 {
     # Flip condition/replicate
-    res_pvalsort_BvsA <- results(dds_pvalsort, contrast = c("time_factor", "2", "1"))
+    res_pvalsort_2vs0 <- results(dds_pvalsort, contrast = c("time_factor", "2", "1"))
     res_pvalsort_CvsA <- results(dds_pvalsort, contrast = c("time_factor", "3", "1"))
     res_pvalsort_CvsB <- results(dds_pvalsort, contrast = c("time_factor", "3", "2"))
 } else {
-    res_pvalsort_BvsA <- results(dds_pvalsort, contrast = c("time_factor", "B", "A"))
+    res_pvalsort_2vs0 <- results(dds_pvalsort, contrast = c("time_factor", "B", "A"))
     res_pvalsort_CvsA <- results(dds_pvalsort, contrast = c("time_factor", "C", "A"))
     res_pvalsort_CvsB <- results(dds_pvalsort, contrast = c("time_factor", "C", "B"))
 }
 
 print(paste0(cell_type, " day 2 vs day 0"))
-summary(res_pvalsort_BvsA, alpha=0.05) ## Previously 104
-print("res_pvalsort_BvsA:")
-print(res_pvalsort_BvsA)
+summary(res_pvalsort_2vs0, alpha=0.05) ## Previously 104
+print("res_pvalsort_2vs0:")
+# print(res_pvalsort_2vs0)
+write.table(res_pvalsort_2vs0, paste0(cell_type, "-day-2-vs-0"))
 
 print(paste0(cell_type, " day 6 vs day 0"))
 summary(res_pvalsort_CvsA, alpha=0.05) ## Previously 0
+write.table(res_pvalsort_CvsA, paste0(cell_type, "-day-6-vs-0"))
 
 print(paste0(cell_type, " day 6 vs day 2"))
 summary(res_pvalsort_CvsB, alpha=0.05)
+write.table(res_pvalsort_CvsB, paste0(cell_type, "-day-6-vs-2"))
