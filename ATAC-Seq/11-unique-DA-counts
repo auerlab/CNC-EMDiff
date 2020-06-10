@@ -25,12 +25,13 @@ if [ $# != 0 ]; then
     usage
 fi
 
+cd 10-diff-anal
 for cell_type in CCA NCA; do
     printf "\n$cell_type LFC > 0:\n"
     rm -f peak-indexes.txt
     for time_interval in 2-vs-0 6-vs-0 6-vs-2; do
-	awk '$3 > 0 && $7 < 0.05 { print $1 }' $cell_type-day-$time_interval \
-	    >> peak-indexes.txt
+	awk '$3 > 0 && $7 < 0.05 { print $1 }' \
+	    $cell_type-day-$time_interval.tsv >> peak-indexes.txt
     done
     printf "Sum across time intervals: "
     cat peak-indexes.txt | wc -l
@@ -40,11 +41,12 @@ for cell_type in CCA NCA; do
     printf "\n$cell_type LFC < 0:\n"
     rm -f peak-indexes.txt
     for time_interval in 2-vs-0 6-vs-0 6-vs-2; do
-	awk '$3 < 0 && $7 < 0.05 { print $1 }' $cell_type-day-$time_interval \
-	    >> peak-indexes.txt
+	awk '$3 < 0 && $7 < 0.05 { print $1 }' \
+	    $cell_type-day-$time_interval.tsv >> peak-indexes.txt
     done
     printf "Sum across time intervals: "
     cat peak-indexes.txt | wc -l
     printf "Unique peaks:              "
     sort peak-indexes.txt | uniq | wc -l
 done
+rm -f peak-indexes.txt

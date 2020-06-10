@@ -336,12 +336,15 @@ print(paste0(cell_type, " day 2 vs day 0"))
 summary(res_pvalsort_2vs0, alpha=0.05) ## Previously 104
 print("res_pvalsort_2vs0:")
 # print(res_pvalsort_2vs0)
-write.table(res_pvalsort_2vs0, paste0(cell_type, "-day-2-vs-0"))
+write.table(res_pvalsort_2vs0, paste0(cell_type, "-day-2-vs-0.tsv"),
+	    col.names = FALSE)
 
 print(paste0(cell_type, " day 6 vs day 0"))
 summary(res_pvalsort_CvsA, alpha=0.05) ## Previously 0
-write.table(res_pvalsort_CvsA, paste0(cell_type, "-day-6-vs-0"))
+write.table(res_pvalsort_CvsA, paste0(cell_type, "-day-6-vs-0.tsv"),
+	    col.names = FALSE)
 
 print(paste0(cell_type, " day 6 vs day 2"))
 summary(res_pvalsort_CvsB, alpha=0.05)
-write.table(res_pvalsort_CvsB, paste0(cell_type, "-day-6-vs-2"))
+write.table(res_pvalsort_CvsB, paste0(cell_type, "-day-6-vs-2.tsv"),
+	    col.names = FALSE)
