@@ -22,11 +22,6 @@ cell_type <- args[1]
 # Compensate for misnamed sequence files.
 swap_replicate_and_condition <- TRUE
 
-# Process MACS2 peaks.  If FALSE, use peaks processed externally using
-# bedtools instead. If you change this, you must rerun dba() and dba.count().
-# Remove <cell_type>-readcounts_pvalsort.RData to make this happen.
-process_peaks_in_R <- TRUE
-
 # Loading libraries takes 20 seconds or more
 library(DiffBind)
 library(dplyr)
@@ -39,7 +34,7 @@ library(pheatmap)
 pause <- function()
 {
     # Change to TRUE for interactive run
-    if ( TRUE )
+    if ( FALSE )
     {
 	cat("Press Enter to continue...")
 	invisible(b <- scan("stdin", character(), nlines=1, quiet=TRUE))
@@ -59,47 +54,54 @@ setwd("10-diff-anal")
 # representing the summit +/- 250 nt.  It doesn't matter which one you use
 # but if process_peaks_in_R is FALSE, then you need to run
 # 9-process-peaks.sbatch first.
+
+# Process MACS2 peaks.  If FALSE, use peaks processed externally using
+# bedtools instead. If you change this, you must rerun dba() and dba.count().
+# Remove <cell_type>-readcounts_pvalsort.RData to make this happen.
+process_peaks_in_R <- FALSE
+
 if ( process_peaks_in_R )
 {
-    macsBed <- read.delim(paste0("../9-process-peaks/ATAC-", cell_type,
+    macsBed <- read.delim(paste0("../7-macs-peaklets/ATAC-", cell_type,
 	"-macs.peaklets_peaks.narrowPeak"), header=FALSE)
     ## Sort by p-value ($V8), only keep those with p-value < 10^-10 [44429]
     # keep - index vector
     # Done using awk
     
     # V8 = p-value.  Could use q-value as well.
-    keep <- which(macsBed$V8 > -log(10^-10))
+    rows_to_keep <- which(macsBed$V8 > -log(10^-10))
     #print("keep (rows where p < 10^-10)")
-    #print(keep)
+    #print(rows_to_keep)
     
     # new table, keep rows in "keep"
-    macs_all <- macsBed[keep,]
-    # print("macs_all (peaks with p < 10^-10)")
-    # print(macs_all)
+    macs_pval_ok <- macsBed[rows_to_keep,]
+    print("macs_pval_ok (peaks with p < 10^-10)")
+    print(macs_pval_ok)
     
     # debug: How many rows were filtered out?
-    cat(nrow(macsBed), "...", nrow(macs_all), "\n")
+    cat(nrow(macsBed), "...", nrow(macs_pval_ok), "\n")
     
     ## And write out merged : AR modified to use 501 bp regions
     # like bedtools - make peaklet around summit
     # col 2 = start, col 10 = distance from start to peak
-    macs_all_GR <- GRanges(seqnames=as.vector(macs_all[,1]),
-			   IRanges(start=as.numeric(as.vector(macs_all[,2])) + 
-				   as.numeric(as.vector(macs_all[,10])) - 250,
-				   end=as.numeric(as.vector(macs_all[,2])) + 
-				   as.numeric(as.vector(macs_all[,10])) + 250),
-				   strand=rep("*", nrow(macs_all)))
-    print("max_all_GR: 501 nt generated peaks")
-    print(macs_all_GR)
+    macs_pval_ok_GR <- GRanges(seqnames=as.vector(macs_pval_ok[,1]),
+			   IRanges(start=as.numeric(as.vector(macs_pval_ok[,2])) + 
+				   as.numeric(as.vector(macs_pval_ok[,10])) - 250,
+				   end=as.numeric(as.vector(macs_pval_ok[,2])) + 
+				   as.numeric(as.vector(macs_pval_ok[,10])) + 250),
+				   strand=rep("*", nrow(macs_pval_ok)))
+    print("macs_pval_ok_GR: 501 nt generated peaks")
+    print(macs_pval_ok_GR)
+    
     # line <- readline(prompt="Press [enter] to continue")
     pause()
     
     # add metadata to table
     # Remove columns 1-3
-    elementMetadata(macs_all_GR) <- macs_all[,-c(1:3)]
+    elementMetadata(macs_pval_ok_GR) <- macs_pval_ok[,-c(1:3)]
     
     # Add names for each col
-    colnames(elementMetadata(macs_all_GR)) <- c("Peak_ID","Score","Strand", 
+    colnames(elementMetadata(macs_pval_ok_GR)) <- c("Peak_ID","Score","Strand", 
 						"Fold-change", "log10pvalue",
 						"log10qvalue",
 						"Relative_summit")
@@ -109,16 +111,20 @@ if ( process_peaks_in_R )
     
     # merge overlapping peaks
     # Done with bedtools merge
-    macsGR_bed <- data.frame(chr=seqnames(macs_all_GR),
-			     starts=start(macs_all_GR),
-			     end=end(macs_all_GR),
-			     names=c(rep(".", length(macs_all_GR))),
-			     scores=c(rep(".", length(macs_all_GR))),
-			     strands=strand(macs_all_GR))
+    macsGR_bed <- data.frame(chr=seqnames(macs_pval_ok_GR),
+			     starts=start(macs_pval_ok_GR),
+			     end=end(macs_pval_ok_GR),
+			     #names=c(rep(".", length(macs_pval_ok_GR))),
+			     names=paste0("chr",seqnames(macs_pval_ok_GR),
+					  "_", start(macs_pval_ok_GR),
+					  "_", end(macs_pval_ok_GR)),
+			     scores=c(rep(".", length(macs_pval_ok_GR))),
+			     strands=strand(macs_pval_ok_GR))
     
     ## Note: some of the peaks need to be recentered (negative start)
     index <- which(macsGR_bed$starts < 1)
-    macsGR_bed[index, "end"] <- macsGR_bed[index, "end"] - macsGR_bed[index, "starts"] + 1
+    macsGR_bed[index, "end"] <- macsGR_bed[index, "end"] - 
+	macsGR_bed[index, "starts"] + 1
     macsGR_bed[index, "starts"] <- 1
     ## Note: some of the peaks need to be recentered (too long)
     # This look useless for CNC-EMDiff.  What was it for in OpticRegen?
@@ -132,6 +138,7 @@ if ( process_peaks_in_R )
     #macsGR_bed[index, "end"] <- 26543; macsGR_bed[index, "starts"] <- macsGR_bed[index, "end"] - 499
     #write.table(macsGR_bed, paste0("PEAKS_TRANS_PEAKLETS_ALLTIMES/",
     # "ALLMERGED_ATAC.nodup.unique.macs.peaklets_peaks.pvalsort.narrowPeak_501bp.bed")
+    
     write.table(macsGR_bed, paste0(cell_type, "-R-code-merged-peaks.bed"),
 		col.names=FALSE, row.names=FALSE, quote=FALSE, sep="\t")
     
