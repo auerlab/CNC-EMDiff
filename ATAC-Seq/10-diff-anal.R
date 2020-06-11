@@ -25,7 +25,7 @@ swap_replicate_and_condition <- TRUE
 # Process MACS2 peaks.  If FALSE, use peaks processed externally using
 # bedtools instead. If you change this, you must rerun dba() and dba.count().
 # Remove <cell_type>-readcounts_pvalsort.RData to make this happen.
-process_peaks_in_R <- FALSE
+process_peaks_in_R <- TRUE
 
 # Loading libraries takes 20 seconds or more
 library(DiffBind)
@@ -39,7 +39,7 @@ library(pheatmap)
 pause <- function()
 {
     # Change to TRUE for interactive run
-    if ( FALSE )
+    if ( TRUE )
     {
 	cat("Press Enter to continue...")
 	invisible(b <- scan("stdin", character(), nlines=1, quiet=TRUE))
@@ -287,6 +287,10 @@ print("colData$time_factor:")
 print(colData$time_factor)
 pause()
 
+print("GRanges(rowData_pvalsort):")
+print(GRanges(rowData_pvalsort))
+pause()
+
 # Organize input
 dds_pvalsort <- DESeqDataSetFromMatrix(countData = counts_pvalsort,
 				       colData = colData,
@@ -335,14 +339,14 @@ if ( swap_replicate_and_condition )
 print(paste0(cell_type, " T1 vs T0"))
 summary(res_pvalsort_T1vsT0, alpha=0.05) ## Previously 104
 write.table(res_pvalsort_T1vsT0, paste0(cell_type, "-T1-vs-T0.tsv"),
-	    col.names = FALSE)
+	    col.names = TRUE)
 
 print(paste0(cell_type, " T2 vs T0"))
 summary(res_pvalsort_T2vsT0, alpha=0.05) ## Previously 0
 write.table(res_pvalsort_T2vsT0, paste0(cell_type, "-T2-vs-T0.tsv"),
-	    col.names = FALSE)
+	    col.names = TRUE)
 
 print(paste0(cell_type, " T2 vs T1"))
 summary(res_pvalsort_T2vsT1, alpha=0.05)
 write.table(res_pvalsort_T2vsT1, paste0(cell_type, "-T2-vs-T1.tsv"),
-	    col.names = FALSE)
+	    col.names = TRUE)
