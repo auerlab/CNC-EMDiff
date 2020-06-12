@@ -283,10 +283,10 @@ pause()
 # Extract data we really need
 # [[]] means list
 rowData_pvalsort <- readcounts_pvalsort$peaks[[1]][,1:3]
-rownames(rowData_pvalsort) <- paste0(seq.int(nrow(rowData_pvalsort)),
-				     "-","chr", rowData_pvalsort$Chr,
-				     "-", rowData_pvalsort$Start,
-				     "-", rowData_pvalsort$End )
+rownames(rowData_pvalsort) <- paste0(# seq.int(nrow(rowData_pvalsort)), "-",
+				     "chr", rowData_pvalsort$Chr, "-",
+				     rowData_pvalsort$Start, "-",
+				     rowData_pvalsort$End )
 print("rowData_pvalsort:")
 print(rowData_pvalsort)
 pause()
