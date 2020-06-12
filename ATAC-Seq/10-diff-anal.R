@@ -26,9 +26,6 @@ swap_replicate_and_condition <- TRUE
 library(DiffBind)
 library(dplyr)
 library(DESeq2)
-library(GenomicRanges)
-library(RColorBrewer)
-library(pheatmap)
 
 # Pause until user presses enter
 pause <- function()
@@ -62,6 +59,8 @@ process_peaks_in_R <- FALSE
 
 if ( process_peaks_in_R )
 {
+    library(GenomicRanges)
+    
     macsBed <- read.delim(paste0("../7-macs-peaklets/ATAC-", cell_type,
 	"-macs.peaklets_peaks.narrowPeak"), header=FALSE)
     ## Sort by p-value ($V8), only keep those with p-value < 10^-10 [44429]
@@ -110,18 +109,19 @@ if ( process_peaks_in_R )
     ## them as is without merging (so we may be double counting a small number of reads)
     
     # merge overlapping peaks
-    # Done with bedtools merge
+    # Done with bedtools merge otherwise
     macsGR_bed <- data.frame(chr=seqnames(macs_pval_ok_GR),
 			     starts=start(macs_pval_ok_GR),
 			     end=end(macs_pval_ok_GR),
 			     #names=c(rep(".", length(macs_pval_ok_GR))),
 			     names=paste0("chr",seqnames(macs_pval_ok_GR),
-					  "_", start(macs_pval_ok_GR),
-					  "_", end(macs_pval_ok_GR)),
+					  "-", start(macs_pval_ok_GR),
+					  "-", end(macs_pval_ok_GR)),
 			     scores=c(rep(".", length(macs_pval_ok_GR))),
 			     strands=strand(macs_pval_ok_GR))
     
     ## Note: some of the peaks need to be recentered (negative start)
+    print(macsGR_bed)
     index <- which(macsGR_bed$starts < 1)
     macsGR_bed[index, "end"] <- macsGR_bed[index, "end"] - 
 	macsGR_bed[index, "starts"] + 1
@@ -170,11 +170,12 @@ print(Peaks)
 # SampleID <- strsplit(dir("ALIGNED_TRANS/"), split=".", fixed=TRUE) %>%
 # Could this just as well use the merged BAMs in 8-?
 SampleID <- strsplit(dir("../4-bwa-mem/", pattern=paste0(cell_type, ".*.bam")),
-  split=".", fixed=TRUE) %>% lapply(., function(x) x[1]) %>%
+  split="-", fixed=TRUE) %>% lapply(., function(x) x[1]) %>%
   unlist() %>% unique()
 
 print("SampleID")
 print(SampleID)
+
 if ( ! exists("SampleID") ) {
     print("Error: Could not generate SampleID from ../4-bwa-mem/*.bam")
     stop()
@@ -215,7 +216,9 @@ print(PeakCaller)
 pause()
 
 # Create new table from existing vectors
-samples <- data.frame(SampleID, Condition, Replicate, bamReads, Peaks, PeakCaller)
+# Specific header names required by dba.count()
+samples <- data.frame(SampleID, Condition, Replicate, bamReads,
+		      Peaks, PeakCaller)
 print("samples")
 print(samples)
 pause()
@@ -261,6 +264,8 @@ if ( file.exists(readcounts_filename) ) {
 }
 
 print("readcounts_pvalsort:")
+typeof(readcounts_pvalsort)
+length(readcounts_pvalsort)
 print(readcounts_pvalsort)
 pause()
 
@@ -278,6 +283,10 @@ pause()
 # Extract data we really need
 # [[]] means list
 rowData_pvalsort <- readcounts_pvalsort$peaks[[1]][,1:3]
+rownames(rowData_pvalsort) <- paste0(seq.int(nrow(rowData_pvalsort)),
+				     "-","chr", rowData_pvalsort$Chr,
+				     "-", rowData_pvalsort$Start,
+				     "-", rowData_pvalsort$End )
 print("rowData_pvalsort:")
 print(rowData_pvalsort)
 pause()
@@ -305,19 +314,25 @@ dds_pvalsort <- DESeqDataSetFromMatrix(countData = counts_pvalsort,
 				       design = ~ time_factor)
 
 # pauer 2020-03-16
-vsd <- vst(dds_pvalsort, blind=FALSE)
-sampleDists <- dist(t(assay(vsd)))
-sampleDistMatrix <- as.matrix(sampleDists)
-rownames(sampleDistMatrix) <- paste(vsd$SampleID)
-colnames(sampleDistMatrix) <- paste(vsd$SampleID)
-colors <- colorRampPalette( rev(brewer.pal(9, "Blues")) )(255)
-pdf(paste0("heatmap-Sample-Similarity-", cell_type, ".pdf"),
-    height=8, width=11)
-pheatmap(sampleDistMatrix,
-	 clustering_distance_rows=sampleDists,
-	 clustering_distance_cols=sampleDists,
-	 col=colors)
-dev.off()
+if ( TRUE )
+{
+    library(RColorBrewer)
+    library(pheatmap)
+
+    vsd <- vst(dds_pvalsort, blind=FALSE)
+    sampleDists <- dist(t(assay(vsd)))
+    sampleDistMatrix <- as.matrix(sampleDists)
+    rownames(sampleDistMatrix) <- paste(vsd$SampleID)
+    colnames(sampleDistMatrix) <- paste(vsd$SampleID)
+    colors <- colorRampPalette( rev(brewer.pal(9, "Blues")) )(255)
+    pdf(paste0("heatmap-Sample-Similarity-", cell_type, ".pdf"),
+	height=8, width=11)
+    pheatmap(sampleDistMatrix,
+	     clustering_distance_rows=sampleDists,
+	     clustering_distance_cols=sampleDists,
+	     col=colors)
+    dev.off()
+}
 
 # Run differential analysis
 print("Running DESeq...")
