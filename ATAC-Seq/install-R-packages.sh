@@ -15,7 +15,9 @@ usage()
 
 Usage: $0 prefix cran-URL
 
-Example: $0 /raid-01/bacon/R https://cran.mtu.edu/
+Example: $0 /raid-01/bacon/R https://mirror.las.iastate.edu/CRAN/
+
+See https://cran.r-project.org/mirrors.html for mirror URLs
 
 EOM
     exit 1

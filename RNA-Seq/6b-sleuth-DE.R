@@ -1,3 +1,18 @@
+#!/usr/bin/env Rscript
+
+##########################################################################
+#   Script description:
+#       Sleuth analysis for CNC-EMDiff
+#       
+#   History:
+#   Date        Name        Modification
+#   Fall 2019   Paul L Auer Begin
+#   2020-06-15  Jason Bacon Integrate into latest RNA-Seq pipeline
+##########################################################################
+
+library()
+load()
+
 library(sleuth)
 library(biomaRt)
 library(dplyr)
@@ -51,7 +66,9 @@ t2g <- dplyr::rename(t2g, target_id = ensembl_transcript_id, ens_gene = ensembl_
 
 #### Within Chondro treat as a single experiment
 # Read in data
-base_dir <- "4-kallisto-quant-m30-u15/"
+# From several parameter variations early on:
+# base_dir <- "4-kallisto-quant-m30-u15/"
+base_dir <- "4-kallisto-quant-0.46.1"
 sample_id <- as.character(sort(as.numeric(dir(file.path(base_dir))[1:18])))[1:9]
 
 kal_dirs <- sapply(sample_id, function(id) file.path(base_dir, id))

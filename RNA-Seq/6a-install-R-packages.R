@@ -2,7 +2,7 @@
 
 ## Default repo
 local({r <- getOption("repos")
-       r["CRAN"] <- "https://cran.mtu.edu/"
+       r["CRAN"] <- "https://mirror.las.iastate.edu/CRAN/"
        options(repos=r)
 })
 

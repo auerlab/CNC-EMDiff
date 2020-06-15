@@ -20,3 +20,9 @@ if (!requireNamespace("GenomicRanges", quietly = TRUE))
 
 if (!requireNamespace("DiffBind", quietly = TRUE))
     BiocManager::install("DiffBind")
+
+if (!requireNamespace("ChIPpeakAnno", quietly = TRUE))
+    BiocManager::install("ChIPpeakAnno")
+
+if (!requireNamespace("AnnotationHub", quietly = TRUE))
+    BiocManager::install("AnnotationHub")
