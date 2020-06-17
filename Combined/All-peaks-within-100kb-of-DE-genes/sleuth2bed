@@ -1,0 +1,33 @@
+#!/bin/sh -e
+
+##########################################################################
+#   Filter locations of genes from GTF
+##########################################################################
+
+gtf=../RNA-Seq/Reference/Mus_musculus.GRCm38.98.gtf
+gtf_base=$(basename $gtf)
+feature_locations=${gtf_base%.gtf}.tsv
+echo $feature_locations
+if [ ! -e $feature_locations ]; then
+    time awk '$9 == "gene_id" {
+	gsub("\"", "", $10);
+	gsub(";", "", $10);
+	printf("%s\t%s\t%s\t%s\t%s\n", $1, $3, $4, $5, $10);
+    }' $gtf > $feature_locations
+fi
+
+# Note: Multiple TSSs for many genes
+gene_locations=transcript-locations.tsv
+awk '$2 == "gene"' $feature_locations | sort -k 5 > $gene_locations
+
+for de_file in ../RNA-Seq/Sleuth-Prelim/*.txt; do
+    base_de_file=$(basename $de_file)
+    sorted_ids=${base_de_file%.txt}.sorted
+    awk '$1 != "target_id" { print $2 }' $de_file | sort > $sorted_ids
+
+    # Create BED file of DE genes for each cluster
+    while read transcript; do
+	printf "$transcript\n"
+    done < $gene_locations | more
+done
+
