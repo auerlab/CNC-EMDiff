@@ -1,0 +1,23 @@
+#!/bin/sh -e
+
+gtf=Reference/Mus_musculus.GRCm38.98.gtf
+sorted_locations=${gtf%.gtf}-sorted.tsv
+if [ ! -e $sorted_locations ]; then
+    time awk '$9 == "gene_id" {
+	gsub("\"", "", $10);
+	gsub(";", "", $10);
+	printf("%s\t%s\t%s\t%s\t%s\t%s\n", $1, $2, $3, $4, $5, $10);
+    }' $gtf | sort -k 10 > $sorted_locations
+fi
+
+for file in Sleuth-Prelim/*.txt; do
+    sorted_ids=${file%.txt}.sorted
+    awk '$1 != "target_id" { print $2 }' $file | sort > $sorted_ids
+    echo $sorted_ids
+    head $sorted_ids
+done
+
+more $sorted_locations
+while read gtf_line; do
+    echo $gft_line
+done < $sorted_locations | more
