@@ -19,8 +19,10 @@ cd Reference
 # ../Reference/mus_musculus.tar.gz to 3-kallisto-index/all-but-xy.index
 # and skip running this sbatch script.
 
-# Probably not much difference between these two methods
-# Either works fine for a basic kallisto quantification
+# Not much difference between these two methods. Either works fine for a basic
+# kallisto quantificatiod. There are a few gene IDs in the release 98 CDNA
+# reference that are not in the GTF.  If downstream analysis involved looking
+# up genes in the GTF, this could result in a few misses.
 ./cdna.sh           # Remove XY from Ensembl cdna transcriptome
 # ./gtf2fasta.sh      # Construct genome minus XY using Ensembl GTF
 

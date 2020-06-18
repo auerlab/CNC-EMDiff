@@ -1,0 +1,107 @@
+#!/bin/sh -e
+
+
+##########################################################################
+#   Function description:
+#       Pause until user presses return
+##########################################################################
+
+pause()
+{
+    local junk
+    
+    printf "Press return to continue..."
+    read junk
+}
+
+
+##########################################################################
+#   Filter locations of genes from GTF
+#   FIXME: Use all-but-xy.transcripts.clean.fa from the kallisto analysis
+#   since the CDNA reference contains a few genes not in the GTF.
+#   all-but-xy.transcripts.clean.fa is generated from either the CDNA or
+#   the GTF so we should use the same file here.
+##########################################################################
+
+ref_dir="../../RNA-Seq/Reference"
+release=$($ref_dir/reference-release)
+gtf="$ref_dir/Mus_musculus.GRCm38.$release.gtf"
+gtf_base=$(basename $gtf)
+feature_locations=${gtf_base%.gtf}.tsv
+if [ ! -e $feature_locations ]; then
+    printf "Generating $feature_locations...\n"
+    awk '$9 == "gene_id" {
+	gsub("\"", "", $10);
+	gsub(";", "", $10);
+	printf("%s\t%s\t%s\t%s\t%s\n", $1, $3, $4, $5, $10);
+    }' $gtf > $feature_locations
+fi
+
+# Note: Multiple TSSs for many genes
+gene_locations=all-known-gene-locations-release-$release.tsv
+printf "Generating $gene_locations...\n"
+awk '$2 == "gene"' $feature_locations | sort -k 5 > $gene_locations
+
+##########################################################################
+#   Get gene IDs from RNA-Seq clustering results
+##########################################################################
+
+for cell_type in chondro neuro; do
+    
+    # Col 16 of augmented Sleuth output contains cluster # for each gene
+    # List of unique values in this column enumerates clusters
+    tsv="../../RNA-Seq/Clusters/$cell_type.tsv"
+    clusters=$(awk '$1 != "target_id" { print $16 }' $tsv | sort | uniq)
+    
+    for cluster in $clusters; do
+	cluster_gene_list=gene-list-$cell_type-cluster-$cluster.txt
+	# printf "$cell_type cluster $cluster...\n"
+	awk "\$16 == $cluster { print \$2 }" $tsv | sort | uniq \
+	    > $cluster_gene_list
+	wc -l $cluster_gene_list
+	cluster_gene_lists="$cluster_gene_lists $cluster_gene_list"
+    done
+done
+
+##########################################################################
+#   Find all peaks (both differential and stable accessibility) within
+#   100kb of DE gene TSS by cluster
+##########################################################################
+
+for cluster_gene_list in $cluster_gene_lists; do
+    rm -f ${cluster_gene_list%.txt}.bed
+done
+
+# Create BED file of DE genes for each cluster
+# Feature location is TSS +/- 100kb
+# Then bedtools can look for overlaps of the peaks with these features
+genes=$(cat $gene_locations | wc -l)
+c=1
+while read gene; do
+    gene_id=$(echo "$gene" | cut -f 5)
+    for cluster_gene_list in $cluster_gene_lists; do
+	# Grepping the cluster files is awful for efficiency, but the files
+	# are small so we can get away with it for now.  This takes about
+	# 8 minutes on my ThinkCenter M92p-Tiny.
+	if fgrep -m 1 -q $gene_id $cluster_gene_list; then
+	    printf "%5s of %s %s %-31s\r" $c $genes $gene_id $cluster_gene_list
+	    # Extract relevant fields
+	    chromosome=$(echo "$gene" | cut -f 1)
+	    tss=$(echo "$gene" | cut -f 3)
+	    # It's OK if these values are beyond chromosome boundaries
+	    # since they're just compared to peak boundaries.  Filter out
+	    # negatives anyway, since it doesn't require a chromosome size.
+	    start=$(($tss - 100000))
+	    bed_file=${cluster_gene_list%.txt}.bed
+	    printf "%s\t%s\t%s\t%s\n" $chromosome \
+		$(($start < 0 ? 0 : $start)) \
+		$(($tss + 100000)) $gene_id >> $bed_file
+	fi
+    done
+    c=$((c + 1))
+done < $gene_locations
+printf '\n'
+
+for cluster_gene_list in $cluster_gene_lists; do
+    wc -l ${cluster_gene_list%.txt}.bed
+done
