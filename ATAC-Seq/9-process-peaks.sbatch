@@ -13,6 +13,7 @@
 # Spoof SLURM_ARRAY_TASK_ID if not set for testing outside SLURM env
 : ${SLURM_ARRAY_TASK_ID:="1 2"}
 
+bedtools --version > 9-process-peaks/bedtools-version.txt 2>&1
 # One iteration if running under SLURM, all iterations otherwise
 for task_id in $SLURM_ARRAY_TASK_ID; do
     printf "Processing task $task_id...\n"
@@ -65,7 +66,7 @@ for task_id in $SLURM_ARRAY_TASK_ID; do
     #awk '{ printf("%s\t%s\t%s\t%s\t%s\n", $1, $2-250, $2+250, $4, $5) }' \
     #    ATAC-$cell_type-macs.peaklets_summits.bed \
     #    > ATAC-$cell_type-macs.peaklets-501.bed
-    
+
     bedtools slop -b 250 -i high-confidence-p$p_value-$cell_type-summits.bed \
 	-g ../../RNA-Seq/Reference/chromosome-sizes.tsv \
 	> high-confidence-p$p_value-$cell_type-501.bed

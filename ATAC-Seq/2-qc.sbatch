@@ -40,6 +40,7 @@ trimmed2="1-trim/*_S${SLURM_ARRAY_TASK_ID}_*R2*.fastq.gz"
 printf "$raw1 $raw2 $trimmed1 $trimmed2\n"
 mkdir -p 2-qc/Raw 2-qc/Trimmed
 
+fastqc --version > 2-qc/fastqc-version.txt 2>&1
 fastqc $raw1 -o 2-qc/Raw
 fastqc $raw2 -o 2-qc/Raw
 (cd 2-qc/Raw && multiqc .)

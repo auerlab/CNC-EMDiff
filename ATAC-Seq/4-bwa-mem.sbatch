@@ -18,6 +18,7 @@
 # Spoof SLURM_ARRAY_TASK_ID if not set for testing outside SLURM env
 : ${SLURM_ARRAY_TASK_ID:=1}
 
+bwa > 4-bwa-mem/bwa-version.txt 2>&1
 cd 4-bwa-mem
 infile1=../1-trim/*_S${SLURM_ARRAY_TASK_ID}_L001-R1.fastq.gz
 infile2=../1-trim/*_S${SLURM_ARRAY_TASK_ID}_L001-R2.fastq.gz

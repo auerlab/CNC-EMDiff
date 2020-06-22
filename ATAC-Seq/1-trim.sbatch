@@ -55,6 +55,7 @@ adapter=CTGTCTCTTATACACATCT
 # Most quality scores are above 30, so we can be pickier thant the usual
 # cut-off of 20
 # Not sure about min length for ATAC
+cutadapt --version > 1-trim/cutadapt-version.txt 2>&1
 cutadapt \
     --quality-cutoff=24 \
     -u -3 -U -3 \

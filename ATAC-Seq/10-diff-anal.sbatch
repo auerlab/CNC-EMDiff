@@ -29,4 +29,5 @@ case $SLURM_ARRAY_TASK_ID in
     ;;
 esac
 
+R --version > 10-diff-anal/R-version.txt 2>&1
 ../10-diff-anal.R $cell_type
