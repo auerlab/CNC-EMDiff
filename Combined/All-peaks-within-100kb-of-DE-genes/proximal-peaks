@@ -31,11 +31,19 @@ head -5 $gene_locations
 #   Get gene IDs from RNA-Seq clustering results
 ##########################################################################
 
-genome_fasta=Mus_musculus.GRCm38.dna.primary_assembly.fa.gz
-site=ftp://ftp.ensembl.org/pub/release-$release/fasta/mus_musculus/dna
+genome_fasta=Mus_musculus.GRCm38.dna.toplevel.fa
+site=ftp://ftp.ensembl.org/pub/release-$release/fasta/mus_musculus/dna_index/
+if [ ! -e $genome_fasta.gz ]; then
+    printf "Fetching $genome_fasta.gz...\n"
+    curl -O $site/$genome_fasta.gz
+fi
+if [ ! -e $genome_fasta.gz.fai ]; then
+    printf "Fetching $genome_fasta.gz.fai...\n"
+    curl -O $site/$genome_fasta.gz.fai
+fi
 if [ ! -e $genome_fasta ]; then
-    printf "Fetching $genome_fasta...\n"
-    curl -O $site/$genome_fasta
+    printf "Unpacking $genome_fasta...\n"
+    gunzip --keep $genome_fasta.gz
 fi
 
 bedtools --version > bedtools-version.txt
@@ -78,6 +86,7 @@ for cell_type in CCA NCA; do
 	#   within 100kb of DE gene TSS by cluster
 	#####################################################################
 	
+	printf "Finding proximal peaks...\n"
 	peaks_file=../../ATAC-Seq/9-process-peaks/high-confidence-p10-$cell_type-501-merged.bed
 	proximal_peaks_file=${cluster_gene_locations%.bed}-proximal-peaks.bed
 	bedtools intersect -sorted -wa -a $peaks_file -b $cluster_gene_100kb \
@@ -88,6 +97,7 @@ for cell_type in CCA NCA; do
 	#   Generate fasta file for each set of proximal peaks
 	#####################################################################
 	
+	printf "Generating fasta...\n"
 	fasta_file=${proximal_peaks_file%.bed}.fasta
 	bedtools getfasta -fi $genome_fasta -bed $proximal_peaks_file \
 	    > $fasta_file
