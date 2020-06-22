@@ -14,6 +14,7 @@
 # Alignment is expensive, so this might save time.
 
 cd 6-remove-duplicates
+samtools --version > samtools-version.txt 2>&1
 
 # Variable assignments don't expand globbing patterns, so insert an ls command
 saminput=$(ls ../4-bwa-mem/*_S${SLURM_ARRAY_TASK_ID}_L001.sam)

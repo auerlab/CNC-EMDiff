@@ -27,6 +27,7 @@ case $SLURM_ARRAY_TASK_ID in
 
 esac
 
+macs2 --version > 7-macs-peaklets/macs2-version.txt 2>&1
 echo Peak calling, merging replicates across all time points, calling peaklets...
 # "mm" is the compiled-in Mus Musculus genome size.  See MACS2 docs.
 # BAMPE = BAM Paired End

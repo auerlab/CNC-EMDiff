@@ -91,6 +91,8 @@ if [ $SLURM_ARRAY_TASK_ID -le 3 ]; then
 else
     output_bam=8-merge-bams/atac-neural-$((SLURM_ARRAY_TASK_ID - 9)).bam
 fi
+
+samtools --version > 8-merge-bams/samtools-version.txt 2>&1
 set -x
 samtools merge $output_bam $input_bams
 samtools index $output_bam

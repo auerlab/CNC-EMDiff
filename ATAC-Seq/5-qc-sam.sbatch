@@ -10,4 +10,5 @@
 : ${SLURM_ARRAY_TASK_ID:=1}
 
 infile=4-bwa-mem/*_S${SLURM_ARRAY_TASK_ID}_L001.sam
+fastqc --version > 5-qc-sam/fastqc-version.txt 2>&1
 fastqc $infile -o 5-qc-sam
