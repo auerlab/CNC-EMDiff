@@ -10,7 +10,9 @@
 #   generate peaklets around summits, and merge overlapping peaklets.
 ##########################################################################
 
-# Spoof SLURM_ARRAY_TASK_ID if not set for testing outside SLURM env
+# SLURM will set SLURM_ARRAY_TASK_ID to one of the values in --array above.
+# If not running on a SLURM cluster, loop through all the values by spoofing
+# SLURM_ARRAY_TASK_ID to the entire list.
 : ${SLURM_ARRAY_TASK_ID:="1 2"}
 
 bedtools --version > 9-process-peaks/bedtools-version.txt 2>&1
