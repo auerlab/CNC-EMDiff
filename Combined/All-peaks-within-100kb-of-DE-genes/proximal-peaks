@@ -47,11 +47,12 @@ gtf="$ref_dir/Mus_musculus.GRCm38.$release.gtf"
 gene_locations=gene-locations-$release.tsv
 printf "Generating $gene_locations...\n"
 # Output format: chr start stop gene-ID
-awk '($1 >= 1 && $1 <= 22 || $1 == "X") && $3 == "gene" && $9 == "gene_id" {
+# Sort by gene ID for awk script that follows
+awk '$1 >= 1 && $1 <= 19 && $3 == "gene" && $9 == "gene_id" {
     gsub("\"", "", $10);
     gsub(";", "", $10);
     printf("%s\t%s\t%s\t%s\n", $1, $4, $5, $10);
-}' $gtf | sort -k 5 > $gene_locations
+}' $gtf | sort -k 4 > $gene_locations
 wc -l $gene_locations
 head -5 $gene_locations
 
@@ -61,6 +62,7 @@ head -5 $gene_locations
 #   FIXME: Use ../../ATAC-Seq/Reference instead?
 ##########################################################################
 
+if false; then
 genome_fasta=Mus_musculus.GRCm38.dna.toplevel.fa
 site=ftp://ftp.ensembl.org/pub/release-$release/fasta/mus_musculus/dna_index/
 if [ ! -e $genome_fasta.gz ]; then
@@ -74,6 +76,7 @@ fi
 if [ ! -e $genome_fasta ]; then
     printf "Unpacking $genome_fasta...\n"
     gunzip --keep $genome_fasta.gz
+fi
 fi
 
 bedtools --version > bedtools-version.txt
@@ -134,6 +137,7 @@ for cell_type in CCA NCA; do
 	
 	printf "Generating fasta...\n"
 	fasta_file=${proximal_peaks_file%.bed}.fasta
+	genome_fasta=../../ATAC-Seq/Reference/Mus_musculus.GRCm38.dna.autosomes.fa
 	bedtools getfasta -fi $genome_fasta -bed $proximal_peaks_file \
 	    > $fasta_file
     done
