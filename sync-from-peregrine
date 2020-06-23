@@ -5,6 +5,11 @@ if hostname | fgrep peregrine; then
     exit 1
 fi
 
+printf "Raw...\n"
+mkdir -p Raw
+rsync -av --size-only --progress "$@" \
+    'peregrine.hpc.uwm.edu:Data/CNC-EMDiff/Raw/*-Lane[12]' Raw
+
 # Sync output files, which are not (and should not be) added to the repo
 rna_dirs="1-trim 2-qc 3-kallisto-index 4-kallisto-quant-0.46.1 5-merge-bams 6-diff-anal"
 atac_dirs="1-trim 2-qc 3-bwa-index 4-bwa-mem 5-qc-sam 6-remove-duplicates 7-macs-peaklets 8-merge-bams 9-process-peaks 10-diff-anal"
