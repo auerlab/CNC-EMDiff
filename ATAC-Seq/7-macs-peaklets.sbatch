@@ -32,7 +32,7 @@ for task_id in $SLURM_ARRAY_TASK_ID; do
     esac
     
     macs2 --version > 7-macs-peaklets/macs2-version.txt 2>&1
-    echo Peak calling, merging replicates across all time points, calling peaklets...
+    printf "$cell_type: Peak calling, merging replicates across all time points, calling peaklets...\n"
     # "mm" is the compiled-in Mus Musculus genome size.  See MACS2 docs.
     # BAMPE = BAM Paired End
     # Does order of the filenames matter?
