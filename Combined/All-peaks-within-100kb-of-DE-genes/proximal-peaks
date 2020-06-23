@@ -1,37 +1,92 @@
 #!/bin/sh -e
 
 ##########################################################################
-#   Filter locations of genes from GTF
-#   Ensembl GTF has many more gene IDs represented than CDNA.
-#   CDNA reference contains a few genes not in the GTF.
+#   Script description:
+#       Locate ATAC-Seq peaks within 100kb of DE gene TSS for each
+#       gene cluster.
+#       
+#   History:
+#   Date        Name        Modification
+#   2020-06-12  Jason Bacon Begin
+##########################################################################
+
+usage()
+{
+    printf "Usage: $0\n"
+    exit 1
+}
+
+
+##########################################################################
+#   Main
+##########################################################################
+
+if [ $# != 0 ]; then
+    usage
+fi
+
+##########################################################################
+#   Filter gene locations from Ensembl GTF
+#   CDNA does not document features like exans, UTRs, etc.
+#   Ensembl GTF has many more gene IDs represented than CDNA reference
+#   and CDNA contains a small number of gene IDs not in the GTF.
 #   all-but-xy.transcripts.clean.fa is generated from either GTF or CDNA
+#   Last run used CDNA, so there will be some gene IDs in the clusters
+#   not found in the GTF.
 ##########################################################################
 
 ref_dir="../../RNA-Seq/Reference"
 release=$($ref_dir/reference-release)
 gtf="$ref_dir/Mus_musculus.GRCm38.$release.gtf"
 
-# This ref was generated from CDNA in the last kallisto run
+# References used for Kallisto quantification.  CDNA was used for the final
+# kallisto run, so this does not have info on exons, UTRs, etc.
+# Use GTF for consistency among all ATAC/RNA triangulation steps.
 # reference="$ref_dir/all-but-xy.transcripts.clean.fa"
 
 gene_locations=gene-locations-$release.tsv
-#if [ ! -e $gene_locations ]; then
-    printf "Generating $gene_locations...\n"
-    # Chr feature-type start stop gene-ID
-    awk '$3 == "gene" && $9 == "gene_id" {
-	gsub("\"", "", $10);
-	gsub(";", "", $10);
-	printf("%s\t%s\t%s\t%s\t%s\n", $1, $3, $4, $5, $10);
-    }' $gtf | sort -k 5 > $gene_locations
-#fi
+printf "Generating $gene_locations...\n"
+# Output format: chr start stop gene-ID
+# Sort by gene ID for awk script that follows
+awk '$1 >= 1 && $1 <= 19 && $3 == "gene" && $9 == "gene_id" {
+    gsub("\"", "", $10);
+    gsub(";", "", $10);
+    printf("%s\t%s\t%s\t%s\n", $1, $4, $5, $10);
+}' $gtf | sort -k 4 > $gene_locations
 wc -l $gene_locations
 head -5 $gene_locations
 
 ##########################################################################
-#   Get gene IDs from RNA-Seq clustering results
+#   Get fasta genome reference for extracting ATAC sequences later
+#   Be sure to use the same reference as the BWA alignment
+#   FIXME: Use ../../ATAC-Seq/Reference instead?
 ##########################################################################
 
-for cell_type in chondro neuro; do
+if false; then
+genome_fasta=Mus_musculus.GRCm38.dna.toplevel.fa
+site=ftp://ftp.ensembl.org/pub/release-$release/fasta/mus_musculus/dna_index/
+if [ ! -e $genome_fasta.gz ]; then
+    printf "Fetching $genome_fasta.gz...\n"
+    curl -O $site/$genome_fasta.gz
+fi
+if [ ! -e $genome_fasta.gz.fai ]; then
+    printf "Fetching $genome_fasta.gz.fai...\n"
+    curl -O $site/$genome_fasta.gz.fai
+fi
+if [ ! -e $genome_fasta ]; then
+    printf "Unpacking $genome_fasta...\n"
+    gunzip --keep $genome_fasta.gz
+fi
+fi
+
+bedtools --version > bedtools-version.txt
+
+##########################################################################
+#   Get gene IDs from RNA-Seq clustering results (provided by Maria)
+#   Clustering performed by Paul Auer
+##########################################################################
+
+for cell_type in CCA NCA; do
     
     # Col 16 of augmented Sleuth output contains cluster # for each gene
     # List of unique values in this column enumerates clusters
@@ -39,26 +94,51 @@ for cell_type in chondro neuro; do
     clusters=$(awk '$1 != "target_id" { print $16 }' $tsv | sort | uniq)
     
     for cluster in $clusters; do
-	cluster_gene_list=gene-list-$cell_type-cluster-$cluster.txt
+	printf "===\n"
+	cluster_gene_list=genes-$cell_type-c$cluster.txt
 	# printf "$cell_type cluster $cluster...\n"
 	awk "\$16 == $cluster { print \$2 }" $tsv | sort | uniq \
 	    > $cluster_gene_list
-	wc -l $cluster_gene_list
-	head -n 2 $cluster_gene_list
 	
 	# Generate BED file of genes and locations
 	cluster_gene_locations=${cluster_gene_list%.txt}.bed
 	awk -v gene_locations=$gene_locations -f lookup-gene-locations.awk \
 	    $cluster_gene_list > $cluster_gene_locations
-	cluster_gene_lists="$cluster_gene_lists $cluster_gene_list"
+
+	# Generate BED file with gene boundaries + 100kb
+	cluster_gene_100kb=${cluster_gene_locations%.bed}-100kb.bed
+	# Filter out gene IDs not found in GTF (tagged with -1 by
+	# lookup-gene-locations.awk) and replace end with start since we're
+	# measuring distance from TSS in either direction.
+	awk '$1 != -1 { printf("%s\t%s\t%s\t%s\n", $1, $2, $2+1, $4); }' \
+	    $cluster_gene_locations > temp.bed
+	bedtools slop \
+	    -b 100000 \
+	    -g ../../RNA-Seq/Reference/chromosome-sizes.tsv \
+	    -i temp.bed \
+	    | sort -k1,1 -k2,2n > $cluster_gene_100kb
+	wc -l $cluster_gene_100kb
+	
+	#####################################################################
+	#   Find all peaks (both differential and stable accessibility)
+	#   within 100kb of DE gene TSS by cluster
+	#####################################################################
+	
+	printf "Finding proximal peaks...\n"
+	peaks_file=../../ATAC-Seq/9-process-peaks/high-confidence-p10-$cell_type-501-merged.bed
+	proximal_peaks_file=${cluster_gene_locations%.bed}-proximal-peaks.bed
+	bedtools intersect -sorted -wa -a $peaks_file -b $cluster_gene_100kb \
+	    > $proximal_peaks_file
+	wc -l $proximal_peaks_file
+	
+	#####################################################################
+	#   Generate fasta file for each set of proximal peaks
+	#####################################################################
+	
+	printf "Generating fasta...\n"
+	fasta_file=${proximal_peaks_file%.bed}.fasta
+	genome_fasta=../../ATAC-Seq/Reference/Mus_musculus.GRCm38.dna.autosomes.fa
+	bedtools getfasta -fi $genome_fasta -bed $proximal_peaks_file \
+	    > $fasta_file
     done
 done
-
-exit
-
-##########################################################################
-#   Find all peaks (both differential and stable accessibility) within
-#   100kb of DE gene TSS by cluster
-##########################################################################
-
-

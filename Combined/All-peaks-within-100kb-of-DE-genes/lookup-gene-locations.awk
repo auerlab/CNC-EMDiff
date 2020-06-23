@@ -17,12 +17,12 @@
 {
     gene_id=$1;
     # Skip lines in gene-ids file until we find one matching the gene_id
-    while ( (getline < gene_locations ) && ($5 < gene_id) )
+    while ( (getline < gene_locations ) && ($4 < gene_id) )
     {
     }
-    if ( $5 == gene_id )
+    if ( $4 == gene_id )
     {
-	printf("%s\t%s\t%s\t%s\n", $1, $3, $4, gene_id);
+	printf("%s\t%s\t%s\t%s\n", $1, $2, $3, gene_id);
     }
     else
     {
