@@ -1,7 +1,32 @@
 #!/bin/sh -e
 
 ##########################################################################
-#   Filter gene locations from GTF
+#   Script description:
+#       Locate ATAC-Seq peaks within 100kb of DE gene TSS for each
+#       gene cluster.
+#       
+#   History:
+#   Date        Name        Modification
+#   2020-06-12  Jason Bacon Begin
+##########################################################################
+
+usage()
+{
+    printf "Usage: $0\n"
+    exit 1
+}
+
+
+##########################################################################
+#   Main
+##########################################################################
+
+if [ $# != 0 ]; then
+    usage
+fi
+
+##########################################################################
+#   Filter gene locations from Ensembl GTF
 #   CDNA does not document features like exans, UTRs, etc.
 #   Ensembl GTF has many more gene IDs represented than CDNA reference
 #   and CDNA contains a small number of gene IDs not in the GTF.
@@ -13,22 +38,27 @@
 ref_dir="../../RNA-Seq/Reference"
 release=$($ref_dir/reference-release)
 gtf="$ref_dir/Mus_musculus.GRCm38.$release.gtf"
-# This ref was generated from CDNA in the last kallisto run
+
+# References used for Kallisto quantification.  CDNA was used for the final
+# kallisto run, so this does not have info on exons, UTRs, etc.
+# Use GTF for consistency among all ATAC/RNA triangulation steps.
 # reference="$ref_dir/all-but-xy.transcripts.clean.fa"
 
 gene_locations=gene-locations-$release.tsv
 printf "Generating $gene_locations...\n"
-# Chr feature-type start stop gene-ID
+# Output format: chr start stop gene-ID
 awk '($1 >= 1 && $1 <= 22 || $1 == "X") && $3 == "gene" && $9 == "gene_id" {
     gsub("\"", "", $10);
     gsub(";", "", $10);
-    printf("%s\t%s\t%s\t%s\t%s\n", $1, $3, $4, $5, $10);
+    printf("%s\t%s\t%s\t%s\n", $1, $4, $5, $10);
 }' $gtf | sort -k 5 > $gene_locations
 wc -l $gene_locations
 head -5 $gene_locations
 
 ##########################################################################
-#   Get gene IDs from RNA-Seq clustering results
+#   Get fasta genome reference for extracting ATAC sequences later
+#   Be sure to use the same reference as the BWA alignment
+#   FIXME: Use ../../ATAC-Seq/Reference instead?
 ##########################################################################
 
 genome_fasta=Mus_musculus.GRCm38.dna.toplevel.fa
@@ -47,6 +77,11 @@ if [ ! -e $genome_fasta ]; then
 fi
 
 bedtools --version > bedtools-version.txt
+
+##########################################################################
+#   Get gene IDs from RNA-Seq clustering results (provided by Maria)
+#   Clustering performed by Paul Auer
+##########################################################################
 
 for cell_type in CCA NCA; do
     
@@ -103,5 +138,3 @@ for cell_type in CCA NCA; do
 	    > $fasta_file
     done
 done
-
-
