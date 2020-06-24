@@ -1,20 +1,46 @@
 #!/bin/sh -e
 
-# This script is I/O-intensive, so use slow nodes and limit concurrency
+##########################################################################
+#   Script description:
+#       Filter out duplicate reads
+#       This script is I/O-intensive, so use slow nodes and limit
+#       concurrency.
+#
+#   Usage:
+#       SLURM Cluster:
+#           sbatch 6-remove-duplicates.sbatch
+#       No cluster:
+#           ./slurm-sim 6-remove-duplicates.sbatch 1 18 |& tee 6.log
+#
+#   History:
+#       Based on the work of Dr. Andrea Rau:
+#       https://github.com/andreamrau/OpticRegen_2019
+#   Date        Name        Modification
+#   2020-03-01  Jason Bacon Begin
+##########################################################################
+
+##########################################################################
+#   Main
+##########################################################################
+
+# SLURM parameters
 #SBATCH --array=1-18%9
-# Totally lucky guess, confirmed on Peregrine
 #SBATCH --mem=2g
 #SBATCH --output=6-remove-duplicates/slurm-%A_%a.out
 #SBATCH --error=6-remove-duplicates/slurm-%A_%a.out
 
-# Spoof SLURM_ARRAY_TASK_ID if not set, for testing one sample outside SLURM
-: ${SLURM_ARRAY_TASK_ID:=1}
+if [ -z $SLURM_ARRAY_TASK_ID ]; then
+    printf "$0 must be run under sbatch or ./slurm-sim\n"
+    exit 1
+fi
 
-# Would it help to remove duplicate reads before alignment?
-# Alignment is expensive, so this might save time.
+# FIXME: Remove duplicate reads before alignment to cut down on redundant
+# alignments.  Still need to run this step since we cannot identify all
+# duplicate alignments before alignment.
+
+samtools --version > 6-remove-duplicates/samtools-version.txt 2>&1
 
 cd 6-remove-duplicates
-samtools --version > samtools-version.txt 2>&1
 
 # Variable assignments don't expand globbing patterns, so insert an ls command
 saminput=$(ls ../4-bwa-mem/*_S${SLURM_ARRAY_TASK_ID}_L001.sam)

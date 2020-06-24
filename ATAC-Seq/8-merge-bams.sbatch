@@ -1,11 +1,38 @@
 #!/bin/sh -e
 
+##########################################################################
+#   Script description:
+#       Merge alignments of replicate samples for viewing?
+#
+#   Usage:
+#       SLURM Cluster:
+#           sbatch 8-merge-bams.sbatch
+#       No cluster:
+#           ./slurm-sim 8-merge-bams.sbatch 1 6 |& tee 1.log
+#
+#   History:
+#       Based on the work of Dr. Andrea Rau:
+#       https://github.com/andreamrau/OpticRegen_2019
+#   Date        Name        Modification
+#   2020-03-15  Jason Bacon Begin
+##########################################################################
+
+##########################################################################
+#   Main
+##########################################################################
+
+# SLURM parameters
 # About 10M on Albacore
 #SBATCH --mem=20
 # Each job uses sample X, X+3, and X+6
 #SBATCH --array=1-6
 #SBATCH --output=8-merge-bams/slurm-%A_%a.out
 #SBATCH --error=8-merge-bams/slurm-%A_%a.err
+
+if [ -z $SLURM_ARRAY_TASK_ID ]; then
+    printf "$0 must be run under sbatch or ./slurm-sim\n"
+    exit 1
+fi
 
 # Samples 1-9 are Chondrocyte and 10-18 are Neural
 # How things are supposed to be:

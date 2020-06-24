@@ -1,23 +1,35 @@
 #!/bin/sh -e
 
+##########################################################################
+#   Script description:
+#       Find differential accessibility across time points
+#
+#   Usage:
+#       SLURM Cluster:
+#           sbatch 10-diff-anal.sbatch
+#       No cluster:
+#           ./slurm-sim 10-diff-anal.sbatch 1 2 |& tee 1.log
+#
+#   History:
+#       Based on the work of Dr. Andrea Rau:
+#       https://github.com/andreamrau/OpticRegen_2019
+#   Date        Name        Modification
+#   2020-02-02  Jason Bacon Begin
+##########################################################################
+
+##########################################################################
+#   Main
+##########################################################################
+
+# SLURM parameters
 #SBATCH --array=1-2
 #SBATCH --mem=3g
 #SBATCH --output=10-diff-anal/slurm-%A_%a.out
 #SBATCH --error=10-diff-anal/slurm-%A_%a.err
 
-# Spoof SLURM_ARRAY_TASK_ID if not set for testing outside SLURM env
 if [ -z $SLURM_ARRAY_TASK_ID ]; then
-    if [ $# = 1 ]; then
-	export SLURM_ARRAY_TASK_ID=$1
-    else
-	cat << EOM
-
-$0: You must run under SLURM or provide an array index
-of 1 or 2 on the command-line.
-
-EOM
-	exit 1
-    fi
+    printf "$0 must be run under sbatch or ./slurm-sim\n"
+    exit 1
 fi
 
 case $SLURM_ARRAY_TASK_ID in
@@ -30,4 +42,6 @@ case $SLURM_ARRAY_TASK_ID in
 esac
 
 R --version > 10-diff-anal/R-version.txt 2>&1
+
+cd 10-diff-anal
 ../10-diff-anal.R $cell_type
