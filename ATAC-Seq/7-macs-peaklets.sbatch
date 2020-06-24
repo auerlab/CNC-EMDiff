@@ -8,7 +8,7 @@
 #       SLURM Cluster:
 #           sbatch 7-macs-peaklets.sbatch
 #       No cluster:
-#           ./slurm-sim 7-macs-peaklets.sbatch 1 2 |& tee 1.log
+#           ../slurm-sim 7-macs-peaklets.sbatch 1 2 |& tee 1.log
 #
 #   History:
 #       Based on the work of Dr. Andrea Rau:
@@ -28,7 +28,7 @@
 #SBATCH --error=7-macs-peaklets/slurm-%A_%a.err
 
 if [ -z $SLURM_ARRAY_TASK_ID ]; then
-    printf "$0 must be run under sbatch or ./slurm-sim\n"
+    printf "$0 must be run under sbatch or ../slurm-sim\n"
     exit 1
 fi
 

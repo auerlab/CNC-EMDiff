@@ -9,7 +9,7 @@
 #           sbatch 1-trim.sbatch
 #       No cluster:
 #           [env SLURM_CPUS_PER_TASK=n] \
-#               ./slurm-sim 1-trim.sbatch 1 18 |& tee 1.log
+#               ../slurm-sim 1-trim.sbatch 1 18 |& tee 1.log
 #
 #   History:
 #       Based on the work of Dr. Andrea Rau:
@@ -31,7 +31,7 @@
 #SBATCH --error=1-trim/slurm-%A_%a.err
 
 if [ -z $SLURM_ARRAY_TASK_ID ]; then
-    printf "$0 must be run under sbatch or ./slurm-sim\n"
+    printf "$0 must be run under sbatch or ../slurm-sim\n"
     exit 1
 fi
 

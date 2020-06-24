@@ -8,7 +8,7 @@
 #       SLURM cluster:
 #           sbatch 2-qc.sbatch
 #       No cluster:
-#           ./slurm-sim 2-qc.sbatch 1 18 |& tee 2.log
+#           ../slurm-sim 2-qc.sbatch 1 18 |& tee 2.log
 #
 #   History:
 #       Based on work of Dr. Andrea Rau:
@@ -39,7 +39,7 @@
 #   env SLURM_ARRAY_TASK_ID='1 5' ./2-qc.sbatch
 
 if [ -z $SLURM_ARRAY_TASK_ID ]; then
-    printf "$0 must be run under sbatch or ./slurm-sim\n"
+    printf "$0 must be run under sbatch or ../slurm-sim\n"
     exit 1
 fi
 

@@ -8,7 +8,7 @@
 #       SLURM Cluster:
 #           sbatch 8-merge-bams.sbatch
 #       No cluster:
-#           ./slurm-sim 8-merge-bams.sbatch 1 6 |& tee 1.log
+#           ../slurm-sim 8-merge-bams.sbatch 1 6 |& tee 1.log
 #
 #   History:
 #       Based on the work of Dr. Andrea Rau:
@@ -30,7 +30,7 @@
 #SBATCH --error=8-merge-bams/slurm-%A_%a.err
 
 if [ -z $SLURM_ARRAY_TASK_ID ]; then
-    printf "$0 must be run under sbatch or ./slurm-sim\n"
+    printf "$0 must be run under sbatch or ../slurm-sim\n"
     exit 1
 fi
 

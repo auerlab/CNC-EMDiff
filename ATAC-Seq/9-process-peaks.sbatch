@@ -8,7 +8,7 @@
 #       SLURM Cluster:
 #           sbatch 9-process-peaks.sbatch
 #       No cluster:
-#           ./slurm-sim 9-process-peaks.sbatch 1 2 |& tee 1.log
+#           ../slurm-sim 9-process-peaks.sbatch 1 2 |& tee 1.log
 #
 #   History:
 #       Based on the work of Dr. Andrea Rau:
@@ -28,7 +28,7 @@
 #SBATCH --error=9-process-peaks/slurm-%A_%a.err
 
 if [ -z $SLURM_ARRAY_TASK_ID ]; then
-    printf "$0 must be run under sbatch or ./slurm-sim\n"
+    printf "$0 must be run under sbatch or ../slurm-sim\n"
     exit 1
 fi
 

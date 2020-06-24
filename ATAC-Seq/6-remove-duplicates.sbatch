@@ -10,7 +10,7 @@
 #       SLURM Cluster:
 #           sbatch 6-remove-duplicates.sbatch
 #       No cluster:
-#           ./slurm-sim 6-remove-duplicates.sbatch 1 18 |& tee 6.log
+#           ../slurm-sim 6-remove-duplicates.sbatch 1 18 |& tee 6.log
 #
 #   History:
 #       Based on the work of Dr. Andrea Rau:
@@ -30,7 +30,7 @@
 #SBATCH --error=6-remove-duplicates/slurm-%A_%a.out
 
 if [ -z $SLURM_ARRAY_TASK_ID ]; then
-    printf "$0 must be run under sbatch or ./slurm-sim\n"
+    printf "$0 must be run under sbatch or ../slurm-sim\n"
     exit 1
 fi
 
