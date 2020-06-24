@@ -44,7 +44,7 @@ fi
 
 # Document software versions used for publication
 uname -a > 4-bwa-mem/os-version.txt 2>&1
-bwa > 4-bwa-mem/bwa-version.txt 2>&1
+bwa 2>&1 | fgrep Version > 4-bwa-mem/bwa-version.txt || true
 
 # One iteration if running under SLURM, all iterations otherwise
 cd 4-bwa-mem

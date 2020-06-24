@@ -1,0 +1,19 @@
+#!/bin/sh -e
+
+if which cluster-run; then
+    prefix=cluster-run
+    suffix=compute
+fi
+
+case $(uname) in
+FreeBSD)
+    printf "Root "
+    su -m root -c "$prefix 'pkg install -y py37-cutadapt fastqc py37-multiqc bwa samtools py37-macs2 bedtools R' $suffix"
+    ;;
+
+*)
+    printf "$0: $(uname) is not yet supported.\n"
+    exit 1
+    ;;
+
+esac

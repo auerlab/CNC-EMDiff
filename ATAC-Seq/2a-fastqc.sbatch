@@ -22,7 +22,9 @@
 ##########################################################################
 
 # SLURM parameters
-#SBATCH --array=1-18
+# --cpus-per-task is not ideal.  It requires all cores on the same node,
+# where we really need 2 pairs.
+#SBATCH --array=1-18 --cpus-per-task=4
 #SBATCH --mem=1g
 #SBATCH --output=2-qc/slurm-%A_%a.out
 #SBATCH --error=2-qc/slurm-%A_%a.err
@@ -41,12 +43,12 @@ if [ -z $SLURM_ARRAY_TASK_ID ]; then
     exit 1
 fi
 
+# Default if not set by SLURM or user
+: ${SLURM_CPUS_PER_TASK:=2}
+
 # Document software versions used for publication
 uname -a > 2-qc/os-version.txt 2>&1
 fastqc --version > 2-qc/fastqc-version.txt 2>&1
-
-# Defaults if not set by SLURM or user
-: ${SLURM_CPUS_PER_TASK:=4}
 
 mkdir -p 2-qc/Raw 2-qc/Trimmed
 
@@ -68,7 +70,6 @@ raw2="../Raw/190822_AHFN3KDRXX-Lane1/*_S${SLURM_ARRAY_TASK_ID}_*R2*.fastq.gz"
 trimmed1="1-trim/*_S${SLURM_ARRAY_TASK_ID}_*R1*.fastq.gz"
 trimmed2="1-trim/*_S${SLURM_ARRAY_TASK_ID}_*R2*.fastq.gz"
 
-fastqc $raw1 -o 2-qc/Raw
-fastqc $raw2 -o 2-qc/Raw
-fastqc $trimmed1 -o 2-qc/Trimmed
-fastqc $trimmed2 -o 2-qc/Trimmed
+# Background the first so we can use 4 cores per job
+fastqc --threads=2 $raw1 $raw2 -o 2-qc/Raw &
+fastqc --threads=2 $trimmed1 $trimmed2 -o 2-qc/Trimmed
