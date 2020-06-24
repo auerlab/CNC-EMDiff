@@ -1,0 +1,4 @@
+#!/bin/sh -e
+
+(cd 2-qc/Raw && multiqc .)
+(cd 2-qc/Trimmed && multiqc .)
