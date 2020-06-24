@@ -41,11 +41,12 @@ if [ -z $SLURM_ARRAY_TASK_ID ]; then
     exit 1
 fi
 
+# Document software versions used for publication
+uname -a > 2-qc/os-version.txt 2>&1
+fastqc --version > 2-qc/fastqc-version.txt 2>&1
+
 # Defaults if not set by SLURM or user
 : ${SLURM_CPUS_PER_TASK:=4}
-
-# Document version of software used for publication
-fastqc --version > 2-qc/fastqc-version.txt 2>&1
 
 mkdir -p 2-qc/Raw 2-qc/Trimmed
 

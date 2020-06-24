@@ -34,6 +34,10 @@ if [ -z $SLURM_ARRAY_TASK_ID ]; then
     exit 1
 fi
 
+# Document software versions used for publication
+uname -a > 8-merge-bams/os-version.txt 2>&1
+samtools --version > 8-merge-bams/samtools-version.txt 2>&1
+
 # Samples 1-9 are Chondrocyte and 10-18 are Neural
 # How things are supposed to be:
 #   Every third sample is from the same time point, e.g.
@@ -72,16 +76,6 @@ fi
 # Wildcards are not expanded in the RHS of a normal variable assignment
 # so run a command in ``
 
-# Spoof SLURM_ARRAY_TASK_ID if not set for testing outside SLURM env
-if [ -z $SLURM_ARRAY_TASK_ID ]; then
-    if [ $# != 1 ]; then
-	printf "You must provide an index between 1 to 6 when running outside SLURM.\n"
-	exit 1
-    else
-	SLURM_ARRAY_TASK_ID=$1
-    fi
-fi
-
 #input_bam1=`echo 4-bwa-mem/*_S${SLURM_ARRAY_TASK_ID}_L001-nodup-uniq.bam`
 #input_bam2=`echo 4-bwa-mem/*_S$((SLURM_ARRAY_TASK_ID + 3))_L001-nodup-uniq.bam`
 #input_bam3=`echo 4-bwa-mem/*_S$((SLURM_ARRAY_TASK_ID + 6))_L001-nodup-uniq.bam`
@@ -119,7 +113,6 @@ else
     output_bam=8-merge-bams/atac-neural-$((SLURM_ARRAY_TASK_ID - 9)).bam
 fi
 
-samtools --version > 8-merge-bams/samtools-version.txt 2>&1
 set -x
 samtools merge $output_bam $input_bams
 samtools index $output_bam

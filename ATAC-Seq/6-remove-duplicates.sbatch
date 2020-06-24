@@ -34,11 +34,13 @@ if [ -z $SLURM_ARRAY_TASK_ID ]; then
     exit 1
 fi
 
+# Document software versions used for publication
+uname -a > 6-remove-duplicates/os-version.txt 2>&1
+samtools --version > 6-remove-duplicates/samtools-version.txt 2>&1
+
 # FIXME: Remove duplicate reads before alignment to cut down on redundant
 # alignments.  Still need to run this step since we cannot identify all
 # duplicate alignments before alignment.
-
-samtools --version > 6-remove-duplicates/samtools-version.txt 2>&1
 
 cd 6-remove-duplicates
 

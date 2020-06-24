@@ -33,8 +33,9 @@ if [ -z $SLURM_ARRAY_TASK_ID ]; then
     exit 1
 fi
 
-# Document version of software used for publication
-fastqc --version > 2-qc/fastqc-version.txt 2>&1
+# Document software versions used for publication
+uname -a > 5-qc-sam/os-version.txt 2>&1
+fastqc --version > 5-qc-sam/fastqc-version.txt 2>&1
 
 # One iteration if running under SLURM, all iterations otherwise
 printf "Running task $SLURM_ARRAY_TASK_ID...\n"

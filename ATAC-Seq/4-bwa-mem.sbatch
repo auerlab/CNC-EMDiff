@@ -42,7 +42,8 @@ fi
 # Defaults if not set by SLURM or user
 : ${SLURM_CPUS_PER_TASK:=2}
 
-# Document version of software used for publication
+# Document software versions used for publication
+uname -a > 4-bwa-mem/os-version.txt 2>&1
 bwa > 4-bwa-mem/bwa-version.txt 2>&1
 
 # One iteration if running under SLURM, all iterations otherwise
@@ -52,7 +53,7 @@ printf "Running task $SLURM_ARRAY_TASK_ID...\n"
 infile1=../1-trim/*_S${SLURM_ARRAY_TASK_ID}_L001-R1.fastq.gz
 infile2=../1-trim/*_S${SLURM_ARRAY_TASK_ID}_L001-R2.fastq.gz
 outfile=$(echo $infile1 | cut -d / -f 3 | sed -e 's|-R1.fastq.gz|.sam|')
-ref_file=$(../Reference/ref-file-name.sh)
+ref_file=$(../3-bwa-index/ref-file-name.sh)
 
 srun bwa mem -M -t $SLURM_CPUS_PER_TASK \
-    ../Reference/$ref_file $infile1 $infile2 > $outfile
+    ../3-bwa-index/$ref_file $infile1 $infile2 > $outfile

@@ -41,6 +41,8 @@ case $SLURM_ARRAY_TASK_ID in
     ;;
 esac
 
+# Document software versions used for publication
+uname -a > 10-diff-anal/os-version.txt 2>&1
 R --version > 10-diff-anal/R-version.txt 2>&1
 
 cd 10-diff-anal

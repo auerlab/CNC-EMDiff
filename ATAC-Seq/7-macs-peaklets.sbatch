@@ -32,6 +32,10 @@ if [ -z $SLURM_ARRAY_TASK_ID ]; then
     exit 1
 fi
 
+# Document software versions used for publication
+uname -a > 7-macs-peaks/os-version.txt 2>&1
+macs2 --version > 7-macs-peaks/macs2-version.txt 2>&1
+
 case $task_id in
 1)
     cell_type=CCA
@@ -47,7 +51,6 @@ case $task_id in
 
 esac
 
-macs2 --version > 7-macs-peaklets/macs2-version.txt 2>&1
 printf "$cell_type: Peak calling, merging replicates across all time points, calling peaklets...\n"
 # "mm" is the compiled-in Mus Musculus genome size.  See MACS2 docs.
 # BAMPE = BAM Paired End

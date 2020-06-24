@@ -37,6 +37,8 @@ fi
 #   generate peaklets around summits, and merge overlapping peaklets.
 ##########################################################################
 
+# Document software versions used for publication
+uname -a > 9-process-peaks/os-version.txt 2>&1
 bedtools --version > 9-process-peaks/bedtools-version.txt 2>&1
 
 # One iteration if running under SLURM, all iterations otherwise

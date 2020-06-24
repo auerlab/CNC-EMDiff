@@ -25,6 +25,8 @@ if [ $# != 0 ]; then
     usage
 fi
 
+# Record OS and software versions
+
 # Use fgrep -v baseMean to strip headers if present
 cd 10-diff-anal
 for cell_type in CCA NCA; do

@@ -29,12 +29,14 @@ if [ -z $SLURM_ARRAY_TASK_ID ]; then
     exit 1
 fi
 
-bwa > Reference/bwa-version.txt 2>&1
+# Document software versions used for publication
+uname -a > 3-bwa-index/os-version.txt 2>&1
+bwa > 3-bwa-index/bwa-version.txt 2>&1
 
-cd Reference
-ref_file=$(./ref-file-name.sh)
+cd 3-bwa-index
+ref_file=$(../ref-file-name.sh)
 if [ ! -e $ref_file ]; then
-    ./fetch-ref.sh
-    ./concat-ref.sh
+    ../fetch-ref.sh
+    ../concat-ref.sh
     bwa index $ref_file
 fi

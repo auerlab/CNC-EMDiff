@@ -1,5 +1,7 @@
 #!/bin/sh -e
 
+# Record OS and software versions
+
 gff=Mus_musculus.GRCm38.100.gff3.gz
 if [ ! -e $gff ]; then
     for prog in fetch curl wget; do

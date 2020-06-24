@@ -38,7 +38,8 @@ fi
 # Defaults if not set by SLURM or user
 : ${SLURM_CPUS_PER_TASK:=4}
 
-# Document version of software used for publication
+# Document software versions used for publication
+uname -a > 1-trim/os-version.txt 2>&1
 cutadapt --version > 1-trim/cutadapt-version.txt 2>&1
 
 # One iteration if running under SLURM, all iterations otherwise
