@@ -16,5 +16,5 @@ workstation or laptop, which of course will take much longer.
 The install-programs script will install all necessary software on a FreeBSD
 cluster or workstation. See the following links for FreeBSD setup:
 
-    http://acadix.biz/desktop-installer.php
-    http://acadix.biz/spcm.php
+http://acadix.biz/desktop-installer.php
+http://acadix.biz/spcm.php
