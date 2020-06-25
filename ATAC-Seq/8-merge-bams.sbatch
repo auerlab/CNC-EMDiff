@@ -48,7 +48,7 @@ samtools --version > 8-merge-bams/samtools-version.txt 2>&1
 #   2, 5, and 8 are Chondrocyte time 2
 #   10, 13, and 16 are Neural time 1
 #
-#   This may be wrong due to a mixup in prep, time points and replicates
+#   This is wrong due to a mixup in prep, time points and replicates
 #   are reversed.  So for ATAC (not for RNA) A, B, and C are replicates
 #   and 1, 2, and 3 are time points.
 #
@@ -74,36 +74,38 @@ samtools --version > 8-merge-bams/samtools-version.txt 2>&1
 # Merge BAM files for the same cell line and time point
 # Example input file: CCA1A_S1_L001-nodup-uniq.bam
 # Wildcards are not expanded in the RHS of a normal variable assignment
-# so run a command in ``
-
-#input_bam1=`echo 4-bwa-mem/*_S${SLURM_ARRAY_TASK_ID}_L001-nodup-uniq.bam`
-#input_bam2=`echo 4-bwa-mem/*_S$((SLURM_ARRAY_TASK_ID + 3))_L001-nodup-uniq.bam`
-#input_bam3=`echo 4-bwa-mem/*_S$((SLURM_ARRAY_TASK_ID + 6))_L001-nodup-uniq.bam`
+# so run a command in $()
 
 case $SLURM_ARRAY_TASK_ID in
 1)
-    #input_bams=`ls 4-bwa-mem/CCA*A*.bam`
-    input_bams=`ls 4-bwa-mem/CCA1*.bam`     # Flip condition and replicate
+    # Should be this, but time point and replicate were switched on samples
+    # input_bams=$(ls 6-remove-duplicates/CCA*A*.bam)
+    input_bams=$(ls 6-remove-duplicates/CCA1*.bam)
     ;;
 2)
-    #input_bams=`ls 4-bwa-mem/CCA*B*.bam`
-    input_bams=`ls 4-bwa-mem/CCA2*.bam`     # Flip condition and replicate
+    # Should be this, but time point and replicate were switched on samples
+    # input_bams=$(ls 6-remove-duplicates/CCA*B*.bam)
+    input_bams=$(ls 6-remove-duplicates/CCA2*.bam)
     ;;
 3)
-    #input_bams=`ls 4-bwa-mem/CCA*C*.bam`
-    input_bams=`ls 4-bwa-mem/CCA3*.bam`     # Flip condition and replicate
+    # Should be this, but time point and replicate were switched on samples
+    # input_bams=$(ls 6-remove-duplicates/CCA*C*.bam)
+    input_bams=$(ls 6-remove-duplicates/CCA3*.bam)
     ;;
 4)
-    #input_bams=`ls 4-bwa-mem/NCA*A*.bam`
-    input_bams=`ls 4-bwa-mem/NCA1*.bam`     # Flip condition and replicate
+    # Should be this, but time point and replicate were switched on samples
+    # input_bams=$(ls 6-remove-duplicates/NCA*A*.bam)
+    input_bams=$(ls 6-remove-duplicates/NCA1*.bam)
     ;;
 5)
-    #input_bams=`ls 4-bwa-mem/NCA*B*.bam`
-    input_bams=`ls 4-bwa-mem/NCA2*.bam`     # Flip condition and replicate
+    # Should be this, but time point and replicate were switched on samples
+    # input_bams=$(ls 6-remove-duplicates/NCA*B*.bam)
+    input_bams=$(ls 6-remove-duplicates/NCA2*.bam)
     ;;
 6)
-    #input_bams=`ls 4-bwa-mem/NCA*C*.bam`
-    input_bams=`ls 4-bwa-mem/NCA3*.bam`     # Flip condition and replicate
+    # Should be this, but time point and replicate were switched on samples
+    # input_bams=$(ls 6-remove-duplicates/NCA*C*.bam)
+    input_bams=$(ls 6-remove-duplicates/NCA3*.bam)
     ;;
 esac
 

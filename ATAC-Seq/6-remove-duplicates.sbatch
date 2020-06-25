@@ -24,7 +24,7 @@
 ##########################################################################
 
 # SLURM parameters
-#SBATCH --array=1-18%9
+#SBATCH --array=1-18%6
 #SBATCH --mem=2g
 #SBATCH --output=6-remove-duplicates/slurm-%A_%a.out
 #SBATCH --error=6-remove-duplicates/slurm-%A_%a.out
@@ -44,12 +44,15 @@ samtools --version > 6-remove-duplicates/samtools-version.txt 2>&1
 
 cd 6-remove-duplicates
 
+# This should match only 1 file.  '*' used only to match irrelevant variations.
+# The integer following 'S' in the filename should be unique (1 - 18)
 # Variable assignments don't expand globbing patterns, so insert an ls command
 saminput=$(ls ../4-bwa-mem/*_S${SLURM_ARRAY_TASK_ID}_L001.sam)
-sorted=${saminput%.sam}-sorted.bam
-nodup=${saminput%.sam}-nodup.bam
-nodupunique=${saminput%.sam}-nodup-uniq.bam
-printf "$saminput $sorted $nodup $nodupunique\n"
+sambase=$(basename $saminput)
+sorted=${sambase%.sam}-sorted.bam
+nodup=${sambase%.sam}-nodup.bam
+nodupunique=${sambase%.sam}-nodup-uniq.bam
+printf "saminput=$saminput, sorted=$sorted, nodup=$nodup, nodupunique=$nodupunique\n"
 
 # Clean up from prior interrupted sort processes
 rm -f $sorted-*tmp*
@@ -62,47 +65,46 @@ rm -f $sorted-*tmp*
 # samtools idxstats $sorted > $sorted.idxstats
 # samtools flagstat $sorted > $sorted.flagstat
 
+set -x
+
 # fixmate requires name-sorted input
 # Apparently must be in a file, so we can't pipe sorted input to it?
 # samtools sort -n -o $sorted-namesort.bam $sorted 
 # -n: Sort by QNAME
 # -m: Specify max memory use.  More mem means fewer temp files
-printf 'Sorting by name for fixmate...\n'
 samtools sort -n -m 2g -o $sorted-namesort.bam $saminput
 rm -f $sorted $sorted.*
 
 # -m: Add mate score tags to help markdup select the best reads to keep
-printf 'Adding mate scores for markdup with fixmate...\n'
 samtools fixmate -m $sorted-namesort.bam $sorted-fixmate.bam
 rm -f $sorted-namesort.bam
 
 # markdup requires coordinate-sorted input
 # -m: Specify max memory use.  More mem means fewer temp files
-printf 'Sorting by coordinates for markdup...\n'
 samtools sort -m 2g -o $sorted-fixmate-sort.bam $sorted-fixmate.bam
 rm -f $sorted-fixmate.bam
 
+# Remove duplicate reads with markdup
 # -l: Expected read length
 # -r: Remove duplicates
 # -s: Print basic stats
-printf 'Removing duplicate reads with markdup...\n'
 samtools markdup -l 100 -r -s $sorted-fixmate-sort.bam $nodup
 rm -f $sorted-fixmate-sort.bam
 
-printf 'Generating index and stats...\n'
+# Generating index and stats
 # Are these used?
 samtools index $nodup
 samtools idxstats $nodup > $nodup.idxstats
 samtools flagstat $nodup > $nodup.flagstat
 
-printf 'Removing reads with MAPQ < 1...\n'
+# Remove reads with MAPQ < 1
 # Default quality min (-q) is 0
 # -b: Output BAM format
 # -q: Minimum MAPQ value
 samtools view -b -q 1 $nodup > $nodupunique
 rm -f $nodup $nodup.*
 
-printf 'Generating index and stats...\n'
+# Generating index and stats
 samtools index $nodupunique
 samtools idxstats $nodupunique > $nodupunique.idxstats
 samtools flagstat $nodupunique > $nodupunique.flagstat

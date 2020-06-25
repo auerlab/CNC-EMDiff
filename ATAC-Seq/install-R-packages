@@ -15,7 +15,7 @@ usage()
 
 Usage: $0 prefix cran-URL
 
-Example: $0 /raid-01/bacon/R https://mirror.las.iastate.edu/CRAN/
+Example: $0 /sharedapps/R https://mirror.las.iastate.edu/CRAN/
 
 See https://cran.r-project.org/mirrors.html for mirror URLs
 
@@ -40,7 +40,7 @@ profile=$HOME/.Rprofile
 
 if ! fgrep -q R_LIBS_USER $env_file; then
     cat << EOM >> $env_file
-R_LIBS_USER=
+R_LIBS_USER=$prefix
 EOM
 else
     printf "R_LIBS_USER already set.\n"
