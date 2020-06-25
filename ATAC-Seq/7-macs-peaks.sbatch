@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh -e
 
 ##########################################################################
 #   Script description:
@@ -54,8 +54,7 @@ esac
 printf "$cell_type: Peak calling, merging replicates across all time points, calling peaklets...\n"
 # "mm" is the compiled-in Mus Musculus genome size.  See MACS2 docs.
 # BAMPE = BAM Paired End
-# Does order of the filenames matter?
-# Could we use the merged BAMs from 8- instead?
+# Would it make any difference to use the merged BAMs instead?
 macs2 callpeak --nomodel \
     -t 6-remove-duplicates/$cell_type*_L001-nodup-uniq.bam \
     -f BAMPE -g mm --call-summits -n ATAC-$cell_type-macs.peaklets \

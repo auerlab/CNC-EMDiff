@@ -102,22 +102,23 @@ head -4 high-confidence-p$p_value-$cell_type-summits.bed \
 
 ##########################################################################
 #   Merge overlapping peaklets
+#   Andrea did this for OpticRegen2019, but we decided against it here
 ##########################################################################
-S1__S1_L01_L001-nodup-uniq.bam      Replicate 1, time 1
+# S1__S1_L01_L001-nodup-uniq.bam      Replicate 1, time 1
 # https://bedtools.readthedocs.io/en/latest/content/tools/merge.html
-merged=high-confidence-p$p_value-$cell_type-501-merged.bed
-bedtools merge -i high-confidence-p$p_value-$cell_type-501.bed \
-    > $merged
-head -4 $merged
+# merged=high-confidence-p$p_value-$cell_type-501-merged.bed
+# bedtools merge -i high-confidence-p$p_value-$cell_type-501.bed \
+#     > $merged
+# head -4 $merged
 # Add 3 dummy fields ". . *" to match format of Andrea's merged BED files
-awk '{ printf("%s\t%s\t.\t*\n", $0, "chr"$1"_"$2"_"$3 ) }' $merged > $merged.tmp
-mv -f $merged.tmp $merged
+# awk '{ printf("%s\t%s\t.\t*\n", $0, "chr"$1"_"$2"_"$3 ) }' $merged \
+#     > $merged.tmp
+# mv -f $merged.tmp $merged
 
-trintf "\nWord counts:\n"
+printf "\nWord counts:\n"
 wc $macs_dir/ATAC-$cell_type-macs.peaklets_summits.bed \
     high-confidence-p$p_value-$cell_type-summits.bed \
-    high-confidence-p$p_value-$cell_type-501-merged.bed
+    high-confidence-p$p_value-$cell_type-501.bed
 
 rm -f high-confidence-p$p_value-$cell_type-narrow.bed \
-    high-confidence-p$p_value-$cell_type-summits.bed \
-    high-confidence-p$p_value-$cell_type-501.bed
+    high-confidence-p$p_value-$cell_type-summits.bed

@@ -55,13 +55,6 @@ mkdir -p 2-qc/Raw 2-qc/Trimmed
 # One iteration if running under SLURM, all iterations otherwise
 printf "Running task $SLURM_ARRAY_TASK_ID...\n"
 
-# UWM CentOS cluster
-if [ -e /sharedapps/pkg-2019Q2/bin/fastqc ]; then
-    # sh is bash on CentOS, so this is OK
-    source /etc/bashrc
-    module load /sharedapps/pkg-2019Q2/etc/modulefiles/pkgsrc/2019Q2
-fi
-
 # Raw files from sequencing center
 raw1="../Raw/190822_AHFN3KDRXX-Lane1/*_S${SLURM_ARRAY_TASK_ID}_*R1*.fastq.gz"
 raw2="../Raw/190822_AHFN3KDRXX-Lane1/*_S${SLURM_ARRAY_TASK_ID}_*R2*.fastq.gz"

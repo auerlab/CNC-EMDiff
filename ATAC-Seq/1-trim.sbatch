@@ -45,13 +45,6 @@ cutadapt --version > 1-trim/cutadapt-version.txt 2>&1
 # One iteration if running under SLURM, all iterations otherwise
 printf "Running task $SLURM_ARRAY_TASK_ID...\n"
 
-# UWM CentOS cluster
-if [ -e /sharedapps/pkg-2019Q2/bin/cutadapt ]; then
-    # sh is bash on CentOS, so this is OK
-    source /etc/bashrc
-    module load /sharedapps/pkg-2019Q2/etc/modulefiles/pkgsrc/2019Q2
-fi
-
 input1="../Raw/190822_AHFN3KDRXX-Lane1/*_S${SLURM_ARRAY_TASK_ID}_*R1*"
 input2="../Raw/190822_AHFN3KDRXX-Lane1/*_S${SLURM_ARRAY_TASK_ID}_*R2*"
 base_name=$(basename $input1)
