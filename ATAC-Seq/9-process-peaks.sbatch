@@ -35,6 +35,8 @@ fi
 ##########################################################################
 #   In MACS2 peak call output, filter for high-confidence peaks,
 #   generate peaklets around summits, and merge overlapping peaklets.
+#   Centrino? requires that summits be in the middle of peaklets (Ava)
+#   Some MEME tools require all peaklets to be the same size (Ava)
 ##########################################################################
 
 # Document software versions used for publication
@@ -42,8 +44,8 @@ uname -a > 9-process-peaks/os-version.txt 2>&1
 bedtools --version > 9-process-peaks/bedtools-version.txt 2>&1
 
 # One iteration if running under SLURM, all iterations otherwise
-printf "Processing task $task_id...\n"
-case $task_id in
+printf "Processing task $SLURM_ARRAY_TASK_ID...\n"
+case $SLURM_ARRAY_TASK_ID in
 1)
     cell_type=CCA
     ;;
@@ -53,7 +55,7 @@ case $task_id in
     ;;
 
 *)
-    printf "Error: task_id must be 1 or 2.\n"
+    printf "Error: SLURM_ARRAY_TASK_ID must be 1 or 2.\n"
     exit 1
 
 esac
