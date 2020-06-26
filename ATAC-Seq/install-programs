@@ -10,7 +10,12 @@ FreeBSD)
     # Install ports on all compute nodes
     # DiffBind deps: librsvg2 v8 pkgconf
     printf "Root "
-    su -m root -c "$cluster_run 'pkg install -y py37-cutadapt fastqc py37-multiqc bwa samtools py37-macs2 bedtools R librsvg2 v8 pkgconf' $node_spec"
+    su -m root -c "$cluster_run 'pkg install -y py37-cutadapt fastqc py37-multiqc bwa samtools py37-macs2 bedtools R librsvg2 pkgconf' $node_spec"
+
+    # v8 javascript engine API changes frequently and FreeBSD ports version
+    # is incompatible with DiffBind
+    printf "Root "
+    su -m root -c "$cluster_run 'wip-reinstall-port -u -r v8' $node_spec"
     ;;
 
 *)
