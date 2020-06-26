@@ -12,7 +12,7 @@ rsync -av --size-only --progress "$@" \
 
 # Sync output files, which are not (and should not be) added to the repo
 rna_dirs="1-trim 2-qc 3-kallisto-index 4-kallisto-quant-0.46.1 5-merge-bams 6-diff-anal"
-atac_dirs="1-trim 2-qc 3-bwa-index 4-bwa-mem 5-qc-sam 6-remove-duplicates 7-macs-peaklets 8-merge-bams 9-process-peaks 10-diff-anal"
+atac_dirs="1-trim 2-qc 3-bwa-index 4-bwa-mem 5-qc-sam 6-remove-duplicates 7-macs-peaks 8-merge-bams 9-process-peaks 10-diff-anal"
 
 printf "RNA-Seq...\n"
 for file in $rna_dirs; do

@@ -4,9 +4,8 @@
 
 gff=Mus_musculus.GRCm38.100.gff3.gz
 if [ ! -e $gff ]; then
-    for prog in fetch curl wget; do
+    for fetch in fetch curl wget; do
 	if which $fetch; then
-	    fetch=$prog
 	    break
 	fi
     done

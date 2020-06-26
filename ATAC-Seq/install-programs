@@ -8,8 +8,9 @@ fi
 case $(uname) in
 FreeBSD)
     # Install ports on all compute nodes
+    # DiffBind deps: librsvg2 v8 pkgconf
     printf "Root "
-    su -m root -c "$cluster_run 'pkg install -y py37-cutadapt fastqc py37-multiqc bwa samtools py37-macs2 bedtools R' $node_spec"
+    su -m root -c "$cluster_run 'pkg install -y py37-cutadapt fastqc py37-multiqc bwa samtools py37-macs2 bedtools R librsvg2 v8 pkgconf' $node_spec"
     ;;
 
 *)

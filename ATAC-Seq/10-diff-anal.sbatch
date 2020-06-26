@@ -45,5 +45,4 @@ esac
 uname -a > 10-diff-anal/os-version.txt 2>&1
 R --version > 10-diff-anal/R-version.txt 2>&1
 
-cd 10-diff-anal
-../10-diff-anal.R $cell_type
+./10-diff-anal.R $cell_type

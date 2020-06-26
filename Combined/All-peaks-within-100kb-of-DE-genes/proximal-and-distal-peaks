@@ -127,7 +127,7 @@ for cell_type in CCA NCA; do
 	#####################################################################
 	
 	printf "Finding proximal and distal peaks (<= 100kb from TSS)...\n"
-	peaks_file=../../ATAC-Seq/9-process-peaks/high-confidence-p10-$cell_type-501-merged.bed
+	peaks_file=../../ATAC-Seq/9-process-peaks/p10-$cell_type-501.bed
 	proximal_distal_peaks_file=${cluster_gene_locations%.bed}-proximal+distal-peaks.bed
 	bedtools intersect -sorted -wa -a $peaks_file -b $cluster_gene_100kb \
 	    > $proximal_distal_peaks_file
