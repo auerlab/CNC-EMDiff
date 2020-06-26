@@ -1,5 +1,27 @@
 
 Filter # peaks
+
 Renumber scripts and output dirs in chronological order
     1 = first
     2a, 2b = second, can run at the same time
+
+What reference genome is best?
+    From Ensembl README:
+    dna = unmasked
+    dna_rm = repeat masked = repeats replaced with 'N' (RepeatMasker tool)
+    dna_sm = soft-masked = repeats denoted with lower case bases
+
+    toplevel
+    primary_assembly - like toplevel minus haplotypes and patches
+    chromosome files same as toplevel?
+    * Used autosomal chromosome files and concatenated for first run
+
+Merged BAMs
+    Are we using these for anything besides IGV?
+
+Merging overlapping peaks?
+    Should we merge peaks from replicates at the same time point?
+    bedtools does not directly support minimum overlap
+	It does support maximum separation
+	May be a reason for this
+
