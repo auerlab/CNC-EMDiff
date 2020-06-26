@@ -61,7 +61,7 @@ case $SLURM_ARRAY_TASK_ID in
 esac
 
 cd 9-process-peaks
-macs_dir=../7-macs-peaklets
+macs_dir=../7-macs-peaks
 
 ##########################################################################
 #   Filter for high-confidence peaks: p-value < 1e-10
@@ -73,16 +73,16 @@ macs_dir=../7-macs-peaklets
 p_value=10
 
 awk -v p_value=$p_value '$8 >= p_value { print $0 }' \
-    $macs_dir/ATAC-$cell_type-macs.peaklets_peaks.narrowPeak \
-    > high-confidence-p$p_value-$cell_type-narrow.bed
+    $macs_dir/ATAC-${cell_type}_peaks.narrowPeak \
+    > p$p_value-$cell_type-narrow.bed
 
 # Remove same lines from summits file that were filtered out of narrowPeak
 # FIXME: This can all be done with just the narrow peaks file
 #        The summits file is redundant
 awk -f ../filter.awk \
-    -v file_to_filter=$macs_dir/ATAC-$cell_type-macs.peaklets_summits.bed \
-    high-confidence-p$p_value-$cell_type-narrow.bed \
-    > high-confidence-p$p_value-$cell_type-summits.bed
+    -v file_to_filter=$macs_dir/ATAC-${cell_type}_summits.bed \
+    p$p_value-$cell_type-narrow.bed \
+    > p$p_value-$cell_type-summits.bed
 
 ##########################################################################
 #   Create intervals from summit +/-250 nt
@@ -92,15 +92,15 @@ awk -f ../filter.awk \
 # explains nicely why you should use bedtools rather than just awk this.
 # 
 #awk '{ printf("%s\t%s\t%s\t%s\t%s\n", $1, $2-250, $2+250, $4, $5) }' \
-#    ATAC-$cell_type-macs.peaklets_summits.bed \
-#    > ATAC-$cell_type-macs.peaklets-501.bed
+#    ATAC-${cell_type}_summits.bed \
+#    > ATAC-$cell_type-501.bed
 
-bedtools slop -b 250 -i high-confidence-p$p_value-$cell_type-summits.bed \
+bedtools slop -b 250 -i p$p_value-$cell_type-summits.bed \
     -g ../../RNA-Seq/Reference/chromosome-sizes.tsv \
-    > high-confidence-p$p_value-$cell_type-501.bed
+    > p$p_value-$cell_type-501.bed
 
-head -4 high-confidence-p$p_value-$cell_type-summits.bed \
-	high-confidence-p$p_value-$cell_type-501.bed
+head -4 p$p_value-$cell_type-summits.bed \
+	p$p_value-$cell_type-501.bed
 
 ##########################################################################
 #   Merge overlapping peaklets
@@ -108,8 +108,8 @@ head -4 high-confidence-p$p_value-$cell_type-summits.bed \
 ##########################################################################
 # S1__S1_L01_L001-nodup-uniq.bam      Replicate 1, time 1
 # https://bedtools.readthedocs.io/en/latest/content/tools/merge.html
-# merged=high-confidence-p$p_value-$cell_type-501-merged.bed
-# bedtools merge -i high-confidence-p$p_value-$cell_type-501.bed \
+# merged=p$p_value-$cell_type-501-merged.bed
+# bedtools merge -i p$p_value-$cell_type-501.bed \
 #     > $merged
 # head -4 $merged
 # Add 3 dummy fields ". . *" to match format of Andrea's merged BED files
@@ -118,9 +118,9 @@ head -4 high-confidence-p$p_value-$cell_type-summits.bed \
 # mv -f $merged.tmp $merged
 
 printf "\nWord counts:\n"
-wc $macs_dir/ATAC-$cell_type-macs.peaklets_summits.bed \
-    high-confidence-p$p_value-$cell_type-summits.bed \
-    high-confidence-p$p_value-$cell_type-501.bed
+wc $macs_dir/ATAC-${cell_type}_summits.bed \
+    p$p_value-$cell_type-summits.bed \
+    p$p_value-$cell_type-501.bed
 
-rm -f high-confidence-p$p_value-$cell_type-narrow.bed \
-    high-confidence-p$p_value-$cell_type-summits.bed
+rm -f p$p_value-$cell_type-narrow.bed \
+    p$p_value-$cell_type-summits.bed
