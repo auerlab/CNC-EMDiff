@@ -6,9 +6,9 @@
 #
 #   Usage:
 #       SLURM Cluster:
-#           sbatch 7-macs-peaklets.sbatch
+#           sbatch 7-macs-peaks.sbatch
 #       No cluster:
-#           ../slurm-sim 7-macs-peaklets.sbatch 1 2 |& tee 1.log
+#           ../slurm-sim 7-macs-peaks.sbatch 1 2 |& tee 1.log
 #
 #   History:
 #       Based on the work of Dr. Andrea Rau:
@@ -24,8 +24,8 @@
 # SLURM parameters
 #SBATCH --array=1-2
 #SBATCH --mem=4g
-#SBATCH --output=7-macs-peaklets/slurm-%A_%a.out
-#SBATCH --error=7-macs-peaklets/slurm-%A_%a.err
+#SBATCH --output=7-macs-peaks/slurm-%A_%a.out
+#SBATCH --error=7-macs-peaks/slurm-%A_%a.err
 
 if [ -z $SLURM_ARRAY_TASK_ID ]; then
     printf "$0 must be run under sbatch or ../slurm-sim\n"
@@ -36,7 +36,7 @@ fi
 uname -a > 7-macs-peaks/os-version.txt 2>&1
 macs2 --version > 7-macs-peaks/macs2-version.txt 2>&1
 
-case $task_id in
+case $SLURM_ARRAY_TASK_ID in
 1)
     cell_type=CCA
     ;;
@@ -51,11 +51,11 @@ case $task_id in
 
 esac
 
-printf "$cell_type: Peak calling, merging replicates across all time points, calling peaklets...\n"
+printf "$cell_type: Peak calling, merging replicates across all time points, calling peaks...\n"
 # "mm" is the compiled-in Mus Musculus genome size.  See MACS2 docs.
 # BAMPE = BAM Paired End
 # Would it make any difference to use the merged BAMs instead?
 macs2 callpeak --nomodel \
     -t 6-remove-duplicates/$cell_type*_L001-nodup-uniq.bam \
-    -f BAMPE -g mm --call-summits -n ATAC-$cell_type-macs.peaklets \
-    --keep-dup all --outdir 7-macs-peaklets
+    -f BAMPE -g mm --call-summits -n ATAC-$cell_type \
+    --keep-dup all --outdir 7-macs-peaks
