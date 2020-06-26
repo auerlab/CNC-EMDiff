@@ -59,6 +59,7 @@ process_peaks_in_R <- FALSE
 
 if ( process_peaks_in_R )
 {
+    # FIXME: Do not merge peaklets
     library(GenomicRanges)
     
     macsBed <- read.delim(paste0("../7-macs-peaklets/ATAC-", cell_type,
@@ -150,8 +151,8 @@ if ( process_peaks_in_R )
     pause()
 } else {
     # Generated externally using bedtools
-    Peaks <- paste0("../9-process-peaks/high-confidence-p10-",
-		    cell_type, "-501-merged.bed")
+    Peaks <- paste0("../9-process-peaks/p10-",
+		    cell_type, "-501.bed")
     if ( ! file.exists(Peaks) ) {
 	print(paste0("Error: File ", Peaks))
 	print("does not exist and process_peaks_in_R is false.")
