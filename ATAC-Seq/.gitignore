@@ -5,7 +5,7 @@
 4-bwa-mem
 5-qc-sam
 6-remove-duplicates
-7-macs-peaklets
+7-macs-peaks
 8-merge-bams
 9-process-peaks
 10-diff-anal
