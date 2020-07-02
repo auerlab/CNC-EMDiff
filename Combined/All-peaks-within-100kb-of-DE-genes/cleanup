@@ -1,4 +1,4 @@
 #!/bin/sh -e
 
-rm -f *.bed *.txt *.tsv *.gene-ids *.fasta *.sorted
+rm -f *.bed *.txt *.tsv *.gene-ids *.fasta *.sorted Results/*
 ls

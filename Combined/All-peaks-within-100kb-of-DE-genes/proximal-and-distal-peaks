@@ -63,6 +63,7 @@ head -5 $gene_locations
 #   Clustering performed by Paul Auer
 ##########################################################################
 
+mkdir -p Results
 for cell_type in CCA NCA; do
     
     # Col 16 of augmented Sleuth output contains cluster # for each gene
@@ -119,7 +120,7 @@ for cell_type in CCA NCA; do
 	    wc -l $peaks_file
 
 	    # Find peaks within intersecting TSS+/-100kb
-	    pd_peaks_file=${cluster_gene_locations%.bed}-proximal+distal-peaks.bed
+	    pd_peaks_file=Results/${cluster_gene_locations%.bed}-proximal+distal-peaks.bed
 	    bedtools intersect -sorted -wa -a $peaks_file \
 		-b $cluster_gene_100kb | $bed_sort | uniq > $pd_peaks_file
 	    wc -l $pd_peaks_file
@@ -131,7 +132,7 @@ for cell_type in CCA NCA; do
 	    #####################################################################
 	    
 	    printf "Generating fasta...\n"
-	    fasta_file=${peaks_file%.bed}.fasta
+	    fasta_file=Results/${peaks_file%.bed}.fasta
 	    atac_ref_dir=../../ATAC-Seq/Reference
 	    genome_fasta=$atac_ref_dir/Mus_musculus.GRCm38.dna.autosomes.fa
 	    bedtools getfasta -fi $genome_fasta -bed $pd_peaks_file \
