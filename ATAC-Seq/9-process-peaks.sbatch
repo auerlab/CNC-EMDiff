@@ -108,7 +108,9 @@ head -4 p$p_value-$cell_type-summits.bed \
 
 ##########################################################################
 #   Merge overlapping peaklets
-#   Andrea did this for OpticRegen2019, but we decided against it here
+#   This seems to prevent DiffBind and DESeq2 from messing with the
+#   peaklet boundaries, so DESeq2 outputs will contain the same peaklets
+#   as the file $merged here.
 ##########################################################################
 # S1__S1_L01_L001-nodup-uniq.bam      Replicate 1, time 1
 # https://bedtools.readthedocs.io/en/latest/content/tools/merge.html
@@ -117,8 +119,8 @@ merged=p$p_value-$cell_type-501-merged.bed
 bedtools merge -i p$p_value-$cell_type-501.bed > $merged
 head -4 $merged
 # Add 3 dummy fields ". . *" to match format of Andrea's merged BED files
-awk '{ printf("%s\t%s\t.\t*\n", $0, "chr"$1"_"$2"_"$3 ) }' $merged \
-    > $merged.tmp
+awk '{ printf("%s\t%s\t%s\t%s\t0\n", $1, $2, $3, "chr"$1"-"$2"-"$3 ) }' \
+    $merged > $merged.tmp
 mv -f $merged.tmp $merged
 
 printf "\nWord counts:\n"

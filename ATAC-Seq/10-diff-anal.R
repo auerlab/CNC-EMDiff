@@ -23,10 +23,10 @@ cell_type <- args[1]
 swap_replicate_and_condition <- TRUE
 
 # Use merged peaklets from 9-process-peaks
-pre_merge<-FALSE
+pre_merge<-TRUE
 
 # Use DiffBind summits option to recenter and trim peaks?
-diffbind_summits<-TRUE
+diffbind_summits<-FALSE
 
 # Loading libraries can take 20 seconds or more
 library(DiffBind)
