@@ -79,6 +79,9 @@ awk -v p_value=$p_value '$8 >= p_value { print $0 }' \
 # Remove same lines from summits file that were filtered out of narrowPeak
 # FIXME: This can all be done with just the narrow peaks file
 #        The summits file is redundant
+# Output format matches summits file: chr start end peak-id LFC
+# LFC is always 0 here.  These peaks will be merged with DESeq2 output
+# later to fill in LFC values for DA peaks.
 awk -f ../filter.awk \
     -v file_to_filter=$macs_dir/ATAC-${cell_type}_summits.bed \
     p$p_value-$cell_type-narrow.bed \
@@ -95,9 +98,10 @@ awk -f ../filter.awk \
 #    ATAC-${cell_type}_summits.bed \
 #    > ATAC-$cell_type-501.bed
 
+bed_sort="sort -k1,1 -k2,2n"
 bedtools slop -b 250 -i p$p_value-$cell_type-summits.bed \
     -g ../../RNA-Seq/Reference/chromosome-sizes.tsv \
-    > p$p_value-$cell_type-501.bed
+    | $bed_sort > p$p_value-$cell_type-501.bed
 
 head -4 p$p_value-$cell_type-summits.bed \
 	p$p_value-$cell_type-501.bed
@@ -108,14 +112,14 @@ head -4 p$p_value-$cell_type-summits.bed \
 ##########################################################################
 # S1__S1_L01_L001-nodup-uniq.bam      Replicate 1, time 1
 # https://bedtools.readthedocs.io/en/latest/content/tools/merge.html
-# merged=p$p_value-$cell_type-501-merged.bed
-# bedtools merge -i p$p_value-$cell_type-501.bed \
-#     > $merged
-# head -4 $merged
+
+merged=p$p_value-$cell_type-501-merged.bed
+bedtools merge -i p$p_value-$cell_type-501.bed > $merged
+head -4 $merged
 # Add 3 dummy fields ". . *" to match format of Andrea's merged BED files
-# awk '{ printf("%s\t%s\t.\t*\n", $0, "chr"$1"_"$2"_"$3 ) }' $merged \
-#     > $merged.tmp
-# mv -f $merged.tmp $merged
+awk '{ printf("%s\t%s\t.\t*\n", $0, "chr"$1"_"$2"_"$3 ) }' $merged \
+    > $merged.tmp
+mv -f $merged.tmp $merged
 
 printf "\nWord counts:\n"
 wc $macs_dir/ATAC-${cell_type}_summits.bed \

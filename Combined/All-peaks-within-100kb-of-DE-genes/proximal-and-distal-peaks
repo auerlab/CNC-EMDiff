@@ -27,6 +27,9 @@ if [ $# != 0 ]; then
     usage
 fi
 
+bedtools --version > bedtools-version.txt
+bed_sort="sort -k1,1 -k2,2n"
+
 ##########################################################################
 #   Filter gene locations from Ensembl GTF
 #   CDNA does not document features like exans, UTRs, etc.
@@ -37,14 +40,14 @@ fi
 #   not found in the GTF.
 ##########################################################################
 
-ref_dir="../../RNA-Seq/Reference"
-release=$($ref_dir/reference-release)
-gtf="$ref_dir/Mus_musculus.GRCm38.$release.gtf"
+rna_ref_dir="../../RNA-Seq/Reference"
+release=$($rna_ref_dir/reference-release)
+gtf="$rna_ref_dir/Mus_musculus.GRCm38.$release.gtf"
 
 # References used for Kallisto quantification.  CDNA was used for the final
 # kallisto run, so this does not have info on exons, UTRs, etc.
 # Use GTF for consistency among all ATAC/RNA triangulation steps.
-# reference="$ref_dir/all-but-xy.transcripts.clean.fa"
+# reference="$rna_ref_dir/all-but-xy.transcripts.clean.fa"
 
 gene_locations=gene-locations-$release.tsv
 printf "Generating $gene_locations...\n"
@@ -57,31 +60,6 @@ awk '$1 >= 1 && $1 <= 19 && $3 == "gene" && $9 == "gene_id" {
 }' $gtf | sort -k 4 > $gene_locations
 wc -l $gene_locations
 head -5 $gene_locations
-
-##########################################################################
-#   Get fasta genome reference for extracting ATAC sequences later
-#   Be sure to use the same reference as the BWA alignment
-#   FIXME: Use ../../ATAC-Seq/Reference instead?
-##########################################################################
-
-if false; then
-genome_fasta=Mus_musculus.GRCm38.dna.toplevel.fa
-site=ftp://ftp.ensembl.org/pub/release-$release/fasta/mus_musculus/dna_index/
-if [ ! -e $genome_fasta.gz ]; then
-    printf "Fetching $genome_fasta.gz...\n"
-    curl -O $site/$genome_fasta.gz
-fi
-if [ ! -e $genome_fasta.gz.fai ]; then
-    printf "Fetching $genome_fasta.gz.fai...\n"
-    curl -O $site/$genome_fasta.gz.fai
-fi
-if [ ! -e $genome_fasta ]; then
-    printf "Unpacking $genome_fasta...\n"
-    gunzip --keep $genome_fasta.gz
-fi
-fi
-
-bedtools --version > bedtools-version.txt
 
 ##########################################################################
 #   Get gene IDs from RNA-Seq clustering results (provided by Maria)
@@ -116,9 +94,9 @@ for cell_type in CCA NCA; do
 	    $cluster_gene_locations > temp.bed
 	bedtools slop \
 	    -b 100000 \
-	    -g ../../RNA-Seq/Reference/chromosome-sizes.tsv \
+	    -g $rna_ref_dir/chromosome-sizes.tsv \
 	    -i temp.bed \
-	    | sort -k1,1 -k2,2n > $cluster_gene_100kb
+	    | $bed_sort > $cluster_gene_100kb
 	wc -l $cluster_gene_100kb
 	
 	#####################################################################
@@ -127,20 +105,51 @@ for cell_type in CCA NCA; do
 	#####################################################################
 	
 	printf "Finding proximal and distal peaks (<= 100kb from TSS)...\n"
-	peaks_file=../../ATAC-Seq/9-process-peaks/p10-$cell_type-501.bed
-	proximal_distal_peaks_file=${cluster_gene_locations%.bed}-proximal+distal-peaks.bed
-	bedtools intersect -sorted -wa -a $peaks_file -b $cluster_gene_100kb \
-	    > $proximal_distal_peaks_file
-	wc -l $proximal_distal_peaks_file
 	
-	#####################################################################
-	#   Generate fasta file for each set of proximal+distal peaks
-	#####################################################################
+	# MACS2 output converted to 501-base peaklets
+	all_peaks_file=../../ATAC-Seq/9-process-peaks/p10-$cell_type-501.bed
+	wc -l $all_peaks_file
 	
-	printf "Generating fasta...\n"
-	fasta_file=${proximal_distal_peaks_file%.bed}.fasta
-	genome_fasta=../../ATAC-Seq/Reference/Mus_musculus.GRCm38.dna.autosomes.fa
-	bedtools getfasta -fi $genome_fasta -bed $proximal_distal_peaks_file \
-		> $fasta_file
+	# Generate matching BED file from DESeq2 output
+	for interval in "T1-vs-T0" "T2-vs-T0" "T2-vs-T1"; do
+	    da_peaks_file=da-peaks-$cell_type-$cluster-$interval-501.bed
+	    awk '$1 !~ "baseMean" { \
+		    gsub("\"", "", $1); \
+		    split($1, a, "-"); \
+		    gsub("chr", "", a[1]);
+		    printf("%s\t%s\t%s\t%s\t%s\n", a[1], a[2], a[3], $1, $3); \
+		}' \
+	    ../../ATAC-Seq/10-diff-anal/$cell_type-T1-vs-T0.tsv \
+	    | $bed_sort > $da_peaks_file
+	    wc -l $da_peaks_file
+	    
+	    # Merge all_peaks_file and da_peaks_file
+	    stable_peaks_file=stable-${da_peaks_file#da-}
+	    bedtools subtract -F 1 -a $all_peaks_file -b $da_peaks_file \
+		> $stable_peaks_file
+	    wc -l $stable_peaks_file
+	    
+	    combined_peaks_file=combined-${da_peaks_file#da-}
+	    cat $stable_peaks_file $da_peaks_file \
+		| $bed_sort > $combined_peaks_file
+	    wc -l $combined_peaks_file
+	
+	    pd_peaks_file=${cluster_gene_locations%.bed}-proximal+distal-peaks.bed
+	    bedtools intersect -sorted -wa \
+		-a $combined_peaks_file -b $cluster_gene_100kb \
+		> $pd_peaks_file
+	    wc -l $pd_peaks_file
+	    
+	    #####################################################################
+	    #   Generate fasta file for each set of proximal+distal peaks
+	    #####################################################################
+	    
+	    printf "Generating fasta...\n"
+	    fasta_file=${pd_peaks_file%.bed}.fasta
+	    atac_ref_dir=../../ATAC-Seq/Reference
+	    genome_fasta=$atac_ref_dir/Mus_musculus.GRCm38.dna.autosomes.fa
+	    bedtools getfasta -fi $genome_fasta -bed $pd_peaks_file \
+		    > $fasta_file
+	done
     done
 done

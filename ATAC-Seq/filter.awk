@@ -21,6 +21,6 @@
     {
     }
     # Print the matching feature
-    print $0;
+    printf("%s\t%s\t%s\t%s\t0\n", $1, $2, $3, "chr"$1"-"$2"-"$3);
 }
 

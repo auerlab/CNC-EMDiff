@@ -16,12 +16,5 @@ What reference genome is best?
     chromosome files same as toplevel?
     * Used autosomal chromosome files and concatenated for first run
 
-Merged BAMs
-    Are we using these for anything besides IGV?
-
-Merging overlapping peaks?
-    Should we merge peaks from replicates at the same time point?
-    bedtools does not directly support minimum overlap
-	It does support maximum separation
-	May be a reason for this
-
+Add LFC, >, <
+all gene ids matching each peak

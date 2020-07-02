@@ -32,6 +32,6 @@ last=$3
 SLURM_ARRAY_TASK_ID=$first
 while [ $SLURM_ARRAY_TASK_ID -le $last ]; do
     export SLURM_ARRAY_TASK_ID
-    ./$script
+    ./$script 2>&1 | tee $script-$SLURM_ARRAY_TASK_ID.out
     SLURM_ARRAY_TASK_ID=$(($SLURM_ARRAY_TASK_ID + 1))
 done
