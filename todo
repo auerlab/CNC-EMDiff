@@ -1,4 +1,9 @@
 
+2nd: Peak IDs & gene IDs to interp MEME
+
+Add LFC, >, <
+all gene ids matching each peak
+
 Filter # peaks
 
 Renumber scripts and output dirs in chronological order
@@ -16,5 +21,3 @@ What reference genome is best?
     chromosome files same as toplevel?
     * Used autosomal chromosome files and concatenated for first run
 
-Add LFC, >, <
-all gene ids matching each peak

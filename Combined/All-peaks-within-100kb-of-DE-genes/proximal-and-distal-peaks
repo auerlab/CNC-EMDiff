@@ -20,6 +20,22 @@ usage()
 
 
 ##########################################################################
+#   Function description:
+#       Print a header to an output file
+#       
+#   History:
+#   Date        Name        Modification
+#   2020-07-03  Jason Bacon Begin
+##########################################################################
+
+header()
+{
+    printf "Chr\tStart\tEnd\tName\tDA\tLFC\tAPV\n"
+    return 0
+}
+
+
+##########################################################################
 #   Main
 ##########################################################################
 
@@ -105,25 +121,45 @@ for cell_type in CCA NCA; do
 	
 	# Generate matching BED file from DESeq2 output
 	for interval in "T1-vs-T0" "T2-vs-T0" "T2-vs-T1"; do
-	    peaks_file=peaks-$cell_type-c$cluster-$interval.bed
+	    peaks_file=peaks-$cell_type-c$cluster-$interval.tsv
 	    # DESeq2 annoyingly decides to use scientific notation for
 	    # boundaries sometimes, so convert boundaries to plain integers
 	    # while massaging to BED format.
 	    awk '$1 !~ "baseMean" { \
-		    gsub("\"", "", $1); \
-		    split($1, a, "-"); \
+		    name=$1; \
+		    lfc=$3;
+		    apv=$7; \
+		    gsub("\"", "", name); \
+		    split(name, a, "-"); \
 		    gsub("chr", "", a[1]);
-		    printf("%u\t%u\t%u\t%s\t%f\n", a[1], a[2], a[3], $1, $3); \
+		    if ( apv < 0.05 ) {
+			if ( lfc >= 0 ) {
+			    da="up";
+			}
+			else {
+			    da="down";
+			}
+		    } else {
+			da="stable";
+		    }
+		    printf("%u\t%u\t%u\t%s\t%s\t%f\t%f\n",
+			   a[1], a[2], a[3], name, da, lfc, apv); \
 		}' \
 	    ../../ATAC-Seq/10-diff-anal/$cell_type-$interval.tsv \
-	    | $bed_sort > $peaks_file
+	    | $bed_sort >> $peaks_file
 	    wc -l $peaks_file
 
 	    # Find peaks within intersecting TSS+/-100kb
-	    pd_peaks_file=Results/${cluster_gene_locations%.bed}-proximal+distal-peaks.bed
+	    pd_peaks_file=Results/${cluster_gene_locations%.bed}-proximal+distal-peaks.tsv
+	    header > $pd_peaks_file
 	    bedtools intersect -sorted -wa -a $peaks_file \
-		-b $cluster_gene_100kb | $bed_sort | uniq > $pd_peaks_file
+		-b $cluster_gene_100kb | $bed_sort | uniq >> $pd_peaks_file
 	    wc -l $pd_peaks_file
+	    
+	    wide_peaks_file=${pd_peaks_file%.bed}-over750.tsv
+	    header > $wide_peaks_file
+	    awk '$3 - $2 > 750 { print $0 }' $pd_peaks_file \
+		>> $wide_peaks_file
 
 	    #####################################################################
 	    #   Generate fasta file for each set of proximal+distal peaks
