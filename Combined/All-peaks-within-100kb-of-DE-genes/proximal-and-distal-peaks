@@ -57,6 +57,8 @@ bed_sort="sort -k1,1 -k2,2n"
 #   at exons, so use GTF here for consistency.
 ##########################################################################
 
+./cleanup
+
 rna_ref_dir="../../RNA-Seq/Reference"
 ref_release=$($rna_ref_dir/reference-release)
 gtf="$rna_ref_dir/Mus_musculus.GRCm38.$ref_release.gtf"
@@ -69,7 +71,7 @@ awk '$1 >= 1 && $1 <= 19 && $3 == "gene" && $9 == "gene_id" {
     # Strip quotes and ; from gene ID
     gsub("\"", "", $10);
     gsub(";", "", $10);
-    printf("%u\t%u\t%u\t%s\n", $1, $4, $5, $10);
+    printf("%s\t%u\t%u\t%s\n", $1, $4, $5, $10);
 }' $gtf | sort -k 4 > $gene_locations
 wc -l $gene_locations
 head -5 $gene_locations
@@ -120,60 +122,63 @@ for cell_type in CCA NCA; do
 	printf "Finding proximal and distal peaks (<= 100kb from TSS)...\n"
 	
 	# Generate matching BED file from DESeq2 output
-	for interval in "T1-vs-T0" "T2-vs-T0" "T2-vs-T1"; do
-	    peaks_file=peaks-$cell_type-c$cluster-$interval.tsv
-	    # DESeq2 annoyingly decides to use scientific notation for
-	    # boundaries sometimes, so convert boundaries to plain integers
-	    # while massaging to BED format.
-	    awk '$1 !~ "baseMean" { \
-		    name=$1; \
-		    lfc=$3;
-		    apv=$7; \
-		    gsub("\"", "", name); \
-		    split(name, a, "-"); \
-		    gsub("chr", "", a[1]);
-		    if ( apv < 0.05 ) {
-			if ( lfc >= 0 ) {
-			    da="up";
-			}
-			else {
-			    da="down";
-			}
-		    } else {
-			da="stable";
+	# All intervalues T1-vs-T0, T2-vs-T0, T2-vs-T1 contain the same
+	# set of peaklets, so pick one
+	interval="T1-vs-T0"
+	peaks_file=peaks-$cell_type-c$cluster.tsv
+	# DESeq2 annoyingly decides to use scientific notation for
+	# boundaries sometimes, so convert boundaries to plain integers
+	# while massaging to BED format.
+	awk '$1 !~ "baseMean" { \
+		name=$1; \
+		lfc=$3;
+		apv=$7; \
+		gsub("\"", "", name); \
+		split(name, a, "-"); \
+		gsub("chr", "", a[1]);
+		if ( apv < 0.05 ) {
+		    if ( lfc >= 0 ) {
+			da="up";
 		    }
-		    printf("%u\t%u\t%u\t%s\t%s\t%f\t%f\n",
-			   a[1], a[2], a[3], name, da, lfc, apv); \
-		}' \
-	    ../../ATAC-Seq/10-diff-anal/$cell_type-$interval.tsv \
-	    | $bed_sort >> $peaks_file
-	    wc -l $peaks_file
+		    else {
+			da="down";
+		    }
+		} else {
+		    da="stable";
+		}
+		printf("%s\t%u\t%u\t%s\t%s\t%f\t%f\n",
+		       a[1], a[2], a[3], name, da, lfc, apv); \
+	    }' \
+	../../ATAC-Seq/10-diff-anal/$cell_type-$interval.tsv \
+	| $bed_sort >> $peaks_file
+	wc -l $peaks_file
 
-	    # Find peaks within intersecting TSS+/-100kb
-	    pd_peaks_file=Results/${cluster_gene_locations%.bed}-proximal+distal-peaks.tsv
-	    header > $pd_peaks_file
-	    bedtools intersect -sorted -wa -a $peaks_file \
-		-b $cluster_gene_100kb | $bed_sort | uniq >> $pd_peaks_file
-	    wc -l $pd_peaks_file
-	    
-	    wide_peaks_file=${pd_peaks_file%.bed}-over750.tsv
-	    header > $wide_peaks_file
-	    awk '$3 - $2 > 750 { print $0 }' $pd_peaks_file \
-		>> $wide_peaks_file
+	# Find peaks within intersecting TSS+/-100kb
+	peaks_file=peaks-$cell_type-c$cluster.tsv
+	pd_peaks_file=Results/${cluster_gene_locations%.tsv}-proximal+distal-peaks.tsv
+	header > $pd_peaks_file
+	bedtools intersect -sorted -wa -a $peaks_file \
+	    -b $cluster_gene_100kb | $bed_sort | uniq >> $pd_peaks_file
+	wc -l $pd_peaks_file
+	
+	wide_peaks_file=${pd_peaks_file%.tsv}-over750.tsv
+	header > $wide_peaks_file
+	awk '$3 - $2 > 750 { print $0 }' $pd_peaks_file \
+	    >> $wide_peaks_file
 
-	    #####################################################################
-	    #   Generate fasta file for each set of proximal+distal peaks
-	    #   seqkit rmdup should be useless here since we did sort|uniq
-	    #   above, but include it as a redundant check.
-	    #####################################################################
-	    
-	    printf "Generating fasta...\n"
-	    fasta_file=Results/${peaks_file%.bed}.fasta
-	    atac_ref_dir=../../ATAC-Seq/Reference
-	    genome_fasta=$atac_ref_dir/Mus_musculus.GRCm38.dna.autosomes.fa
-	    bedtools getfasta -fi $genome_fasta -bed $pd_peaks_file \
-		| seqkit rmdup > $fasta_file
-	    wc -l $fasta_file
-	done
+	#####################################################################
+	#   Generate fasta file for each set of proximal+distal peaks
+	#   seqkit rmdup should be useless here since we did sort|uniq
+	#   above, but include it as a redundant check.
+	#####################################################################
+	
+	printf "Generating fasta...\n"
+	fasta_file=Results/${peaks_file%.bed}.fasta
+	atac_ref_dir=../../ATAC-Seq/Reference
+	genome_fasta=$atac_ref_dir/Mus_musculus.GRCm38.dna.autosomes.fa
+	awk '$1 != "Chr"' $pd_peaks_file \
+	    | bedtools getfasta -fi $genome_fasta -bed - \
+	    | seqkit rmdup > $fasta_file
+	wc -l $fasta_file
     done
 done
