@@ -1,6 +1,0 @@
-Ava:
-
- To your previous question - yes - all peaks within 100 kb of TSS.
-
-And also yes to your question below - there may be multiple transcripts for each gene. So within each cluster list you can collapse it to the unique genes, and provide the fasta file and list for all peaks within 100 kb of the TSS.
-
