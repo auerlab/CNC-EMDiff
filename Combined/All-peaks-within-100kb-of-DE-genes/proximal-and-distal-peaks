@@ -30,7 +30,7 @@ usage()
 
 header()
 {
-    printf "Chr\tStart\tEnd\tName\tDA\tLFC\tAPV\n"
+    printf "Chr\tStart\tEnd\tName\tDA\tLFC\tAPV\tTSS\tGene\n"
     return 0
 }
 
@@ -81,7 +81,8 @@ head -5 $gene_locations
 #   Clustering performed by Paul Auer
 ##########################################################################
 
-mkdir -p Results
+results_dir=Proximal+distal
+mkdir -p $results_dir
 for cell_type in CCA NCA; do
     
     # Col 16 of augmented Sleuth output contains cluster # for each gene
@@ -155,11 +156,19 @@ for cell_type in CCA NCA; do
 
 	# Find peaks within intersecting TSS+/-100kb
 	peaks_file=peaks-$cell_type-c$cluster.tsv
-	pd_peaks_file=Results/${cluster_gene_locations%.tsv}-proximal+distal-peaks.tsv
+	pd_peaks_file=$results_dir/${cluster_gene_locations%.tsv}-proximal+distal-peaks.tsv
 	header > $pd_peaks_file
-	bedtools intersect -sorted -wa -a $peaks_file \
-	    -b $cluster_gene_100kb | $bed_sort | uniq >> $pd_peaks_file
+	bedtools intersect -sorted -wa -wb -a $peaks_file \
+	    -b $cluster_gene_100kb | $bed_sort | uniq \
+	    | awk '{ printf("%s\t%u\t%u\t%s\t%s\t%s\t%s\t%u\t%s\n",
+			    $1, $2, $3, $4, $5, $6, $7, ($9+$10)/2, $11); }' \
+	    >> $pd_peaks_file
 	wc -l $pd_peaks_file
+
+	mated_peaks_file=mated-$cell_type-c$cluster.tsv
+	bedtools intersect -sorted -wa -wb -a $peaks_file \
+	    -b $cluster_gene_100kb | $bed_sort | uniq >> $mated_peaks_file
+	wc -l $mated_peaks_file
 	
 	wide_peaks_file=${pd_peaks_file%.tsv}-over750.tsv
 	header > $wide_peaks_file
@@ -173,7 +182,7 @@ for cell_type in CCA NCA; do
 	#####################################################################
 	
 	printf "Generating fasta...\n"
-	fasta_file=Results/${peaks_file%.bed}.fasta
+	fasta_file=$results_dir/${peaks_file%.bed}.fasta
 	atac_ref_dir=../../ATAC-Seq/Reference
 	genome_fasta=$atac_ref_dir/Mus_musculus.GRCm38.dna.autosomes.fa
 	awk '$1 != "Chr"' $pd_peaks_file \
