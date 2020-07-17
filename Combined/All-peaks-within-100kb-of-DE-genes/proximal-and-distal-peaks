@@ -130,7 +130,7 @@ for cell_type in CCA NCA; do
 	# DESeq2 annoyingly decides to use scientific notation for
 	# boundaries sometimes, so convert boundaries to plain integers
 	# while massaging to BED format.
-	awk '$1 !~ "baseMean" { \
+	awk '$1 !~ "baseMean" && $7 != "NA" { \
 		name=$1; \
 		lfc=$3;
 		apv=$7; \
@@ -147,7 +147,7 @@ for cell_type in CCA NCA; do
 		} else {
 		    da="stable";
 		}
-		printf("%s\t%u\t%u\t%s\t%s\t%f\t%f\n",
+		printf("%s\t%u\t%u\t%s\t%s\t%s\t%s\n",
 		       a[1], a[2], a[3], name, da, lfc, apv); \
 	    }' \
 	../../ATAC-Seq/10-diff-anal/$cell_type-$interval.tsv \

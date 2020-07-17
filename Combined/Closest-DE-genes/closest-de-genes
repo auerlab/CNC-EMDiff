@@ -1,0 +1,146 @@
+#!/bin/sh -e
+
+##########################################################################
+#   Script description:
+#       Locate whatever DE gene TSS is closest to each peak.
+#       
+#   History:
+#   Date        Name        Modification
+#   2020-07-17  Jason Bacon Begin
+##########################################################################
+
+usage()
+{
+    printf "Usage: $0\n"
+    exit 1
+}
+
+
+##########################################################################
+#   Function description:
+#       Print a header to an output file
+#       
+#   History:
+#   Date        Name        Modification
+#   2020-07-03  Jason Bacon Begin
+##########################################################################
+
+header()
+{
+    printf "Chr\tStart\tEnd\tName\tLFC\tClosest-DE\tDistance\n"
+    return 0
+}
+
+
+##########################################################################
+#   Main
+##########################################################################
+
+if [ $# != 0 ]; then
+    usage
+fi
+
+bedtools --version > bedtools-version.txt
+bed_sort="sort -k1,1 -k2,2n"
+
+##########################################################################
+#   Extract gene locations from Ensembl GTF.  They are also in the CDNA
+#   reference, but CDNA does not document features like exons, UTRs, etc.
+#   Ensembl GTF has many more gene IDs represented than CDNA reference
+#   and CDNA contains a small number of gene IDs not in the GTF.
+#   all-but-xy.transcripts.clean.fa is generated from either GTF or CDNA
+#   Last run used CDNA, so there will be some gene IDs in the clusters
+#   not found in the GTF.  Other parts of this analysis will need to look
+#   at exons, so use GTF here for consistency.
+##########################################################################
+
+./cleanup
+
+rna_ref_dir="../../RNA-Seq/Reference"
+ref_release=$($rna_ref_dir/reference-release)
+gtf="$rna_ref_dir/Mus_musculus.GRCm38.$ref_release.gtf"
+
+all_gene_locations=all-gene-locations-$ref_release.tsv
+printf "Generating $all_gene_locations...\n"
+# Output format: chr start stop gene-name
+# Sort by gene name for awk script that follows
+awk '$1 >= 1 && $1 <= 19 && $3 == "gene" && $9 == "gene_id" {
+    # Strip quotes and ; from gene name
+    gsub("\"", "", $10);
+    gsub(";", "", $10);
+    printf("%s\t%u\t%u\t%s\n", $1, $4, $5, $10);
+}' $gtf | sort -k 4 > $all_gene_locations
+wc -l $all_gene_locations
+head -50 $all_gene_locations
+
+##########################################################################
+#   Get gene IDs from RNA-Seq clustering results (provided by Maria)
+#   Clustering performed by Paul Auer
+##########################################################################
+
+results_dir=Closest-DE
+mkdir -p $results_dir
+for cell_type in CCA NCA; do
+    
+    # Col 16 of augmented Sleuth output contains cluster # for each gene
+    # List of unique values in this column enumerates clusters
+    tsv="../../RNA-Seq/Clusters/$cell_type.tsv"
+    
+    printf "=== $cell_type ===\n"
+    de_gene_list=genes-$cell_type.txt
+    awk '$1 != "target_id" && $2 != "" { print $2 }' $tsv | sort | uniq > $de_gene_list
+    head $de_gene_list
+    
+    # Generate BED file of genes and locations
+    de_gene_locations=${de_gene_list%.txt}.bed
+    awk -v all_gene_locations=$all_gene_locations -f lookup-gene-locations.awk \
+	$de_gene_list > $de_gene_locations
+    head $de_gene_locations
+
+    # Generate BED file with just gene TSS position
+    # Filter out gene IDs not found in GTF (tagged with -1 by
+    # lookup-gene-locations.awk) and replace end with start since we're
+    # measuring distance from TSS in either direction.
+    de_gene_tss=${de_gene_locations%.bed}-TSS.bed
+    awk '$1 != -1 { printf("%s\t%s\t%s\t%s\n", $1, $2, $2+1, $4); }' \
+	$de_gene_locations | $bed_sort > $de_gene_tss
+    head $de_gene_tss
+
+    #####################################################################
+    #   Find all peaks (both differential and stable accessibility)
+    #   within 100kb of DE gene TSS by cluster
+    #####################################################################
+    
+    printf "Finding nearest gene TSS for each peak...\n"
+    
+    # Generate matching BED file from DESeq2 output
+    # All intervalues T1-vs-T0, T2-vs-T0, T2-vs-T1 contain the same
+    # set of peaklets, so pick one
+    for interval in "T1-vs-T0" "T2-vs-T1" "T2-vs-T0"; do
+	peaks_file=peaks-$cell_type-$interval.bed
+	# DESeq2 annoyingly decides to use scientific notation for boundaries
+	# sometimes, so convert boundaries to plain integers using %u while
+	# massaging to BED format.
+	awk '$1 !~ "baseMean" && $7 != "NA" { \
+		name=$1; \
+		lfc=$3;
+		gsub("\"", "", name); \
+		split(name, a, "-"); \
+		gsub("chr", "", a[1]);
+		printf("%s\t%u\t%u\t%s\t%s\n",
+		       a[1], a[2], a[3], name, lfc); \
+	    }' \
+	../../ATAC-Seq/10-diff-anal/$cell_type-$interval.tsv \
+	| $bed_sort > $peaks_file
+	head $peaks_file
+	wc -l $peaks_file
+	
+	# Find closest DE genes to peaks
+	closest_genes=$results_dir/closest-${peaks_file%.bed}.tsv
+	header > $closest_genes
+	bedtools closest -D ref -a $peaks_file -b $de_gene_tss \
+	    | awk '{ printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\n", $1, $2, $3, $4, $5, $9, $10); }' \
+	    >> $closest_genes
+	head $closest_genes
+    done
+done

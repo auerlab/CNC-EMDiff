@@ -1,0 +1,4 @@
+#!/bin/sh -e
+
+rm -f *.bed *.txt *.tsv *.gene-ids *.fasta *.sorted
+ls
