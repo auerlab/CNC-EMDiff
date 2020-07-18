@@ -31,6 +31,12 @@ header()
     return 0
 }
 
+merged_header()
+{
+    printf "Chr\tStart\tEnd\tName\tLFC-T1-vs-T0\tLFC-T2-vs-T0\tLFC-T2-vs-T1\tClosest-DE\tDistance\n"
+    return 0
+}
+
 
 ##########################################################################
 #   Main
@@ -64,11 +70,11 @@ all_gene_locations=all-gene-locations-$ref_release.tsv
 printf "Generating $all_gene_locations...\n"
 # Output format: chr start stop gene-name
 # Sort by gene name for awk script that follows
-awk '$1 >= 1 && $1 <= 19 && $3 == "gene" && $9 == "gene_id" {
+awk '$1 >= 1 && $1 <= 19 && $3 == "gene" && $13 == "gene_name" {
     # Strip quotes and ; from gene name
-    gsub("\"", "", $10);
-    gsub(";", "", $10);
-    printf("%s\t%u\t%u\t%s\n", $1, $4, $5, $10);
+    gsub("\"", "", $14);
+    gsub(";", "", $14);
+    printf("%s\t%u\t%u\t%s\n", $1, $4, $5, $14);
 }' $gtf | sort -k 4 > $all_gene_locations
 wc -l $all_gene_locations
 head -50 $all_gene_locations
@@ -88,7 +94,7 @@ for cell_type in CCA NCA; do
     
     printf "=== $cell_type ===\n"
     de_gene_list=genes-$cell_type.txt
-    awk '$1 != "target_id" && $2 != "" { print $2 }' $tsv | sort | uniq > $de_gene_list
+    awk '$1 != "target_id" && $2 != "" { print $3 }' $tsv | sort | uniq > $de_gene_list
     head $de_gene_list
     
     # Generate BED file of genes and locations
@@ -136,11 +142,24 @@ for cell_type in CCA NCA; do
 	wc -l $peaks_file
 	
 	# Find closest DE genes to peaks
-	closest_genes=$results_dir/closest-${peaks_file%.bed}.tsv
+	closest_genes=closest-genes-$cell_type-$interval.tsv
 	header > $closest_genes
 	bedtools closest -D ref -a $peaks_file -b $de_gene_tss \
 	    | awk '{ printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\n", $1, $2, $3, $4, $5, $9, $10); }' \
 	    >> $closest_genes
 	head $closest_genes
     done
+    
+    # Merge into one file with 3 LFCs
+    merged_header > $results_dir/closes-genes-$cell_type.tsv
+    bedtools intersect \
+	-a closest-genes-$cell_type-T1-vs-T0.tsv \
+	-b closest-genes-$cell_type-T2-vs-T0.tsv -f 1 -r -wa -wb \
+	| awk '{ printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",$1,$2,$3,$4,$5,$12,$6,$7);}' \
+	> temp.tsv
+    bedtools intersect \
+	-a temp.tsv \
+	-b closest-genes-$cell_type-T2-vs-T1.tsv -f 1 -r -wa -wb \
+	| awk '{ printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",$1,$2,$3,$4,$5,$6,$13,$7,$8);}' \
+	>> $results_dir/closes-genes-$cell_type.tsv
 done
