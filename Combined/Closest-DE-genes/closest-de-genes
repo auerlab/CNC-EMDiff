@@ -27,13 +27,13 @@ usage()
 
 header()
 {
-    printf "Chr\tStart\tEnd\tName\tLFC\tClosest-DE\tDistance\n"
+    printf "Chr\tStart\tEnd\tName\tLFC\tAPV\tClosest-DE\tDistance\n"
     return 0
 }
 
 merged_header()
 {
-    printf "Chr\tStart\tEnd\tName\tLFC-T1-vs-T0\tLFC-T2-vs-T0\tLFC-T2-vs-T1\tClosest-DE\tDistance\t${kb}kb-DE\tTSS\n"
+    printf "Chr\tStart\tEnd\tName\tT1-vs-T0-LFC\tAPV\tT2-vs-T0-LFC\tAPV\tT2-vs-T1-LFC\tAPV\tClosest-DE\tDistance\t${kb}kb-DE\tTSS\n"
     return 0
 }
 
@@ -47,6 +47,7 @@ if [ $# != 1 ]; then
 fi
 kb=$1
 
+# Set to '#' to disable debug code, '' to enable
 debug=#
 
 bedtools --version > bedtools-version.txt
@@ -121,8 +122,8 @@ for cell_type in CCA NCA; do
     eval $debug head -n 2 $de_gene_tss
 
     #####################################################################
-    #   Find all peaks (both differential and stable accessibility)
-    #   within ${kb}kb of DE gene TSS by cluster
+    #   Find all differentially accessible peaks within ${kb}kb of DE
+    #   gene TSS by cluster
     #####################################################################
     
     # Generate matching BED file from DESeq2 output
@@ -138,11 +139,12 @@ for cell_type in CCA NCA; do
 	awk '$1 !~ "baseMean" && $7 != "NA" { \
 		name=$1; \
 		lfc=$3;
+		apv=$7;
 		gsub("\"", "", name); \
 		split(name, a, "-"); \
 		gsub("chr", "", a[1]);
-		printf("%s\t%u\t%u\t%s\t%s\n",
-		       a[1], a[2], a[3], name, lfc); \
+		printf("%s\t%u\t%u\t%s\t%s\t%s\n",
+		       a[1], a[2], a[3], name, lfc, apv); \
 	    }' \
 	../../ATAC-Seq/10-diff-anal/$cell_type-$interval.tsv \
 	| $bed_sort > $peaks_file
@@ -153,8 +155,10 @@ for cell_type in CCA NCA; do
 	closest_genes_interval=closest-genes-$cell_type-$interval.tsv
 	printf "Generating $closest_genes_interval...\n"
 	header > $closest_genes_interval
+	# Keep chr, start, end, peak-id, lfc, apv, gene-name, tss
 	bedtools closest -D ref -a $peaks_file -b $de_gene_tss \
-	    | awk '{ printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\n", $1, $2, $3, $4, $5, $9, $10); }' \
+	    | awk '{ printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
+			    $1, $2, $3, $4, $5, $6, $10, $11); }' \
 	    >> $closest_genes_interval
 	eval $debug head -n 2 $closest_genes_interval
     done
@@ -162,18 +166,28 @@ for cell_type in CCA NCA; do
     printf "======================== Combining Intervals ========================\n"
     
     # Merge into one file with 3 LFCs
-    closest_genes=closes-genes-$cell_type.tsv
+    closest_genes=closest-genes-$cell_type.tsv
     printf "Merging into $closest_genes...\n"
+    
+    # A file has 8 columns
+    # Keep chr, start, end, peak-id, lfc, apv, gene-name, tss
+    # 1-6 from A file, 5-6 from B file, 7-8 from A file
     bedtools intersect \
 	-a closest-genes-$cell_type-T1-vs-T0.tsv \
 	-b closest-genes-$cell_type-T2-vs-T0.tsv -f 1 -r -wa -wb \
-	| awk '{ printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",$1,$2,$3,$4,$5,$12,$6,$7);}' \
+	| awk '{ printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
+			$1,$2,$3,$4,$5,$6,$13,$14,$7,$8);}' \
 	> temp.tsv
+    
+    # A file has 10 columns
+    # Keep chr, start, end, peak-id, lfc, apv, gene-name, tss
+    # 1-8 from A file, 5-6 from B file, 9-10 from A file
     bedtools intersect \
 	-a temp.tsv \
 	-b closest-genes-$cell_type-T2-vs-T1.tsv -f 1 -r -wa -wb \
 	> temp2.tsv
-	awk '{ printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",$1,$2,$3,$4,$5,$6,$13,$7,$8);}' \
+	awk '{ printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
+		      $1,$2,$3,$4,$5,$6,$7,$8,$15,$16,$9,$10);}' \
 	temp2.tsv > $closest_genes
 
     # Generate BED file with gene TSS position +/-${kb}kb
@@ -182,6 +196,8 @@ for cell_type in CCA NCA; do
     # Filter out gene IDs not found in GTF (tagged with -1 by
     # lookup-gene-locations.awk) and replace end with start since we're
     # measuring distance from TSS in either direction.
+    
+    # Keep chr, TSS ($2, $2+1), gene-name
     awk '$1 != -1 { printf("%s\t%s\t%s\t%s\n", $1, $2, $2+1, $4); }' \
 	$de_gene_locations > temp-tss.bed
     bedtools slop \
@@ -195,8 +211,17 @@ for cell_type in CCA NCA; do
     peaks_with_nearby_tss=$results_dir/${closest_genes%.tsv}-${kb}kb.tsv
     printf "Generating $peaks_with_nearby_tss...\n"
     merged_header > $peaks_with_nearby_tss
-    bedtools intersect -a closes-genes-$cell_type.tsv \
+    
+    # A file has 12 columns
+    # Keep all of A
+    # From B keep gene name = $4, (start + end)/2 = ($2 + $3)/2 = TSS
+    # Format output consistently using %f for LFC and APV
+    bedtools intersect -a $closest_genes \
 	-b $de_gene_tss_vicinity -loj \
-	| awk '{ printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%d\n", $1, $2, $3, $4, $5, $6, $7, $8, $9, $13, ($11+$12)/2 ); }' \
+	| awk '($6 > -0.05 && $6 < 0.05) ||
+	       ($8 > -0.05 && $8 < 0.05) ||
+	       ($10 > -0.05 && $10 < 0.05) {
+	    printf("%s\t%s\t%s\t%s\t%0.8f\t%0.8f\t%0.8f\t%0.8f\t%0.8f\t%0.8f\t%s\t%s\t%s\t%d\n",
+		   $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $16, ($14+$15)/2 ); }' \
 	>> $peaks_with_nearby_tss
 done
