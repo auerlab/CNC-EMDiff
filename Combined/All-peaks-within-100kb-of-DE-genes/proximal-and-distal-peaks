@@ -2,10 +2,10 @@
 
 ##########################################################################
 #   Script description:
-#       Locate ATAC-Seq peaks within 100kb of DE gene TSS for each
+#       Locate ATAC-Seq peaks within ${kb}kb of DE gene TSS for each
 #       gene cluster.
 #       Proximal peaks are defined as within 1kb
-#       Distal peaks are defined as within 100kb
+#       Distal peaks are defined as within ${kb}kb
 #       
 #   History:
 #   Date        Name        Modification
@@ -14,7 +14,7 @@
 
 usage()
 {
-    printf "Usage: $0\n"
+    printf "Usage: $0 KB-from-TSS\n"
     exit 1
 }
 
@@ -39,9 +39,10 @@ header()
 #   Main
 ##########################################################################
 
-if [ $# != 0 ]; then
+if [ $# != 1 ]; then
     usage
 fi
+kb=$1
 
 bedtools --version > bedtools-version.txt
 bed_sort="sort -k1,1 -k2,2n"
@@ -101,26 +102,26 @@ for cell_type in CCA NCA; do
 	awk -v gene_locations=$gene_locations -f lookup-gene-locations.awk \
 	    $cluster_gene_list > $cluster_gene_locations
 
-	# Generate BED file with gene TSS position +/-100kb
-	cluster_gene_100kb=${cluster_gene_locations%.bed}-100kb.bed
+	# Generate BED file with gene TSS position +/-${kb}kb
+	cluster_gene_vicinity=${cluster_gene_locations%.bed}-${kb}kb.bed
 	# Filter out gene IDs not found in GTF (tagged with -1 by
 	# lookup-gene-locations.awk) and replace end with start since we're
 	# measuring distance from TSS in either direction.
 	awk '$1 != -1 { printf("%s\t%s\t%s\t%s\n", $1, $2, $2+1, $4); }' \
 	    $cluster_gene_locations > temp.bed
 	bedtools slop \
-	    -b 100000 \
+	    -b ${kb}000 \
 	    -g $rna_ref_dir/chromosome-sizes.tsv \
 	    -i temp.bed \
-	    | $bed_sort > $cluster_gene_100kb
-	wc -l $cluster_gene_100kb
+	    | $bed_sort > $cluster_gene_vicinity
+	wc -l $cluster_gene_vicinity
 	
 	#####################################################################
 	#   Find all peaks (both differential and stable accessibility)
-	#   within 100kb of DE gene TSS by cluster
+	#   within ${kb}kb of DE gene TSS by cluster
 	#####################################################################
 	
-	printf "Finding proximal and distal peaks (<= 100kb from TSS)...\n"
+	printf "Finding proximal and distal peaks (<= ${kb}kb from TSS)...\n"
 	
 	# Generate matching BED file from DESeq2 output
 	# All intervalues T1-vs-T0, T2-vs-T0, T2-vs-T1 contain the same
@@ -154,12 +155,12 @@ for cell_type in CCA NCA; do
 	| $bed_sort >> $peaks_file
 	wc -l $peaks_file
 
-	# Find peaks within intersecting TSS+/-100kb
+	# Find peaks within intersecting TSS+/-${kb}kb
 	peaks_file=peaks-$cell_type-c$cluster.tsv
 	pd_peaks_file=$results_dir/${cluster_gene_locations%.tsv}-proximal+distal-peaks.tsv
 	header > $pd_peaks_file
 	bedtools intersect -sorted -wa -wb -a $peaks_file \
-	    -b $cluster_gene_100kb | $bed_sort | uniq \
+	    -b $cluster_gene_vicinity | $bed_sort | uniq \
 	    | awk '{ printf("%s\t%u\t%u\t%s\t%s\t%s\t%s\t%u\t%s\n",
 			    $1, $2, $3, $4, $5, $6, $7, ($9+$10)/2, $11); }' \
 	    >> $pd_peaks_file
@@ -167,7 +168,7 @@ for cell_type in CCA NCA; do
 
 	mated_peaks_file=mated-$cell_type-c$cluster.tsv
 	bedtools intersect -sorted -wa -wb -a $peaks_file \
-	    -b $cluster_gene_100kb | $bed_sort | uniq >> $mated_peaks_file
+	    -b $cluster_gene_vicinity | $bed_sort | uniq >> $mated_peaks_file
 	wc -l $mated_peaks_file
 	
 	wide_peaks_file=${pd_peaks_file%.tsv}-over750.tsv
