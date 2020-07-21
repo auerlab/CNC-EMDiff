@@ -215,7 +215,8 @@ for cell_type in CCA NCA; do
     # A file has 12 columns
     # Keep all of A
     # From B keep gene name = $4, (start + end)/2 = ($2 + $3)/2 = TSS
-    # Format output consistently using %f for LFC and APV
+    # Format LFC and APV output for readability and to ensure that none
+    # round to 0.0
     bedtools intersect -a $closest_genes \
 	-b $de_gene_tss_vicinity -loj \
 	| awk '($6 < 0.05) || ($8 < 0.05) || ($10 < 0.05) {
