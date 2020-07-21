@@ -218,10 +218,8 @@ for cell_type in CCA NCA; do
     # Format output consistently using %f for LFC and APV
     bedtools intersect -a $closest_genes \
 	-b $de_gene_tss_vicinity -loj \
-	| awk '($6 > -0.05 && $6 < 0.05) ||
-	       ($8 > -0.05 && $8 < 0.05) ||
-	       ($10 > -0.05 && $10 < 0.05) {
-	    printf("%s\t%s\t%s\t%s\t%0.8f\t%0.8f\t%0.8f\t%0.8f\t%0.8f\t%0.8f\t%s\t%s\t%s\t%d\n",
+	| awk '($6 < 0.05) || ($8 < 0.05) || ($10 < 0.05) {
+	    printf("%s\t%s\t%s\t%s\t%0.4g\t%0.4g\t%0.4g\t%0.4g\t%0.4g\t%0.4g\t%s\t%s\t%s\t%d\n",
 		   $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $16, ($14+$15)/2 ); }' \
 	>> $peaks_with_nearby_tss
 done
