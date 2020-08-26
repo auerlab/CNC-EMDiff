@@ -70,23 +70,33 @@ rna_ref_dir="../../RNA-Seq/Reference"
 ref_release=$($rna_ref_dir/reference-release)
 gtf="$rna_ref_dir/Mus_musculus.GRCm38.$ref_release.gtf"
 
-all_gene_locations=all-gene-locations-$ref_release.tsv
-printf "Generating $all_gene_locations...\n"
+gene_locations_file=all-gene-locations-$ref_release.tsv
+printf "Generating $gene_locations_file...\n"
 # Output format: chr start stop gene-name
 # Sort by gene name for awk script that follows
+# GTF format:
+#   $1  chromosome
+#   $3  feature type (gene, transcript, etc)
+#   $4  start pos
+#   $5  end pos
+#   $13 feature metadata name (gene_name, transcript_id, etc)
+#   $14 feature metadata value
 time awk '$1 >= 1 && $1 <= 19 && $3 == "gene" && $13 == "gene_name" {
     # Strip quotes and ; from gene name
     gsub("\"", "", $14);
     gsub(";", "", $14);
     printf("%s\t%u\t%u\t%s\n", $1, $4, $5, $14);
-}' $gtf | sort -k 4 > $all_gene_locations
+}' $gtf | sort -k 4 > $gene_locations_file
 
-eval $debug wc -l $all_gene_locations
-eval $debug head -n 2 $all_gene_locations
+eval $debug wc -l $gene_locations_file
+eval $debug head -n 2 $gene_locations_file
 
 ##########################################################################
-#   Get gene IDs from RNA-Seq clustering results (provided by Maria)
-#   Clustering performed by Paul Auer
+#   Get gene IDs from RNA-Seq clustering results
+#   Sleuth analysis performed by Paul Auer, Clusters manually determined
+#   by Maria Replogl, provided as spreadsheets
+#   Col 16 of augmented Sleuth output contains cluster # for each gene
+#   The list of unique values in this column enumerates the clusters
 ##########################################################################
 
 results_dir=Closest-DE
@@ -94,26 +104,39 @@ mkdir -p $results_dir
 for cell_type in CCA NCA; do
     
     printf "======================== $cell_type ========================\n"
-    
-    # Col 16 of augmented Sleuth output contains cluster # for each gene
-    # List of unique values in this column enumerates clusters
+
+    # Maria's Sleuth output augmented with cluster col
+    # All genes in this file are DE
     tsv="../../RNA-Seq/Clusters/$cell_type.tsv"
-    
     de_gene_list=genes-$cell_type.txt
+
+    ###############################################
+    # Generate simple text file with DE gene names
+    ###############################################
+
     printf "Generating $de_gene_list...\n"
-    awk '$1 != "target_id" && $2 != "" { print $3 }' $tsv | sort | uniq > $de_gene_list
+    # Col 3 = gene_name
+    # Filter out header line ($1 == "target_id") and blank lines
+    awk '$1 != "target_id" && NF != 0 { print $3 }' $tsv | sort | uniq > $de_gene_list
     eval $debug head -n 2 $de_gene_list
     
-    # Generate BED file of genes and locations
+    ########################################################
+    # Generate BED file of all DE genes and their locations
+    ########################################################
+
     de_gene_locations=${de_gene_list%.txt}.bed
     printf "Generating $de_gene_locations...\n"
-    awk -v all_gene_locations=$all_gene_locations -f lookup-gene-locations.awk \
+    awk -v gene_locations_file=$gene_locations_file \
+	-f lookup-gene-locations.awk \
 	$de_gene_list > $de_gene_locations
     eval $debug head -n 2 $de_gene_locations
 
+    ################################################
     # Generate BED file with just gene TSS position
+    ################################################
+
     # Filter out gene IDs not found in GTF (tagged with -1 by
-    # lookup-gene-locations.awk) and replace end with start since we're
+    # lookup-gene-locations.awk) and replace end with start+1 since we're
     # measuring distance from TSS in either direction.
     de_gene_tss=${de_gene_locations%.bed}-TSS.bed
     printf "Generating $de_gene_tss...\n"
@@ -133,9 +156,10 @@ for cell_type in CCA NCA; do
 	printf "=== $interval ===\n"
 	peaks_file=peaks-$cell_type-$interval.bed
 	printf "Generating $peaks_file...\n"
-	# DESeq2 annoyingly decides to use scientific notation for boundaries
+	# DESeq2 annoyingly uses scientific notation for boundaries
 	# sometimes, so convert boundaries to plain integers using %u while
 	# massaging to BED format.
+	# E.g. CCA-T1-vs-T0.tsv: "chr6-2.2e+07-22000501"
 	awk '$1 !~ "baseMean" && $7 != "NA" { \
 		name=$1; \
 		lfc=$3;
@@ -143,19 +167,22 @@ for cell_type in CCA NCA; do
 		gsub("\"", "", name); \
 		split(name, a, "-"); \
 		gsub("chr", "", a[1]);
+		chr=a[1];
+		start=a[2];
+		end=a[3];
 		printf("%s\t%u\t%u\t%s\t%s\t%s\n",
-		       a[1], a[2], a[3], name, lfc, apv); \
+		       chr, start, end, name, lfc, apv); \
 	    }' \
-	../../ATAC-Seq/10-diff-anal/$cell_type-$interval.tsv \
-	| $bed_sort > $peaks_file
+	    ../../ATAC-Seq/10-diff-anal/$cell_type-$interval.tsv \
+	    | $bed_sort > $peaks_file
 	eval $debug head -n 2 $peaks_file
 	eval $debug wc -l $peaks_file
 	
 	# Find closest DE genes to peaks
+	# Keep chr, start, end, peak-id, lfc, apv, gene-name, tss
 	closest_genes_interval=closest-genes-$cell_type-$interval.tsv
 	printf "Generating $closest_genes_interval...\n"
 	header > $closest_genes_interval
-	# Keep chr, start, end, peak-id, lfc, apv, gene-name, tss
 	bedtools closest -D ref -a $peaks_file -b $de_gene_tss \
 	    | awk '{ printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
 			    $1, $2, $3, $4, $5, $6, $10, $11); }' \
@@ -165,13 +192,17 @@ for cell_type in CCA NCA; do
     
     printf "======================== Combining Intervals ========================\n"
     
-    # Merge into one file with 3 LFCs
+    ##########################################################################
+    # Merge into one file with 3 LFC and APV cols, one for each time interval
+    ##########################################################################
+    
     closest_genes=closest-genes-$cell_type.tsv
     printf "Merging into $closest_genes...\n"
     
-    # A file has 8 columns
+    # Step 1: Merge any two of the 3 time intervals
+    # "A" file has 8 columns
     # Keep chr, start, end, peak-id, lfc, apv, gene-name, tss
-    # 1-6 from A file, 5-6 from B file, 7-8 from A file
+    # 1-6 from "A" file, 5-6 from "B" file (13-14 in combined), 7-8 from "A" file
     bedtools intersect \
 	-a closest-genes-$cell_type-T1-vs-T0.tsv \
 	-b closest-genes-$cell_type-T2-vs-T0.tsv -f 1 -r -wa -wb \
@@ -179,9 +210,10 @@ for cell_type in CCA NCA; do
 			$1,$2,$3,$4,$5,$6,$13,$14,$7,$8);}' \
 	> temp.tsv
     
-    # A file has 10 columns
+    # Step 2: Merge previously merged file with remaining time interval
+    # "A" file has 10 columns
     # Keep chr, start, end, peak-id, lfc, apv, gene-name, tss
-    # 1-8 from A file, 5-6 from B file, 9-10 from A file
+    # 1-8 from "A" file, 5-6 from "B" file, 9-10 from "A" file
     bedtools intersect \
 	-a temp.tsv \
 	-b closest-genes-$cell_type-T2-vs-T1.tsv -f 1 -r -wa -wb \
@@ -190,16 +222,20 @@ for cell_type in CCA NCA; do
 		      $1,$2,$3,$4,$5,$6,$7,$8,$15,$16,$9,$10);}' \
 	temp2.tsv > $closest_genes
 
-    # Generate BED file with gene TSS position +/-${kb}kb
+    #######################################################################
+    # Generate BED file of all gene locations with TSS position +/-${kb}kb
+    #######################################################################
+    
     de_gene_tss_vicinity=${de_gene_locations%.bed}-${kb}kb.bed
     printf "Generating $de_gene_tss_vicinity...\n"
     # Filter out gene IDs not found in GTF (tagged with -1 by
-    # lookup-gene-locations.awk) and replace end with start since we're
+    # lookup-gene-locations.awk) and replace end with start+1 since we're
     # measuring distance from TSS in either direction.
-    
     # Keep chr, TSS ($2, $2+1), gene-name
     awk '$1 != -1 { printf("%s\t%s\t%s\t%s\n", $1, $2, $2+1, $4); }' \
 	$de_gene_locations > temp-tss.bed
+    
+    # Expand +/- ${kb} from TSS
     bedtools slop \
 	-b ${kb}000 \
 	-g $rna_ref_dir/chromosome-sizes.tsv \
@@ -207,12 +243,15 @@ for cell_type in CCA NCA; do
 	| $bed_sort > $de_gene_tss_vicinity
     eval $debug wc -l $de_gene_tss_vicinity
 
+    #############################################
     # Find all genes within ${kb}kb of each peak
+    #############################################
+    
     peaks_with_nearby_tss=$results_dir/${closest_genes%.tsv}-${kb}kb.tsv
     printf "Generating $peaks_with_nearby_tss...\n"
     merged_header > $peaks_with_nearby_tss
     
-    # A file has 12 columns
+    # "A" file has 12 columns
     # Keep all of A
     # From B keep gene name = $4, (start + end)/2 = ($2 + $3)/2 = TSS
     # Format LFC and APV output for readability and to ensure that none

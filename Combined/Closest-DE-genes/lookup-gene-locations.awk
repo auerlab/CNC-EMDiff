@@ -3,11 +3,12 @@
 #       Find genes in a file sorted by ID and extract location info
 #
 #   Usage:
-#       awk -f this-script -v gene_locations=gene-locations-file gene-list-file
+#       awk -f this-script -v gene_locations_file=gene-locations-file gene-list-file
 #
 #   Arguments:
-#       Main file arg is the file containing all gene IDs to look up
-#       Variable gene_locations contains gene id, chromosome, and positions
+#       Main file arg is the file containing gene names to look up
+#       Variable gene_locations_file names file with gene id, chromosome,
+#       and positions, generally extracted from a GTF
 #
 #   History: 
 #   Date        Name        Modification
@@ -17,7 +18,7 @@
 {
     gene_id=$1;
     # Skip lines in gene-names file until we find one matching the gene_id
-    while ( (getline < all_gene_locations ) && ($4 < gene_id) )
+    while ( (getline < gene_locations_file ) && ($4 < gene_id) )
     {
     }
     if ( $4 == gene_id )
