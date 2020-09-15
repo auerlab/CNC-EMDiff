@@ -21,6 +21,19 @@ usage()
 
 ##########################################################################
 #   Function description:
+#       Pause until user presses return
+##########################################################################
+
+pause()
+{
+    local junk
+    
+    printf "Press return to continue..."
+    read junk
+}
+
+##########################################################################
+#   Function description:
 #       Print a header to an output file
 #       
 #   History:
@@ -30,7 +43,7 @@ usage()
 
 header()
 {
-    printf "Chr\tStart\tEnd\tName\tDA\tLFC\tAPV\tTSS\tGene\n"
+    printf "Chr\tStart\tEnd\tPeak-name\tT1-T0-DA\tT1-T0-LFC\tT1-T0-APV\tGene-TSS\tGene-name\n"
     return 0
 }
 
@@ -65,15 +78,21 @@ ref_release=$($rna_ref_dir/reference-release)
 gtf="$rna_ref_dir/Mus_musculus.GRCm38.$ref_release.gtf"
 
 gene_locations=gene-locations-$ref_release.tsv
-printf "Generating $gene_locations...\n"
-# Output format: chr start stop gene-ID
-# Sort by gene ID for awk script that follows
-awk '$1 >= 1 && $1 <= 19 && $3 == "gene" && $9 == "gene_id" {
-    # Strip quotes and ; from gene ID
-    gsub("\"", "", $10);
-    gsub(";", "", $10);
-    printf("%s\t%u\t%u\t%s\n", $1, $4, $5, $10);
-}' $gtf | sort -k 4 > $gene_locations
+if [ ! -e $gene_locations ]; then
+    printf "Generating $gene_locations...\n"
+    # Output format: chr start stop gene-ID
+    # Sort by gene ID for awk script that follows
+    awk '$1 >= 1 && $1 <= 19 && $3 == "gene" && $13 == "gene_name" {
+	chr=$1;
+	start=$4;
+	end=$5;
+	gene_name=$14;
+	# Strip quotes and ; from gene name in GTF
+	gsub("\"", "", gene_name);
+	gsub(";", "", gene_name);
+	printf("%s\t%u\t%u\t%s\n", chr, start, end, gene_name);
+    }' $gtf | sort -k 4 > $gene_locations
+fi
 wc -l $gene_locations
 head -5 $gene_locations
 
@@ -93,28 +112,39 @@ for cell_type in CCA NCA; do
     
     for cluster in $clusters; do
 	printf "=== $cell_type, cluster $cluster ===\n"
+	
+	# Generate list of all gene names represented in this cluster
 	cluster_gene_list=genes-$cell_type-c$cluster.txt
-	awk "\$16 == $cluster { print \$2 }" $tsv | sort | uniq \
+	# Maria's hand-made cluster spreadsheets
+	# $16 = cluster-number, $3 = gene name
+	awk "\$16 == $cluster { print \$3 }" $tsv | sort | uniq \
 	    > $cluster_gene_list
 	
-	# Generate BED file of genes and locations
+	# Generate BED file with genes in this cluster and their locations
 	cluster_gene_locations=${cluster_gene_list%.txt}.bed
 	awk -v gene_locations=$gene_locations -f lookup-gene-locations.awk \
 	    $cluster_gene_list > $cluster_gene_locations
 
-	# Generate BED file with gene TSS position +/-${kb}kb
-	cluster_gene_vicinity=${cluster_gene_locations%.bed}-${kb}kb.bed
+	# Generate bed file with just chr, TSS, and gene name
 	# Filter out gene IDs not found in GTF (tagged with -1 by
 	# lookup-gene-locations.awk) and replace end with start since we're
 	# measuring distance from TSS in either direction.
-	awk '$1 != -1 { printf("%s\t%s\t%s\t%s\n", $1, $2, $2+1, $4); }' \
-	    $cluster_gene_locations > temp.bed
+	awk '$1 != -1 {
+		chr=$1;
+		start=$2;
+		gene_name=$4;
+		printf("%s\t%s\t%s\t%s\n", chr, start, start+1, gene_name);
+	    }' $cluster_gene_locations > temp.bed
+
+	# Generate BED file with gene TSS position +/-${kb}kb
+	# Peaks that overlap this region are within ${kb}kb of the gene
+	cluster_tss_vicinity=${cluster_gene_locations%.bed}-${kb}kb.bed
 	bedtools slop \
 	    -b ${kb}000 \
 	    -g $rna_ref_dir/chromosome-sizes.tsv \
 	    -i temp.bed \
-	    | $bed_sort > $cluster_gene_vicinity
-	wc -l $cluster_gene_vicinity
+	    | $bed_sort > $cluster_tss_vicinity
+	wc -l $cluster_tss_vicinity
 	
 	#####################################################################
 	#   Find all peaks (both differential and stable accessibility)
@@ -126,7 +156,7 @@ for cell_type in CCA NCA; do
 	# Generate matching BED file from DESeq2 output
 	# All intervals T1-vs-T0, T2-vs-T0, T2-vs-T1 contain the same
 	# set of peaklets, so pick one
-	interval="T1-vs-T0"
+	time_interval="T1-vs-T0"
 	peaks_file=peaks-$cell_type-c$cluster.tsv
 	# DESeq2 annoyingly decides to use scientific notation for
 	# boundaries sometimes, so convert boundaries to plain integers
@@ -137,7 +167,10 @@ for cell_type in CCA NCA; do
 		apv=$7; \
 		gsub("\"", "", name); \
 		split(name, a, "-"); \
-		gsub("chr", "", a[1]);
+		chr=a[1];
+		start=a[2];
+		end=a[3];
+		gsub("chr", "", chr);
 		if ( apv < 0.05 ) {
 		    if ( lfc >= 0 ) {
 			da="up";
@@ -148,27 +181,44 @@ for cell_type in CCA NCA; do
 		} else {
 		    da="stable";
 		}
-		printf("%s\t%u\t%u\t%s\t%s\t%s\t%s\n",
-		       a[1], a[2], a[3], name, da, lfc, apv); \
+		printf("%s\t%u\t%u\t%s\t%s\t%0.4g\t%0.4g\n",
+		       chr, start, end, name, da, lfc, apv); \
 	    }' \
-	../../ATAC-Seq/10-diff-anal/$cell_type-$interval.tsv \
-	| $bed_sort >> $peaks_file
+	    ../../ATAC-Seq/10-diff-anal/$cell_type-$time_interval.tsv \
+	    | $bed_sort >> $peaks_file
 	wc -l $peaks_file
 
 	# Find peaks within intersecting TSS+/-${kb}kb
 	peaks_file=peaks-$cell_type-c$cluster.tsv
 	pd_peaks_file=$results_dir/${cluster_gene_locations%.tsv}-proximal+distal-peaks.tsv
 	header > $pd_peaks_file
+	# Cols 1-7 :    Peak             chr,start,end,name,DA,LFC,APV
+	# Cols 8-11:    TSS-vicinity     chr,start,end,gene-name
 	bedtools intersect -sorted -wa -wb -a $peaks_file \
-	    -b $cluster_gene_vicinity | $bed_sort | uniq \
-	    | awk '{ printf("%s\t%u\t%u\t%s\t%s\t%s\t%s\t%u\t%s\n",
-			    $1, $2, $3, $4, $5, $6, $7, ($9+$10)/2, $11); }' \
-	    >> $pd_peaks_file
+	    -b $cluster_tss_vicinity | $bed_sort | uniq \
+	    | awk '{
+		# Peak info
+		chr=$1;
+		peak_start=$2;
+		peak_end=$3;
+		peak_name=$4;
+		da=$5;
+		lfc=$6;
+		apv=$7;
+		# Gene info
+		gene_start=$9;
+		gene_end=$10;
+		gene_name=$11;
+		tss=(gene_start + gene_end) / 2;
+		printf("%s\t%u\t%u\t%s\t%s\t%s\t%s\t%u\t%s\n",
+		       chr, peak_start, peak_end, peak_name, da, lfc, apv,
+		       tss, gene_name);
+	    }' >> $pd_peaks_file
 	wc -l $pd_peaks_file
 
 	mated_peaks_file=mated-$cell_type-c$cluster.tsv
 	bedtools intersect -sorted -wa -wb -a $peaks_file \
-	    -b $cluster_gene_vicinity | $bed_sort | uniq >> $mated_peaks_file
+	    -b $cluster_tss_vicinity | $bed_sort | uniq >> $mated_peaks_file
 	wc -l $mated_peaks_file
 	
 	wide_peaks_file=${pd_peaks_file%.tsv}-over750.tsv

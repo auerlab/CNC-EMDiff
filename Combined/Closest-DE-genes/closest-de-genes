@@ -2,7 +2,9 @@
 
 ##########################################################################
 #   Script description:
-#       Locate whatever DE gene TSS is closest to each peak.
+#       Locate whatever DE gene TSS is closest to each peak, regardless
+#       how far it is or whether it's in one of the clusters identified
+#       for this study.
 #       
 #   History:
 #   Date        Name        Modification
@@ -82,10 +84,14 @@ printf "Generating $gene_locations_file...\n"
 #   $13 feature metadata name (gene_name, transcript_id, etc)
 #   $14 feature metadata value
 time awk '$1 >= 1 && $1 <= 19 && $3 == "gene" && $13 == "gene_name" {
-    # Strip quotes and ; from gene name
-    gsub("\"", "", $14);
-    gsub(";", "", $14);
-    printf("%s\t%u\t%u\t%s\n", $1, $4, $5, $14);
+    chr=$1;
+    start=$4;
+    end=$5;
+    gene_name=$14;
+    # Strip quotes and ; from gene name in GTF
+    gsub("\"", "", gene_name);
+    gsub(";", "", gene_name);
+    printf("%s\t%u\t%u\t%s\n", chr, start, end, gene_name);
 }' $gtf | sort -k 4 > $gene_locations_file
 
 eval $debug wc -l $gene_locations_file
