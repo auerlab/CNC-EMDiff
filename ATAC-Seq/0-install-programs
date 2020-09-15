@@ -38,4 +38,4 @@ read -p 'CRAN URL? [https://mirror.las.iastate.edu/CRAN/]' url
 if [ 0$url = 0 ]; then
     url='https://mirror.las.iastate.edu/CRAN/'
 fi
-$srun ./install-R-packages $prefix $url
+$srun Utils/install-R-packages $prefix $url

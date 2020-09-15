@@ -1,5 +1,20 @@
 #!/bin/sh -e
 
+cat << EOM
+
+This will automatically run multiple stages of the pipeline without meaningful
+validation of intermediate outputs.
+
+This should only be done if the latest pipeline changes have been well-tested
+and you are certain that everything is working.
+
+EOM
+read -p "Continue?  yes/[no] " continue
+if [ 0$continue != 0yes ]; then
+    printf "OK, aborting.\n"
+    exit
+fi
+
 # Don't clobber previous results
 for dir in 1-trim 2-qc; do
     if [ -e $dir ]; then

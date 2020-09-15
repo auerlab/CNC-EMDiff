@@ -1,0 +1,19 @@
+#!/bin/sh -e
+
+for cell_type in CCA NCA; do
+    for interval in "T1-vs-T0" "T2-vs-T1" "T2-vs-T0"; do
+	printf "=== $cell_type, $interval\n"
+	awk '$1 !~ "baseMean" {
+		gsub("\"", "", $1);
+		split($1, a, "-");
+		printf("%s-%u-%u\n", a[1], a[2], a[3]);
+	    }' 10-diff-anal/$cell_type-$interval.tsv > temp-peaks.txt
+	
+	while read peakname; do
+	    printf "$peakname\r"
+	    if ! fgrep -q $peakname 9-process-peaks/p10-$cell_type-501-merged.bed; then
+		printf "\n$peakname is not in the merged bed.\n"
+	    fi
+	done < temp-peaks.txt
+    done
+done

@@ -14,3 +14,6 @@ Reference/*.fa*
 Reference/CHECKSUMS
 Reference/README
 */slurm-*
+.RData
+.Rhistory
+Mus_musculus.GRCm38.100.gff3.gz

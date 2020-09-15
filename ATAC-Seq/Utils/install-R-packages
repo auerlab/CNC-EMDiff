@@ -60,4 +60,4 @@ fi
 
 mkdir -p $prefix
 
-Rscript install-R-packages.R
+Rscript Utils/install-R-packages.R

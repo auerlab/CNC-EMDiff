@@ -82,7 +82,7 @@ head -5 $gene_locations
 #   Clustering performed by Paul Auer
 ##########################################################################
 
-results_dir=Proximal+distal
+results_dir=Proximal+distal-${kb}kb
 mkdir -p $results_dir
 for cell_type in CCA NCA; do
     
@@ -124,7 +124,7 @@ for cell_type in CCA NCA; do
 	printf "Finding proximal and distal peaks (<= ${kb}kb from TSS)...\n"
 	
 	# Generate matching BED file from DESeq2 output
-	# All intervalues T1-vs-T0, T2-vs-T0, T2-vs-T1 contain the same
+	# All intervals T1-vs-T0, T2-vs-T0, T2-vs-T1 contain the same
 	# set of peaklets, so pick one
 	interval="T1-vs-T0"
 	peaks_file=peaks-$cell_type-c$cluster.tsv

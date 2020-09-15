@@ -1,0 +1,14 @@
+#!/bin/sh -e
+
+printf "MACS2 peaks:\n"
+awk '{ print $3-$2 }' \
+    7-macs-peaks/*.narrowPeak |sort -n|uniq|more # sort -n | basic-stats --average 1
+
+printf "Merged peaklets:\n"
+awk '{ print $3-$2 }' \
+    9-process-peaks/*-501-merged.bed |sort -n|uniq|more # sort -n | basic-stats --average 1
+
+printf "DESeq2 peaks:\n"
+awk '$1 !~ "baseMean" { gsub("\"", "", $1); split($1, a, "-"); print a[3]-a[2] }' \
+    10-diff-anal/CCA-T1-vs-T0.tsv|sort -n|uniq|more
+

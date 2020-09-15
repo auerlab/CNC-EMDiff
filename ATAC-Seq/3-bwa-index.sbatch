@@ -29,9 +29,9 @@ uname -a > 3-bwa-index/os-version.txt 2>&1
 bwa 2>&1 | fgrep Version > 3-bwa-index/bwa-version.txt || true
 
 cd 3-bwa-index
-ref_file=$(../ref-file-name.sh)
+ref_file=$(../Aux/ref-file-name.sh)
 if [ ! -e $ref_file ]; then
-    ../fetch-ref.sh
-    ../concat-ref.sh
+    ../Aux/fetch-ref.sh
+    ../Aux/concat-ref.sh
     bwa index $ref_file
 fi

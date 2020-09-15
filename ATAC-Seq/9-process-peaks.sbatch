@@ -82,7 +82,7 @@ awk -v p_value=$p_value '$8 >= p_value { print $0 }' \
 # Output format matches summits file: chr start end peak-id LFC
 # LFC is always 0 here.  These peaks will be merged with DESeq2 output
 # later to fill in LFC values for DA peaks.
-awk -f ../filter.awk \
+awk -f ../Aux/filter.awk \
     -v file_to_filter=$macs_dir/ATAC-${cell_type}_summits.bed \
     p$p_value-$cell_type-narrow.bed \
     > p$p_value-$cell_type-summits.bed

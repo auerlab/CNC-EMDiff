@@ -1,0 +1,3 @@
+#!/bin/sh -e
+
+rm -f Mus_musculus.*.gff3.gz
