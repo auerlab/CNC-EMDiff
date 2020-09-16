@@ -43,7 +43,7 @@ pause()
 
 header()
 {
-    printf "Chr\tStart\tEnd\tPeak-name\tT1-T0-LFC\tT1-T0-APV\tT2-T0-LFC\tT2-T0-APV\tGene-TSS\tGene-name\n"
+    printf "Chr\tStart\tEnd\tPeak-name\tT1-T0-LFC\tT1-T0-APV\tT2-T0-LFC\tT2-T0-APV\tT2-T1-LFC\tT2-T1-APV\tGene-Distance\tGene-name\n"
     return 0
 }
 
@@ -133,7 +133,7 @@ for cell_type in CCA NCA; do
 		chr=$1;
 		start=$2;
 		gene_name=$4;
-		printf("%s\t%s\t%s\t%s\n", chr, start, start+1, gene_name);
+		printf("%s\t%s\t%s\t%s\t%s\n", chr, start, start+1, gene_name, start);
 	    }' $cluster_gene_locations > temp.bed
 
 	# Generate BED file with gene TSS position +/-${kb}kb
@@ -152,51 +152,33 @@ for cell_type in CCA NCA; do
 	#####################################################################
 	
 	printf "Finding proximal and distal peaks (<= ${kb}kb from TSS)...\n"
-	
 	# Generate matching BED file from DESeq2 output
 	# All intervals T1-vs-T0, T2-vs-T0, T2-vs-T1 contain the same
-	# set of peaklets, so read them in parallel
+	# set of peaklets, so pick one from which to extract common info
+	# and read LFC and APV from the other two.
 	peaks_file=peaks-$cell_type-c$cluster.tsv
 	# DESeq2 annoyingly decides to use scientific notation for
 	# boundaries sometimes, so convert boundaries to plain integers
 	# while massaging to BED format.
 	# Filter out header line containing "baseMean"
-	awk -v cell_type=$cell_type -f gen-peaks-file.awk \
-	    ../../ATAC-Seq/10-diff-anal/$cell_type-T1-vs-T0.tsv \
-	    | $bed_sort >> $peaks_file
+	da_dir=../../ATAC-Seq/10-diff-anal
+	file10=$da_dir/$cell_type-T1-vs-T0.tsv
+	file20=$da_dir/$cell_type-T2-vs-T0.tsv
+	file21=$da_dir/$cell_type-T2-vs-T1.tsv
+	awk -f gen-peaks-file.awk -v file20=$file20 -v file21=$file21 \
+	    $file10 | $bed_sort >> $peaks_file
 	wc -l $peaks_file
-
+	
 	# Find peaks within intersecting TSS+/-${kb}kb
 	peaks_file=peaks-$cell_type-c$cluster.tsv
 	pd_peaks_file=$results_dir/${cluster_gene_locations%.tsv}-proximal+distal-peaks.tsv
 	header > $pd_peaks_file
 	# See printfs above to verify:
-	# Cols 1-8:     Peak             chr,start,end,name,LFC,APV,LFC,APV
-	# Cols 9-12:    TSS-vicinity     chr,start,end,gene-name
+	# Cols 1-10:    Peak             chr,start,end,name,LFC,APV,LFC,APV
+	# Cols 11-15:   TSS-vicinity     chr,vstart,vend,gene-name,tss
 	bedtools intersect -sorted -wa -wb -a $peaks_file \
 	    -b $cluster_tss_vicinity | $bed_sort | uniq \
-	    | awk '{
-		
-		# Peak info
-		chr=$1;
-		peak_start=$2;
-		peak_end=$3;
-		peak_name=$4;
-		lfc=$5;
-		apv=$6;
-		lfc_t2_t0=$7;
-		apv_t2_t0=$8;
-		
-		# Gene info
-		gene_start=$10
-		gene_end=$11
-		gene_name=$12;
-		tss=(gene_start + gene_end) / 2;
-		# Format final floating point output
-		printf("%s\t%u\t%u\t%s\t%0.4g\t%0.4g\t%0.4g\t%0.4g\t%u\t%s\n",
-		       chr, peak_start, peak_end, peak_name, lfc, apv,
-		       lfc_t2_t0, apv_t2_t0, tss, gene_name);
-	    }' >> $pd_peaks_file
+	    | awk -f format-intersect.awk >> $pd_peaks_file
 	wc -l $pd_peaks_file
 
 	printf "Finding peaks within $kb of a gene...\n"
