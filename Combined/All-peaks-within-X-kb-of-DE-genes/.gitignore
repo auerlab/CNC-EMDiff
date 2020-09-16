@@ -1,1 +1,6 @@
 Proximal+distal*
+genes-*CA*
+mated-*CA*
+peaks-*CA*
+gene-locations*.tsv
+temp.bed

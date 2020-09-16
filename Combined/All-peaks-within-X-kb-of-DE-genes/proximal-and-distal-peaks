@@ -43,7 +43,7 @@ pause()
 
 header()
 {
-    printf "Chr\tStart\tEnd\tPeak-name\tT1-T0-DA\tT1-T0-LFC\tT1-T0-APV\tGene-TSS\tGene-name\n"
+    printf "Chr\tStart\tEnd\tPeak-name\tT1-T0-LFC\tT1-T0-APV\tT2-T0-LFC\tT2-T0-APV\tGene-TSS\tGene-name\n"
     return 0
 }
 
@@ -155,36 +155,14 @@ for cell_type in CCA NCA; do
 	
 	# Generate matching BED file from DESeq2 output
 	# All intervals T1-vs-T0, T2-vs-T0, T2-vs-T1 contain the same
-	# set of peaklets, so pick one
-	time_interval="T1-vs-T0"
+	# set of peaklets, so read them in parallel
 	peaks_file=peaks-$cell_type-c$cluster.tsv
 	# DESeq2 annoyingly decides to use scientific notation for
 	# boundaries sometimes, so convert boundaries to plain integers
 	# while massaging to BED format.
-	awk '$1 !~ "baseMean" && $7 != "NA" { \
-		name=$1; \
-		lfc=$3;
-		apv=$7; \
-		gsub("\"", "", name); \
-		split(name, a, "-"); \
-		chr=a[1];
-		start=a[2];
-		end=a[3];
-		gsub("chr", "", chr);
-		if ( apv < 0.05 ) {
-		    if ( lfc >= 0 ) {
-			da="up";
-		    }
-		    else {
-			da="down";
-		    }
-		} else {
-		    da="stable";
-		}
-		printf("%s\t%u\t%u\t%s\t%s\t%0.4g\t%0.4g\n",
-		       chr, start, end, name, da, lfc, apv); \
-	    }' \
-	    ../../ATAC-Seq/10-diff-anal/$cell_type-$time_interval.tsv \
+	# Filter out header line containing "baseMean"
+	awk -v cell_type=$cell_type -f gen-peaks-file.awk \
+	    ../../ATAC-Seq/10-diff-anal/$cell_type-T1-vs-T0.tsv \
 	    | $bed_sort >> $peaks_file
 	wc -l $peaks_file
 
@@ -192,35 +170,42 @@ for cell_type in CCA NCA; do
 	peaks_file=peaks-$cell_type-c$cluster.tsv
 	pd_peaks_file=$results_dir/${cluster_gene_locations%.tsv}-proximal+distal-peaks.tsv
 	header > $pd_peaks_file
-	# Cols 1-7 :    Peak             chr,start,end,name,DA,LFC,APV
-	# Cols 8-11:    TSS-vicinity     chr,start,end,gene-name
+	# See printfs above to verify:
+	# Cols 1-8:     Peak             chr,start,end,name,LFC,APV,LFC,APV
+	# Cols 9-12:    TSS-vicinity     chr,start,end,gene-name
 	bedtools intersect -sorted -wa -wb -a $peaks_file \
 	    -b $cluster_tss_vicinity | $bed_sort | uniq \
 	    | awk '{
+		
 		# Peak info
 		chr=$1;
 		peak_start=$2;
 		peak_end=$3;
 		peak_name=$4;
-		da=$5;
-		lfc=$6;
-		apv=$7;
+		lfc=$5;
+		apv=$6;
+		lfc_t2_t0=$7;
+		apv_t2_t0=$8;
+		
 		# Gene info
-		gene_start=$9;
-		gene_end=$10;
-		gene_name=$11;
+		gene_start=$10
+		gene_end=$11
+		gene_name=$12;
 		tss=(gene_start + gene_end) / 2;
-		printf("%s\t%u\t%u\t%s\t%s\t%s\t%s\t%u\t%s\n",
-		       chr, peak_start, peak_end, peak_name, da, lfc, apv,
-		       tss, gene_name);
+		# Format final floating point output
+		printf("%s\t%u\t%u\t%s\t%0.4g\t%0.4g\t%0.4g\t%0.4g\t%u\t%s\n",
+		       chr, peak_start, peak_end, peak_name, lfc, apv,
+		       lfc_t2_t0, apv_t2_t0, tss, gene_name);
 	    }' >> $pd_peaks_file
 	wc -l $pd_peaks_file
 
+	printf "Finding peaks within $kb of a gene...\n"
 	mated_peaks_file=mated-$cell_type-c$cluster.tsv
 	bedtools intersect -sorted -wa -wb -a $peaks_file \
 	    -b $cluster_tss_vicinity | $bed_sort | uniq >> $mated_peaks_file
 	wc -l $mated_peaks_file
 	
+	printf "Filtering for 750 nt peaks...\n"
 	wide_peaks_file=${pd_peaks_file%.tsv}-over750.tsv
 	header > $wide_peaks_file
 	awk '$3 - $2 > 750 { print $0 }' $pd_peaks_file \
