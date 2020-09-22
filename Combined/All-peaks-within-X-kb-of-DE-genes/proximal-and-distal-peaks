@@ -43,7 +43,7 @@ pause()
 
 header()
 {
-    printf "Chr\tStart\tEnd\tPeak-name\tT1-T0-LFC\tT1-T0-APV\tT2-T0-LFC\tT2-T0-APV\tT2-T1-LFC\tT2-T1-APV\tGene-Distance\tGene-name\n"
+    printf "Chr\tStart\tEnd\tPeak-name\tT1-T0-LFC\tT1-T0-APV\tT2-T0-LFC\tT2-T0-APV\tT2-T1-LFC\tT2-T1-APV\tGene-name\tGene-Distance\n"
     return 0
 }
 
@@ -58,7 +58,13 @@ fi
 kb=$1
 
 bedtools --version > bedtools-version.txt
+# Sort by chromosome and start position.  We should not have to look at end
+# position since peaks should not overlap as this point.
 bed_sort="sort -k1,1 -k2,2n"
+
+# Sort by chromosome, start position, and abs(distance from TSS), with
+# some help from awk filters below.
+abs_sort="sort -k1,1 -k2,2n -k12,12n"
 
 ##########################################################################
 #   Extract gene locations from Ensembl GTF.  They are also in the CDNA
@@ -181,11 +187,11 @@ for cell_type in CCA NCA; do
 	    | awk -f format-intersect.awk >> $pd_peaks_file
 	wc -l $pd_peaks_file
 
-	printf "Finding peaks within $kb of a gene...\n"
-	mated_peaks_file=mated-$cell_type-c$cluster.tsv
-	bedtools intersect -sorted -wa -wb -a $peaks_file \
-	    -b $cluster_tss_vicinity | $bed_sort | uniq >> $mated_peaks_file
-	wc -l $mated_peaks_file
+	printf "Generating variable-column file...\n"
+	# Number of columns should agree with printf in format-intersect.awk
+	awk -f abs.awk $pd_peaks_file \
+	    | $abs_sort \
+	    | awk -f unabs.awk > $pd_peaks_file.abs
 	
 	printf "Filtering for 750 nt peaks...\n"
 	wide_peaks_file=${pd_peaks_file%.tsv}-over750.tsv

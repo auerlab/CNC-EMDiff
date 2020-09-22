@@ -26,17 +26,17 @@
     gene_name=$14;
     tss=$15;
     if ( tss < peak_start ) {
-	distance = tss - peak_start;
+	gene_distance = tss - peak_start;
     }
     else if ( tss > peak_end ) {
-	distance = tss - peak_end;
+	gene_distance = tss - peak_end;
     }
     else {
-	distance = 0;
+	gene_distance = 0;
     }
     # Format final floating point output
-    printf("%s\t%u\t%u\t%s\t%0.4g\t%0.4g\t%0.4g\t%0.4g\t%0.4g\t%0.4g\t%s\t%d\n",
+    printf("%s\t%u\t%u\t%s\t%0.3g\t%0.3g\t%0.3g\t%0.3g\t%0.3g\t%0.3g\t%s\t%d\n",
 	   chr, peak_start, peak_end, peak_name,
 	   lfc10, apv10, lfc20, apv20, lfc21, apv21,
-	   gene_name, distance);
+	   gene_name, gene_distance);
 }
