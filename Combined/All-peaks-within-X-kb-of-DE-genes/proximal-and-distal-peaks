@@ -184,7 +184,8 @@ for cell_type in CCA NCA; do
 	# Cols 11-15:   TSS-vicinity     chr,vstart,vend,gene-name,tss
 	bedtools intersect -sorted -wa -wb -a $peaks_file \
 	    -b $cluster_tss_vicinity | $bed_sort | uniq \
-	    | awk -f format-intersect.awk >> $pd_peaks_file
+	    | awk -f format-intersect.awk \
+	    | format-cols '\t' 0.01 3 5 6 7 8 9 10 >> $pd_peaks_file
 	wc -l $pd_peaks_file
 
 	printf "Generating variable-column file...\n"

@@ -35,7 +35,7 @@
 	gene_distance = 0;
     }
     # Format final floating point output
-    printf("%s\t%u\t%u\t%s\t%0.3g\t%0.3g\t%0.3g\t%0.3g\t%0.3g\t%0.3g\t%s\t%d\n",
+    printf("%s\t%u\t%u\t%s\t%f\t%f\t%f\t%f\t%f\t%f\t%s\t%d\n",
 	   chr, peak_start, peak_end, peak_name,
 	   lfc10, apv10, lfc20, apv20, lfc21, apv21,
 	   gene_name, gene_distance);
