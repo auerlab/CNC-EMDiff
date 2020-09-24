@@ -1,15 +1,45 @@
 #!/bin/sh -e
 
-file=genes-NCA-c4.bed-proximal+distal-peaks.tsv
-var_file=${file%.tsv}-var-cols.tsv
-wc -l $file
-wc -l $var_file
-awk 'NF > 12' $var_file | wc -l
+##########################################################################
+#   Script description:
+#       Show stats on variable-column output files to verify gene counts
+#       
+#   History:
+#   Date        Name        Modification
+#   2020-09-24  Jason Bacon Begin
+##########################################################################
 
-genes=0
-for cols in 12 14 16 18 20; do
+usage()
+{
+    printf "Usage: $0 gene-peak-file\n"
+    exit 1
+}
+
+
+##########################################################################
+#   Main
+##########################################################################
+
+if [ $# != 1 ]; then
+    usage
+fi
+
+file=$1
+var_file=${file%.tsv}-var-cols.tsv
+
+total_genes=0
+for cols in $(seq 12 2 40); do
     lines=$(awk '{ print NF }' $var_file | fgrep $cols | wc -l)
-    printf "Lines with $cols cols: $lines\n"
-    genes=$(( genes + lines * (cols - 10) / 2 ))
+    genes=$(( (cols - 10) / 2 ))
+    printf "Peaks near %2u genes: $lines\n" $genes
+    total_genes=$(( total_genes + lines * genes ))
 done
-printf "Total genes = $genes\n"
+
+multi_gene=$(awk 'NF > 12' $var_file | wc -l)
+printf "\n"
+printf "Total peaks near multiple genes:     %u\n" $multi_gene
+
+printf "Total genes in variable-column file: %u\n" $total_genes
+
+fixed_peaks=$(cat $file | wc -l)
+printf "Total genes in fixed-column file:    %u\n" $fixed_peaks
