@@ -1,0 +1,15 @@
+#!/bin/sh -e
+
+file=genes-NCA-c4.bed-proximal+distal-peaks.tsv
+var_file=${file%.tsv}-var-cols.tsv
+wc -l $file
+wc -l $var_file
+awk 'NF > 12' $var_file | wc -l
+
+genes=0
+for cols in 12 14 16 18 20; do
+    lines=$(awk '{ print NF }' $var_file | fgrep $cols | wc -l)
+    printf "Lines with $cols cols: $lines\n"
+    genes=$(( genes + lines * (cols - 10) / 2 ))
+done
+printf "Total genes = $genes\n"

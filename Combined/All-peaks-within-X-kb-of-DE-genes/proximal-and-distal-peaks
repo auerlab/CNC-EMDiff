@@ -189,10 +189,10 @@ for cell_type in CCA NCA; do
 	wc -l $pd_peaks_file
 
 	printf "Generating variable-column file...\n"
+	var_col_peaks_file=${pd_peaks_file%.tsv}-var-cols.tsv
 	# Number of columns should agree with printf in format-intersect.awk
-	awk -f abs.awk $pd_peaks_file \
-	    | $abs_sort \
-	    | awk -f unabs.awk > $pd_peaks_file.abs
+	awk -f abs.awk $pd_peaks_file | $abs_sort | awk -f unabs.awk \
+	    | awk -f combine-dup-peaks.awk > $var_col_peaks_file
 	
 	printf "Filtering for 750 nt peaks...\n"
 	wide_peaks_file=${pd_peaks_file%.tsv}-over750.tsv
