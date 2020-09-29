@@ -14,6 +14,9 @@
 #   2020-06-22  Jason Bacon Begin
 #############################################################################
 
+BEGIN {
+    OFS="\t";
+}
 {
     gene_id=$1;
     # Skip lines in gene-ids file until we find one matching the gene_id

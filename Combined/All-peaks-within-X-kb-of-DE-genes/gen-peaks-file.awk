@@ -10,6 +10,9 @@
 #   2020-09-15  Jason Bacon Begin
 #############################################################################
 
+BEGIN {
+    OFS="\t";
+}
 ($1 !~ "baseMean") {
     
     # Read same line from other two time intervals

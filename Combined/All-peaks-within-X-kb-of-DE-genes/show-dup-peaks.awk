@@ -13,6 +13,7 @@
 BEGIN {
     last_pos = 0;
     dup_lines = 0;
+    OFS="\t";
 }
 {
     while ( $2 == last_pos )

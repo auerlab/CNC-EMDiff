@@ -10,6 +10,7 @@
 
 BEGIN {
     last_pos = 0;
+    OFS="\t";
 }
 {
     if ( NR == 1 )
