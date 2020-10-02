@@ -1,5 +1,5 @@
 BEGIN {
-    OFS="\t";
+    OFS=FS;
 }
 $12 ~ "-$" {
     # Move the - sign back to the beginning of the number
