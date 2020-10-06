@@ -49,6 +49,33 @@ header()
 
 
 ##########################################################################
+#   Function description:
+#       
+#   Arguments:
+#       
+#   Returns:
+#       
+#   History:
+#   Date        Name        Modification
+#   2020-10-05  Jason Bacon Begin
+##########################################################################
+
+check_for_zeroes()
+{
+    local file=$1
+    
+    # Check for 0s
+    awk '$6 == 0 || $8 == 0 || $10 == 0' \
+	$file > zero.tsv
+    if [ $(cat zero.tsv | wc -l) != 0 ]; then
+	printf "Error: Found zeroes in $pd_peaks_file.\n"
+	printf "Check formatting statements.\n"
+	exit 1
+    fi
+}
+
+
+##########################################################################
 #   Main
 ##########################################################################
 
@@ -187,7 +214,8 @@ for cell_type in CCA NCA; do
 	    | awk -f format-intersect.awk \
 	    | format-cols '\t' 0.01 3 5 6 7 8 9 10 >> $pd_peaks_file
 	wc -l $pd_peaks_file
-
+	check_for_zeroes $pd_peaks_file
+	
 	printf "Generating variable-column file...\n"
 	var_col_peaks_file=${pd_peaks_file%.tsv}-var-cols.tsv
 	# Number of columns should agree with printf in format-intersect.awk
@@ -199,18 +227,33 @@ for cell_type in CCA NCA; do
 	header > $wide_peaks_file
 	awk '$3 - $2 > 750 { print $0 }' $pd_peaks_file \
 	    >> $wide_peaks_file
+	check_for_zeroes $wide_peaks_file
 
+	printf "Generating variable-column file for 750 nt peaks...\n"
+	var_col_peaks_file=${wide_peaks_file%.tsv}-var-cols.tsv
+	# Number of columns should agree with printf in format-intersect.awk
+	awk -f abs.awk $wide_peaks_file | $abs_sort | awk -f unabs.awk \
+	    | awk -f combine-dup-peaks.awk > $var_col_peaks_file
+	
 	#####################################################################
 	#   Generate fasta file for each set of proximal+distal peaks
 	#   seqkit rmdup should be useless here since we did sort|uniq
 	#   above, but include it as a redundant check.
 	#####################################################################
 	
-	printf "Generating fasta...\n"
+	printf "Generating fastas...\n"
 	fasta_file=$results_dir/${peaks_file%.bed}.fasta
 	atac_ref_dir=../../ATAC-Seq/Reference
 	genome_fasta=$atac_ref_dir/Mus_musculus.GRCm38.dna.autosomes.fa
 	awk '$1 != "Chr"' $pd_peaks_file \
+	    | bedtools getfasta -fi $genome_fasta -bed - \
+	    | seqkit rmdup > $fasta_file
+	wc -l $fasta_file
+
+	fasta_file=$results_dir/${peaks_file%.bed}-over750.fasta
+	atac_ref_dir=../../ATAC-Seq/Reference
+	genome_fasta=$atac_ref_dir/Mus_musculus.GRCm38.dna.autosomes.fa
+	awk '$1 != "Chr"' $wide_peaks_file \
 	    | bedtools getfasta -fi $genome_fasta -bed - \
 	    | seqkit rmdup > $fasta_file
 	wc -l $fasta_file
