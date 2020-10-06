@@ -1,5 +1,5 @@
 BEGIN {
-    OFS="\t";
+    OFS=FS;
 }
 $12 < 0 {
     # Move the - sign to the end of the number

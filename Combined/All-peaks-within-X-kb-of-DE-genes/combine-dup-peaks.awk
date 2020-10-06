@@ -10,7 +10,7 @@
 
 BEGIN {
     last_pos = 0;
-    OFS="\t";
+    OFS=FS;
 }
 {
     if ( NR == 1 )
