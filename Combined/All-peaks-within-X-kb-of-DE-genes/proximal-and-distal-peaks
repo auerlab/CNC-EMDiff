@@ -65,7 +65,7 @@ check_for_zeroes()
     local file=$1
     
     # Check for 0s
-    awk '$6 == 0 || $8 == 0 || $10 == 0' \
+    $awk '$6 == 0 || $8 == 0 || $10 == 0' \
 	$file > zero.tsv
     if [ $(cat zero.tsv | wc -l) != 0 ]; then
 	printf "Error: Found zeroes in $pd_peaks_file.\n"
@@ -83,6 +83,12 @@ if [ $# != 1 ]; then
     usage
 fi
 kb=$1
+
+# 2020-10-21
+# nawk (BSD/Mac): 35 seconds
+# mawk: 19 seconds
+# gawk: 20 seconds
+awk=mawk
 
 bedtools --version > bedtools-version.txt
 # Sort by chromosome and start position.  We should not have to look at end
@@ -115,7 +121,7 @@ if [ ! -e $gene_locations ]; then
     printf "Generating $gene_locations...\n"
     # Output format: chr start stop gene-ID
     # Sort by gene ID for awk script that follows
-    awk '$1 >= 1 && $1 <= 19 && $3 == "gene" && $13 == "gene_name" {
+    $awk '$1 >= 1 && $1 <= 19 && $3 == "gene" && $13 == "gene_name" {
 	chr=$1;
 	start=$4;
 	end=$5;
@@ -141,7 +147,7 @@ for cell_type in CCA NCA; do
     # Col 16 of augmented Sleuth output contains cluster # for each gene
     # List of unique values in this column enumerates clusters
     tsv="../../RNA-Seq/Clusters/$cell_type.tsv"
-    clusters=$(awk '$1 != "target_id" { print $16 }' $tsv | sort | uniq)
+    clusters=$($awk '$1 != "target_id" { print $16 }' $tsv | sort | uniq)
     
     for cluster in $clusters; do
 	printf "=== $cell_type, cluster $cluster ===\n"
@@ -150,19 +156,19 @@ for cell_type in CCA NCA; do
 	cluster_gene_list=genes-$cell_type-c$cluster.txt
 	# Maria's hand-made cluster spreadsheets
 	# $16 = cluster-number, $3 = gene name
-	awk "\$16 == $cluster { print \$3 }" $tsv | sort | uniq \
+	$awk "\$16 == $cluster { print \$3 }" $tsv | sort | uniq \
 	    > $cluster_gene_list
 	
 	# Generate BED file with genes in this cluster and their locations
 	cluster_gene_locations=${cluster_gene_list%.txt}.bed
-	awk -v gene_locations=$gene_locations -f lookup-gene-locations.awk \
+	$awk -v gene_locations=$gene_locations -f lookup-gene-locations.awk \
 	    $cluster_gene_list > $cluster_gene_locations
 
 	# Generate bed file with just chr, TSS, and gene name
 	# Filter out gene IDs not found in GTF (tagged with -1 by
 	# lookup-gene-locations.awk) and replace end with start since we're
 	# measuring distance from TSS in either direction.
-	awk '$1 != -1 {
+	$awk '$1 != -1 {
 		chr=$1;
 		start=$2;
 		gene_name=$4;
@@ -198,7 +204,7 @@ for cell_type in CCA NCA; do
 	file10=$da_dir/$cell_type-T1-vs-T0.tsv
 	file20=$da_dir/$cell_type-T2-vs-T0.tsv
 	file21=$da_dir/$cell_type-T2-vs-T1.tsv
-	awk -f gen-peaks-file.awk -v file20=$file20 -v file21=$file21 \
+	$awk -f gen-peaks-file.awk -v file20=$file20 -v file21=$file21 \
 	    $file10 | $bed_sort >> $peaks_file
 	wc -l $peaks_file
 	
@@ -211,7 +217,7 @@ for cell_type in CCA NCA; do
 	# Cols 11-15:   TSS-vicinity     chr,vstart,vend,gene-name,tss
 	bedtools intersect -sorted -wa -wb -a $peaks_file \
 	    -b $cluster_tss_vicinity | $bed_sort | uniq \
-	    | awk -f format-intersect.awk \
+	    | $awk -f format-intersect.awk \
 	    | format-cols '\t' 0.01 3 5 6 7 8 9 10 >> $pd_peaks_file
 	wc -l $pd_peaks_file
 	check_for_zeroes $pd_peaks_file
@@ -219,21 +225,33 @@ for cell_type in CCA NCA; do
 	printf "Generating variable-column file...\n"
 	var_col_peaks_file=${pd_peaks_file%.tsv}-var-cols.tsv
 	# Number of columns should agree with printf in format-intersect.awk
-	awk -f abs.awk $pd_peaks_file | $abs_sort | awk -f unabs.awk \
-	    | awk -f combine-dup-peaks.awk > $var_col_peaks_file
+	$awk -f abs.awk $pd_peaks_file | $abs_sort | $awk -f unabs.awk \
+	    | $awk -f combine-dup-peaks.awk > $var_col_peaks_file
 	
 	printf "Filtering for 750 nt peaks...\n"
-	wide_peaks_file=${pd_peaks_file%.tsv}-over750.tsv
+	wide_peaks_file=${pd_peaks_file%.tsv}-over-750.tsv
 	header > $wide_peaks_file
-	awk '$3 - $2 > 750 { print $0 }' $pd_peaks_file \
+	$awk '$3 - $2 > 750 { print $0 }' $pd_peaks_file \
 	    >> $wide_peaks_file
 	check_for_zeroes $wide_peaks_file
 
 	printf "Generating variable-column file for 750 nt peaks...\n"
 	var_col_peaks_file=${wide_peaks_file%.tsv}-var-cols.tsv
 	# Number of columns should agree with printf in format-intersect.awk
-	awk -f abs.awk $wide_peaks_file | $abs_sort | awk -f unabs.awk \
-	    | awk -f combine-dup-peaks.awk > $var_col_peaks_file
+	$awk -f abs.awk $wide_peaks_file | $abs_sort | $awk -f unabs.awk \
+	    | $awk -f combine-dup-peaks.awk > $var_col_peaks_file
+	
+	printf "Filtering for DA peaks...\n"
+	da_peaks_file=${pd_peaks_file%.tsv}-da.tsv
+	header > $da_peaks_file
+	$awk -f da-peaks.awk $pd_peaks_file >> $da_peaks_file
+	check_for_zeroes $da_peaks_file
+
+	printf "Generating variable-column file for DA peaks...\n"
+	var_col_peaks_file=${da_peaks_file%.tsv}-var-cols.tsv
+	# Number of columns should agree with printf in format-intersect.awk
+	$awk -f abs.awk $da_peaks_file | $abs_sort | $awk -f unabs.awk \
+	    | $awk -f combine-dup-peaks.awk > $var_col_peaks_file
 	
 	#####################################################################
 	#   Generate fasta file for each set of proximal+distal peaks
@@ -242,18 +260,23 @@ for cell_type in CCA NCA; do
 	#####################################################################
 	
 	printf "Generating fastas...\n"
-	fasta_file=$results_dir/${peaks_file%.bed}.fasta
 	atac_ref_dir=../../ATAC-Seq/Reference
 	genome_fasta=$atac_ref_dir/Mus_musculus.GRCm38.dna.autosomes.fa
-	awk '$1 != "Chr"' $pd_peaks_file \
+
+	fasta_file=$results_dir/${peaks_file%.bed}.fasta
+	$awk '$1 != "Chr"' $pd_peaks_file \
 	    | bedtools getfasta -fi $genome_fasta -bed - \
 	    | seqkit rmdup > $fasta_file
 	wc -l $fasta_file
 
-	fasta_file=$results_dir/${peaks_file%.bed}-over750.fasta
-	atac_ref_dir=../../ATAC-Seq/Reference
-	genome_fasta=$atac_ref_dir/Mus_musculus.GRCm38.dna.autosomes.fa
-	awk '$1 != "Chr"' $wide_peaks_file \
+	fasta_file=$results_dir/${peaks_file%.bed}-over-750.fasta
+	$awk '$1 != "Chr"' $wide_peaks_file \
+	    | bedtools getfasta -fi $genome_fasta -bed - \
+	    | seqkit rmdup > $fasta_file
+	wc -l $fasta_file
+
+	fasta_file=$results_dir/${peaks_file%.bed}-da.fasta
+	$awk '$1 != "Chr"' $da_peaks_file \
 	    | bedtools getfasta -fi $genome_fasta -bed - \
 	    | seqkit rmdup > $fasta_file
 	wc -l $fasta_file
