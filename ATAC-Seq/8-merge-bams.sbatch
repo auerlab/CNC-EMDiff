@@ -29,6 +29,8 @@
 #SBATCH --output=8-merge-bams/slurm-%A_%a.out
 #SBATCH --error=8-merge-bams/slurm-%A_%a.err
 
+# : ${SLURM_ARRAY_TASK_ID:=6}
+
 if [ -z $SLURM_ARRAY_TASK_ID ]; then
     printf "$0 must be run under sbatch or ../slurm-sim\n"
     exit 1
@@ -52,9 +54,9 @@ samtools --version > 8-merge-bams/samtools-version.txt 2>&1
 #   are reversed.  So for ATAC (not for RNA) A, B, and C are replicates
 #   and 1, 2, and 3 are time points.
 #
-# CCA1A_S1_L001-nodup-uniq.bam      Replicate 1, time 1
-# CCA1B_S2_L001-nodup-uniq.bam      Replicate 2, time 1
-# CCA1C_S3_L001-nodup-uniq.bam
+# CCA1A_S1_L001-nodup-uniq.bam      Replicate A, time 1
+# CCA1B_S2_L001-nodup-uniq.bam      Replicate B, time 1
+# CCA1C_S3_L001-nodup-uniq.bam      ...
 # CCA2A_S4_L001-nodup-uniq.bam
 # CCA2B_S5_L001-nodup-uniq.bam
 # CCA2C_S6_L001-nodup-uniq.bam
@@ -80,39 +82,41 @@ case $SLURM_ARRAY_TASK_ID in
 1)
     # Should be this, but time point and replicate were switched on samples
     # input_bams=$(ls 6-remove-duplicates/CCA*A*.bam)
-    input_bams=$(ls 6-remove-duplicates/CCA1*.bam)
+    sample_group=CCA1
     ;;
 2)
     # Should be this, but time point and replicate were switched on samples
     # input_bams=$(ls 6-remove-duplicates/CCA*B*.bam)
-    input_bams=$(ls 6-remove-duplicates/CCA2*.bam)
+    sample_group=CCA2
     ;;
 3)
     # Should be this, but time point and replicate were switched on samples
     # input_bams=$(ls 6-remove-duplicates/CCA*C*.bam)
-    input_bams=$(ls 6-remove-duplicates/CCA3*.bam)
+    sample_group=CCA3
     ;;
 4)
     # Should be this, but time point and replicate were switched on samples
     # input_bams=$(ls 6-remove-duplicates/NCA*A*.bam)
-    input_bams=$(ls 6-remove-duplicates/NCA1*.bam)
+    sample_group=NCA1
     ;;
 5)
     # Should be this, but time point and replicate were switched on samples
     # input_bams=$(ls 6-remove-duplicates/NCA*B*.bam)
-    input_bams=$(ls 6-remove-duplicates/NCA2*.bam)
+    sample_group=NCA2
     ;;
 6)
     # Should be this, but time point and replicate were switched on samples
     # input_bams=$(ls 6-remove-duplicates/NCA*C*.bam)
-    input_bams=$(ls 6-remove-duplicates/NCA3*.bam)
+    sample_group=NCA3
     ;;
 esac
+time=${sample_group#*CA}
+input_bams=$(ls 6-remove-duplicates/${sample_group}*.bam)
 
 if [ $SLURM_ARRAY_TASK_ID -le 3 ]; then
-    output_bam=8-merge-bams/atac-chondrocyte-$SLURM_ARRAY_TASK_ID.bam
+    output_bam=8-merge-bams/atac-chondrocyte-$time.bam
 else
-    output_bam=8-merge-bams/atac-neural-$((SLURM_ARRAY_TASK_ID - 9)).bam
+    output_bam=8-merge-bams/atac-neural-$time.bam
 fi
 
 set -x
