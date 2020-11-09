@@ -6,9 +6,9 @@
 #
 #   Usage:
 #       SLURM Cluster:
-#           sbatch 7-macs-peaks.sbatch
+#           sbatch 8-macs-peaks.sbatch
 #       No cluster:
-#           ../slurm-sim 7-macs-peaks.sbatch |& tee 1.log
+#           ../slurm-sim 8-macs-peaks.sbatch |& tee 1.log
 #
 #   History:
 #       Based on the work of Dr. Andrea Rau:
@@ -24,8 +24,8 @@
 # SLURM parameters
 #SBATCH --array=1-2
 #SBATCH --mem=4g
-#SBATCH --output=7-macs-peaks/slurm-%A_%a.out
-#SBATCH --error=7-macs-peaks/slurm-%A_%a.err
+#SBATCH --output=8-macs-peaks/slurm-%A_%a.out
+#SBATCH --error=8-macs-peaks/slurm-%A_%a.err
 
 if [ -z $SLURM_ARRAY_TASK_ID ]; then
     printf "$0 must be run under sbatch or ../slurm-sim\n"
@@ -34,8 +34,8 @@ fi
 
 # Document software versions used for publication
 if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
-    uname -a > 7-macs-peaks/os-version.txt 2>&1
-    macs2 --version > 7-macs-peaks/macs2-version.txt 2>&1
+    uname -a > 8-macs-peaks/os-version.txt 2>&1
+    macs2 --version > 8-macs-peaks/macs2-version.txt 2>&1
 fi
 
 case $SLURM_ARRAY_TASK_ID in
@@ -60,4 +60,4 @@ printf "$cell_type: Peak calling, merging replicates across all time points, cal
 macs2 callpeak --nomodel \
     -t 6-remove-duplicates/$cell_type*_L001-nodup-uniq.bam \
     -f BAMPE -g mm --call-summits -n ATAC-$cell_type \
-    --keep-dup all --outdir 7-macs-peaks
+    --keep-dup all --outdir 8-macs-peaks

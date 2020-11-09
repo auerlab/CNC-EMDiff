@@ -6,9 +6,9 @@
 #
 #   Usage:
 #       SLURM Cluster:
-#           sbatch 8-merge-bams.sbatch
+#           sbatch 7-merge-bams.sbatch
 #       No cluster:
-#           ../slurm-sim 8-merge-bams.sbatch |& tee 1.log
+#           ../slurm-sim 7-merge-bams.sbatch |& tee 1.log
 #
 #   History:
 #       Based on the work of Dr. Andrea Rau:
@@ -26,8 +26,8 @@
 #SBATCH --mem=20
 # Each job uses sample X, X+3, and X+6
 #SBATCH --array=1-6
-#SBATCH --output=8-merge-bams/slurm-%A_%a.out
-#SBATCH --error=8-merge-bams/slurm-%A_%a.err
+#SBATCH --output=7-merge-bams/slurm-%A_%a.out
+#SBATCH --error=7-merge-bams/slurm-%A_%a.err
 
 # : ${SLURM_ARRAY_TASK_ID:=6}
 
@@ -38,8 +38,8 @@ fi
 
 # Document software versions used for publication
 if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
-    uname -a > 8-merge-bams/os-version.txt 2>&1
-    samtools --version > 8-merge-bams/samtools-version.txt 2>&1
+    uname -a > 7-merge-bams/os-version.txt 2>&1
+    samtools --version > 7-merge-bams/samtools-version.txt 2>&1
 fi
 
 # Samples 1-9 are Chondrocyte and 10-18 are Neural
@@ -116,9 +116,9 @@ time=${sample_group#*CA}
 input_bams=$(ls 6-remove-duplicates/${sample_group}*.bam)
 
 if [ $SLURM_ARRAY_TASK_ID -le 3 ]; then
-    output_bam=8-merge-bams/atac-chondrocyte-$time.bam
+    output_bam=7-merge-bams/atac-chondrocyte-$time.bam
 else
-    output_bam=8-merge-bams/atac-neural-$time.bam
+    output_bam=7-merge-bams/atac-neural-$time.bam
 fi
 
 set -x

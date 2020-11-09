@@ -63,7 +63,7 @@ case $SLURM_ARRAY_TASK_ID in
 esac
 
 cd 9-process-peaks
-macs_dir=../7-macs-peaks
+macs_dir=../8-macs-peaks
 
 ##########################################################################
 #   Filter for high-confidence peaks: p-value < 1e-10
