@@ -16,8 +16,8 @@ if [ 0$continue != 0yes ]; then
 fi
 
 # Don't clobber previous results
-for dir in 3-bwa-index 4-bwa-mem 5-qc-sam 6-remove-duplicates 7-macs-peaks \
-	   8-merge-bams; do
+for dir in 3-bwa-index 4-bwa-mem 5-qc-sam 6-remove-duplicates 8-macs-peaks \
+	   7-merge-bams; do
     if [ -e $dir ]; then
 	pre_existing="$pre_existing $dir"
     fi
@@ -55,11 +55,11 @@ sbatch "$@" --dependency=afterok:$bwa_mem_job_id 5-qc-sam.sbatch
 remove_dups_job_id=$(sbatch "$@" --dependency=afterok:$bwa_mem_job_id \
 		     6-remove-duplicates.sbatch | awk '{ print $4 }')
 
-macs_job_id=$(sbatch "$@" --dependency=afterok:$remove_dups_job_id \
-		     7-macs-peaklets.sbatch | awk '{ print $4 }')
-
 merge_bams_job_id=$(sbatch "$@" --dependency=afterok:$remove_dups_job_id \
-		     8-merge-bams.sbatch | awk '{ print $4 }')
+		     7-merge-bams.sbatch | awk '{ print $4 }')
+
+macs_job_id=$(sbatch "$@" --dependency=afterok:$remove_dups_job_id \
+		     8-macs-peaklets.sbatch | awk '{ print $4 }')
 
 process_peaks_job_id=$(sbatch "$@" --dependency=afterok:$macs_job_id \
 		       9-process-peaks.sbatch | awk '{ print $4 }')
