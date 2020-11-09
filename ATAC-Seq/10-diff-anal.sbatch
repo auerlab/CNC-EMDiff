@@ -8,7 +8,7 @@
 #       SLURM Cluster:
 #           sbatch 10-diff-anal.sbatch
 #       No cluster:
-#           ../slurm-sim 10-diff-anal.sbatch 1 2 |& tee 1.log
+#           ../slurm-sim 10-diff-anal.sbatch |& tee 1.log
 #
 #   History:
 #       Based on the work of Dr. Andrea Rau:
@@ -42,7 +42,9 @@ case $SLURM_ARRAY_TASK_ID in
 esac
 
 # Document software versions used for publication
-uname -a > 10-diff-anal/os-version.txt 2>&1
-R --version > 10-diff-anal/R-version.txt 2>&1
+if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
+    uname -a > 10-diff-anal/os-version.txt 2>&1
+    R --version > 10-diff-anal/R-version.txt 2>&1
+fi
 
 ./10-diff-anal.R $cell_type

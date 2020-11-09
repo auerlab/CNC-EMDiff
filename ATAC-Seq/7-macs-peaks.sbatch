@@ -8,7 +8,7 @@
 #       SLURM Cluster:
 #           sbatch 7-macs-peaks.sbatch
 #       No cluster:
-#           ../slurm-sim 7-macs-peaks.sbatch 1 2 |& tee 1.log
+#           ../slurm-sim 7-macs-peaks.sbatch |& tee 1.log
 #
 #   History:
 #       Based on the work of Dr. Andrea Rau:
@@ -33,8 +33,10 @@ if [ -z $SLURM_ARRAY_TASK_ID ]; then
 fi
 
 # Document software versions used for publication
-uname -a > 7-macs-peaks/os-version.txt 2>&1
-macs2 --version > 7-macs-peaks/macs2-version.txt 2>&1
+if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
+    uname -a > 7-macs-peaks/os-version.txt 2>&1
+    macs2 --version > 7-macs-peaks/macs2-version.txt 2>&1
+fi
 
 case $SLURM_ARRAY_TASK_ID in
 1)

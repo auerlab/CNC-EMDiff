@@ -8,7 +8,7 @@
 #       SLURM cluster:
 #           sbatch 5-qc.sbatch
 #       No cluster:
-#           ../slurm-sim 5-qc.sbatch 1 18 |& tee 5.log
+#           ../slurm-sim 5-qc.sbatch |& tee 5.log
 #
 #   History:
 #       Based on the work of Dr. Andrea Rau:
@@ -34,8 +34,10 @@ if [ -z $SLURM_ARRAY_TASK_ID ]; then
 fi
 
 # Document software versions used for publication
-uname -a > 5-qc-sam/os-version.txt 2>&1
-fastqc --version > 5-qc-sam/fastqc-version.txt 2>&1
+if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
+    uname -a > 5-qc-sam/os-version.txt 2>&1
+    fastqc --version > 5-qc-sam/fastqc-version.txt 2>&1
+fi
 
 # One iteration if running under SLURM, all iterations otherwise
 printf "Running task $SLURM_ARRAY_TASK_ID...\n"

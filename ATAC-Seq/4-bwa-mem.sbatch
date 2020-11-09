@@ -9,7 +9,7 @@
 #           sbatch 4-bwa-mem.sbatch
 #       No cluster:
 #           [env SLURM_CPUS_PER_TASK=n] \
-#               ../slurm-sim 4-bwa-mem.sbatch 1 18 |& tee 4.log
+#               ../slurm-sim 4-bwa-mem.sbatch |& tee 4.log
 #
 #   History:
 #       Based on the work of Dr. Andrea Rau:
@@ -43,8 +43,10 @@ fi
 : ${SLURM_CPUS_PER_TASK:=4}
 
 # Document software versions used for publication
-uname -a > 4-bwa-mem/os-version.txt 2>&1
-bwa 2>&1 | fgrep Version > 4-bwa-mem/bwa-version.txt || true
+if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
+    uname -a > 4-bwa-mem/os-version.txt 2>&1
+    bwa 2>&1 | fgrep Version > 4-bwa-mem/bwa-version.txt || true
+fi
 
 # One iteration if running under SLURM, all iterations otherwise
 cd 4-bwa-mem

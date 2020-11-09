@@ -10,7 +10,7 @@
 #       SLURM Cluster:
 #           sbatch 6-remove-duplicates.sbatch
 #       No cluster:
-#           ../slurm-sim 6-remove-duplicates.sbatch 1 18 |& tee 6.log
+#           ../slurm-sim 6-remove-duplicates.sbatch |& tee 6.log
 #
 #   History:
 #       Based on the work of Dr. Andrea Rau:
@@ -35,8 +35,10 @@ if [ -z $SLURM_ARRAY_TASK_ID ]; then
 fi
 
 # Document software versions used for publication
-uname -a > 6-remove-duplicates/os-version.txt 2>&1
-samtools --version > 6-remove-duplicates/samtools-version.txt 2>&1
+if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
+    uname -a > 6-remove-duplicates/os-version.txt 2>&1
+    samtools --version > 6-remove-duplicates/samtools-version.txt 2>&1
+fi
 
 # FIXME: Remove duplicate reads before alignment to cut down on redundant
 # alignments.  Still need to run this step since we cannot identify all

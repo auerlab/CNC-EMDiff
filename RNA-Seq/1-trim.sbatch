@@ -22,13 +22,6 @@
 #SBATCH --output=1-trim/slurm-%A_%a.out
 #SBATCH --error=1-trim/slurm-%A_%a.err
 
-# Mortimer pkgsrc
-if [ -e /sharedapps/pkg-2019Q2/bin/cutadapt ]; then
-    # sh is bash on CentOS, so this is OK
-    source /etc/bashrc
-    module load /sharedapps/pkg-2019Q2/etc/modulefiles/pkgsrc/2019Q2
-fi
-
 input1="../Raw/190822_AHFN3KDRXX-Lane2/*_S${SLURM_ARRAY_TASK_ID}_*R1*"
 input2="../Raw/190822_AHFN3KDRXX-Lane2/*_S${SLURM_ARRAY_TASK_ID}_*R2*"
 base_name=$(basename $input1)

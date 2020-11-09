@@ -8,7 +8,7 @@
 #       SLURM Cluster:
 #           sbatch 9-process-peaks.sbatch
 #       No cluster:
-#           ../slurm-sim 9-process-peaks.sbatch 1 2 |& tee 1.log
+#           ../slurm-sim 9-process-peaks.sbatch |& tee 1.log
 #
 #   History:
 #       Based on the work of Dr. Andrea Rau:
@@ -40,8 +40,10 @@ fi
 ##########################################################################
 
 # Document software versions used for publication
-uname -a > 9-process-peaks/os-version.txt 2>&1
-bedtools --version > 9-process-peaks/bedtools-version.txt 2>&1
+if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
+    uname -a > 9-process-peaks/os-version.txt 2>&1
+    bedtools --version > 9-process-peaks/bedtools-version.txt 2>&1
+fi
 
 # One iteration if running under SLURM, all iterations otherwise
 printf "Processing task $SLURM_ARRAY_TASK_ID...\n"

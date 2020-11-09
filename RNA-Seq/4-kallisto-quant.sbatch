@@ -7,13 +7,6 @@
 ##SBATCH --exclude=compute-[001-008,012]
 ##SBATCH --partition=batch,256g
 
-# Mortimer pkgsrc
-if [ -e /sharedapps/pkg-2019Q2/bin/kallisto ]; then
-    # sh is bash on CentOS, so this is OK
-    source /etc/bashrc
-    module load /sharedapps/pkg-2019Q2/etc/modulefiles/pkgsrc/2019Q2
-fi
-
 # Run kallisto with 500 bootstraps for Sleuth
 # --genomebam is needed to generate a genome-mapped BAM file for browsing with
 # IGV.  It requires --gtf and --chromosomes. --chromosomes requires a TSV file

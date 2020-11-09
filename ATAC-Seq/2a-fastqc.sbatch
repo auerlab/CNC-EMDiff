@@ -8,7 +8,7 @@
 #       SLURM cluster:
 #           sbatch 2-qc.sbatch
 #       No cluster:
-#           ../slurm-sim 2-qc.sbatch 1 18 |& tee 2.log
+#           ../slurm-sim 2-qc.sbatch |& tee 2.log
 #
 #   History:
 #       Based on work of Dr. Andrea Rau:
@@ -47,8 +47,10 @@ fi
 : ${SLURM_CPUS_PER_TASK:=2}
 
 # Document software versions used for publication
-uname -a > 2-qc/os-version.txt 2>&1
-fastqc --version > 2-qc/fastqc-version.txt 2>&1
+if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
+    uname -a > 2-qc/os-version.txt 2>&1
+    fastqc --version > 2-qc/fastqc-version.txt 2>&1
+fi
 
 mkdir -p 2-qc/Raw 2-qc/Trimmed
 

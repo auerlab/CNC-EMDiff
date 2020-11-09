@@ -8,7 +8,7 @@
 #       SLURM Cluster:
 #           sbatch 8-merge-bams.sbatch
 #       No cluster:
-#           ../slurm-sim 8-merge-bams.sbatch 1 6 |& tee 1.log
+#           ../slurm-sim 8-merge-bams.sbatch |& tee 1.log
 #
 #   History:
 #       Based on the work of Dr. Andrea Rau:
@@ -37,8 +37,10 @@ if [ -z $SLURM_ARRAY_TASK_ID ]; then
 fi
 
 # Document software versions used for publication
-uname -a > 8-merge-bams/os-version.txt 2>&1
-samtools --version > 8-merge-bams/samtools-version.txt 2>&1
+if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
+    uname -a > 8-merge-bams/os-version.txt 2>&1
+    samtools --version > 8-merge-bams/samtools-version.txt 2>&1
+fi
 
 # Samples 1-9 are Chondrocyte and 10-18 are Neural
 # How things are supposed to be:

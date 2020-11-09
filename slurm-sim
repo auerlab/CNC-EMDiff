@@ -4,6 +4,8 @@
 #   Script description:
 #       Simulate SLURM array environment by running an sbatch script
 #       in a loop with SLURM_ARRAY_TASK_ID set for each iteration.
+#       Extract array index range from #SBATCH --array flag.
+#       Set SLURM_CPUS_PER_TASK if indicated in #SBATCH --cpus-per-task.
 #       
 #   History:
 #   Date        Name        Modification
@@ -12,7 +14,7 @@
 
 usage()
 {
-    printf "Usage: $0 script first-index last-index\n"
+    printf "Usage: $0 script\n"
     exit 1
 }
 
@@ -21,16 +23,29 @@ usage()
 #   Main
 ##########################################################################
 
-if [ $# != 3 ]; then
+if [ $# != 1 ]; then
     usage
 fi
 
 script=$1
-first=$2
-last=$3
 
-SLURM_ARRAY_TASK_ID=$first
-while [ $SLURM_ARRAY_TASK_ID -le $last ]; do
+# Extract #SBATCH --array=first-last
+array_line=$(awk '$0 ~ "^#SBATCH" && $0 ~ "--array=" { print $0 }' $script)
+array_flag=$(echo $array_line | awk \
+    '{ for (c = 2; c <= NF; ++c) { if ( $c ~ "^--array=" ) print $c; } }')
+first_task_id=$(echo $array_flag | cut -d = -f 2 | cut -d - -f 1)
+last_task_id=$(echo $array_flag | cut -d = -f 2 | cut -d - -f 2)
+printf "Running array jobs from $first_task_id to $last_task_id\n"
+
+# Extract #SBATCH --cpus-per-task=n
+cpus_per_task_line=$(awk '$0 ~ "^#SBATCH" && $0 ~ "--cpus-per-task=" { print $0 }' $script)
+cpus_per_task_flag=$(echo $cpus_per_task_line | awk \
+    '{ for (c = 2; c <= NF; ++c) { if ( $c ~ "^--cpus-per-task=" ) print $c; } }')
+SLURM_CPUS_PER_TASK=$(echo $cpus_per_task_flag | cut -d = -f 2)
+printf "SLURM_CPUS_PER_TASK = $SLURM_CPUS_PER_TASK\n"
+
+SLURM_ARRAY_TASK_ID=$first_task_id
+while [ $SLURM_ARRAY_TASK_ID -le $last_task_id ]; do
     export SLURM_ARRAY_TASK_ID
     ./$script 2>&1 | tee $script-$SLURM_ARRAY_TASK_ID.out
     SLURM_ARRAY_TASK_ID=$(($SLURM_ARRAY_TASK_ID + 1))

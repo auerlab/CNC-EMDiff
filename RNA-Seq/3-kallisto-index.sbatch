@@ -4,13 +4,6 @@
 #SBATCH --output=3-kallisto-index/slurm-%A.out
 #SBATCH --error=3-kallisto-index/slurm-%A.err
 
-# Mortimer pkgsrc
-if [ -e /sharedapps/pkg-2019Q2/bin/kallisto ]; then
-    # sh is bash on CentOS, so this is OK
-    source /etc/bashrc
-    module load /sharedapps/pkg-2019Q2/etc/modulefiles/pkgsrc/2019Q2
-fi
-
 save_cwd=$(pwd)
 cd Reference
 
