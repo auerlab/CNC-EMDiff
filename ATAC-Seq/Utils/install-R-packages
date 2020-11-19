@@ -38,6 +38,8 @@ url="$2"
 env_file=$HOME/.Renviron
 profile=$HOME/.Rprofile
 
+# FIXME: Change this to respect $prefix and $url regardless of
+# .Renviron and .Rprofile
 if ! fgrep -q R_LIBS_USER $env_file; then
     cat << EOM >> $env_file
 R_LIBS_USER=$prefix

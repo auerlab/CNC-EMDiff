@@ -3,6 +3,8 @@
 if which cluster-run; then
     cluster_run=cluster-run
     node_spec=compute
+else
+    cluster_run='sh -c'
 fi
 
 case $(uname) in
@@ -15,7 +17,7 @@ FreeBSD)
     # v8 javascript engine API changes frequently and FreeBSD ports version
     # is incompatible with DiffBind
     printf "Root "
-    su -m root -c "$cluster_run 'wip-reinstall-port -u -r v8' $node_spec"
+    # su -m root -c "$cluster_run 'wip-reinstall-port -u -r v8' $node_spec"
     ;;
 
 *)
@@ -38,4 +40,5 @@ read -p 'CRAN URL? [https://mirror.las.iastate.edu/CRAN/]' url
 if [ 0$url = 0 ]; then
     url='https://mirror.las.iastate.edu/CRAN/'
 fi
+mkdir -p $prefix
 $srun Utils/install-R-packages $prefix $url
