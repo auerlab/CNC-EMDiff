@@ -21,10 +21,11 @@
 #   Main
 ##########################################################################
 
-# SLURM parameters
-# Each job in the array should get 2 cores on the same node to accomodate
-# the cutadapt process and companion pigz/gzip process
-#SBATCH --array=1-18 --cpus-per-task=4
+# 2 cores per task to accommodate pigz
+# We don't get full utilization of both cores, but this speeds up the
+# job somewhat.  If you prefer to maximize CPU utilization, set
+# cpus-per-task to 1.
+#SBATCH --array=1-18 --cpus-per-task=2
 #SBATCH --mem-per-cpu=300
 #SBATCH --output=1-trim/slurm-%A_%a.out
 #SBATCH --error=1-trim/slurm-%A_%a.err
@@ -35,7 +36,7 @@ if [ -z $SLURM_ARRAY_TASK_ID ]; then
 fi
 
 # Defaults if not set by SLURM or user
-: ${SLURM_CPUS_PER_TASK:=4}
+: ${SLURM_CPUS_PER_TASK:=2}
 
 # Document software versions used for publication
 if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
@@ -49,7 +50,7 @@ printf "Running task $SLURM_ARRAY_TASK_ID...\n"
 input1="../Raw/190822_AHFN3KDRXX-Lane1/*_S${SLURM_ARRAY_TASK_ID}_*R1*"
 input2="../Raw/190822_AHFN3KDRXX-Lane1/*_S${SLURM_ARRAY_TASK_ID}_*R2*"
 base_name=$(basename $input1)
-stem=${base_name%%_R*.fastq.gz}
+stem=${base_name%%_R*.fastq.xz}
 
 # TrimGalore cannot cut a fixed number of bases while trimming adapters.
 # We want to remove bases at 5' end due to bias and last base at 3' end
@@ -71,15 +72,16 @@ adapter=CTGTCTCTTATACACATCT
 # Most quality scores are above 30, so we can be pickier thant the
 # traditional cut-off of 20
 # Not sure about min length for ATAC
-# Need 2 cores for each cutadapt process to accommodate pigz/gzip
+# Need 2 cores for each cutadapt process to accommodate pigz/xzip
+
+
 cutadapt \
-    --cores=$((SLURM_CPUS_PER_TASK / 2))\
+    --cores=$SLURM_CPUS_PER_TASK \
     --quality-cutoff=24 \
     -u -3 -U -3 \
     -u +15 -U +15 \
     -a $adapter -A $adapter \
     --minimum-length=20 \
-    --output=1-trim/${stem}-R1.fastq.gz \
-    --paired-output=1-trim/${stem}-R2.fastq.gz \
+    --output=1-trim/${stem}-R1.fastq.xz \
+    --paired-output=1-trim/${stem}-R2.fastq.xz \
     $input1 $input2
-

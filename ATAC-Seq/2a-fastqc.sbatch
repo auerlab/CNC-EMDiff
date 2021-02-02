@@ -58,12 +58,12 @@ mkdir -p 2-qc/Raw 2-qc/Trimmed
 printf "Running task $SLURM_ARRAY_TASK_ID...\n"
 
 # Raw files from sequencing center
-raw1="../Raw/190822_AHFN3KDRXX-Lane1/*_S${SLURM_ARRAY_TASK_ID}_*R1*.fastq.gz"
-raw2="../Raw/190822_AHFN3KDRXX-Lane1/*_S${SLURM_ARRAY_TASK_ID}_*R2*.fastq.gz"
+raw1="../Raw/190822_AHFN3KDRXX-Lane1/*_S${SLURM_ARRAY_TASK_ID}_*R1*.fastq.xz"
+raw2="../Raw/190822_AHFN3KDRXX-Lane1/*_S${SLURM_ARRAY_TASK_ID}_*R2*.fastq.xz"
 
 # Cutadapt output
-trimmed1="1-trim/*_S${SLURM_ARRAY_TASK_ID}_*R1*.fastq.gz"
-trimmed2="1-trim/*_S${SLURM_ARRAY_TASK_ID}_*R2*.fastq.gz"
+trimmed1="1-trim/*_S${SLURM_ARRAY_TASK_ID}_*R1*.fastq.xz"
+trimmed2="1-trim/*_S${SLURM_ARRAY_TASK_ID}_*R2*.fastq.xz"
 
 # Background the first so we can use 4 cores per job
 fastqc --threads=2 $raw1 $raw2 -o 2-qc/Raw &

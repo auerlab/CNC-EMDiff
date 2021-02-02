@@ -52,9 +52,9 @@ fi
 cd 4-bwa-mem
 printf "Running task $SLURM_ARRAY_TASK_ID...\n"
 
-infile1=../1-trim/*_S${SLURM_ARRAY_TASK_ID}_L001-R1.fastq.gz
-infile2=../1-trim/*_S${SLURM_ARRAY_TASK_ID}_L001-R2.fastq.gz
-outfile=$(echo $infile1 | cut -d / -f 3 | sed -e 's|-R1.fastq.gz|.sam|')
+infile1=../1-trim/*_S${SLURM_ARRAY_TASK_ID}_L001-R1.fastq.xz
+infile2=../1-trim/*_S${SLURM_ARRAY_TASK_ID}_L001-R2.fastq.xz
+outfile=$(echo $infile1 | cut -d / -f 3 | sed -e 's|-R1.fastq.xz|.sam|')
 ref_file=$(../Aux/ref-file-name.sh)
 
 srun bwa mem -M -t $SLURM_CPUS_PER_TASK \
