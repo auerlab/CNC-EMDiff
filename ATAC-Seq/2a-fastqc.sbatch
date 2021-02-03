@@ -68,12 +68,13 @@ raw_fifo2=/tmp/$(basename ${raw2%.xz})
 trimmed_fifo1=/tmp/$(basename ${trimmed1%.xz})
 trimmed_fifo2=/tmp/$(basename ${trimmed2%.xz})
 
+rm -f $raw_fifo1 $raw_fifo2 $trimmed_fifo1 $trimmed_fifo2
 mkfifo $raw_fifo1 $raw_fifo2 $trimmed_fifo1 $trimmed_fifo2
 
 xzcat $raw1 > $raw_fifo1 &
 xzcat $raw2 > $raw_fifo2 &
-xzcat $trimmed1 > trimmed_fifo1 &
-xzcat $trimmed2 > trimmed_fifo2 &
+xzcat $trimmed1 > $trimmed_fifo1 &
+xzcat $trimmed2 > $trimmed_fifo2 &
 
 # Background the first so we can use 4 cores per job
 fastqc --threads=2 $raw_fifo1 $raw_fifo2 -o 2-qc/Raw &
