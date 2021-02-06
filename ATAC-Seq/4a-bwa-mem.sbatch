@@ -31,8 +31,8 @@
 # Based on 2 threads on Albacore cluster
 # 12 threads on Peregrine used close to 6g
 #SBATCH --mem=5g
-#SBATCH --output=4-bwa-mem/slurm-%A_%a.out
-#SBATCH --error=4-bwa-mem/slurm-%A_%a.err
+#SBATCH --output=4-bwa-mem/bwa-mem-%A_%a.out
+#SBATCH --error=4-bwa-mem/bwa-mem-%A_%a.err
 
 if [ -z $SLURM_ARRAY_TASK_ID ]; then
     printf "$0 must be run under sbatch or ../slurm-sim\n"

@@ -62,7 +62,7 @@ trimmed1=$(ls 1-trim/*_S${SLURM_ARRAY_TASK_ID}_*R1*.fastq.xz)
 trimmed2=$(ls 1-trim/*_S${SLURM_ARRAY_TASK_ID}_*R2*.fastq.xz)
 
 # As of FastQC 0.11.9 there is no support for xz yet, so use pipes
-# FastQC requires an input filename, so use named pipes
+# FastQC requires two input filenames, so use named pipes
 raw_fifo1=/tmp/$(basename ${raw1%.xz})
 raw_fifo2=/tmp/$(basename ${raw2%.xz})
 trimmed_fifo1=/tmp/$(basename ${trimmed1%.xz})
