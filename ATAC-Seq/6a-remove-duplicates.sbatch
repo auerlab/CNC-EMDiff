@@ -53,8 +53,8 @@ saminput=$(ls ../4-bwa-mem/*_S${SLURM_ARRAY_TASK_ID}_L001.sam)
 sambase=$(basename $saminput)
 sorted=${sambase%.sam}-sorted.bam
 nodup=${sambase%.sam}-nodup.bam
-nodupunique=${sambase%.sam}-nodup-uniq.bam
-printf "saminput=$saminput, sorted=$sorted, nodup=$nodup, nodupunique=$nodupunique\n"
+nodupmapq1=${sambase%.sam}-nodup-mapq1.bam
+printf "saminput=$saminput, sorted=$sorted, nodup=$nodup, nodupmapq1=$nodupmapq1\n"
 
 # Clean up from prior interrupted sort processes
 rm -f $sorted-*tmp*
@@ -104,10 +104,10 @@ samtools flagstat $nodup > $nodup.flagstat
 # Default quality min (-q) is 0
 # -b: Output BAM format
 # -q: Minimum MAPQ value
-samtools view -b -q 1 $nodup > $nodupunique
+samtools view -b -q 1 $nodup > $nodupmapq1
 rm -f $nodup $nodup.*
 
 # Generating index and stats
-samtools index $nodupunique
-samtools idxstats $nodupunique > $nodupunique.idxstats
-samtools flagstat $nodupunique > $nodupunique.flagstat
+samtools index $nodupmapq1
+samtools idxstats $nodupmapq1 > $nodupmapq1.idxstats
+samtools flagstat $nodupmapq1 > $nodupmapq1.flagstat
