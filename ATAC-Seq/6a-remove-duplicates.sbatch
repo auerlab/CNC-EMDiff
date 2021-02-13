@@ -79,7 +79,8 @@ rm -f $sorted $sorted.*
 
 # -m: Add mate score tags to help markdup select the best reads to keep
 samtools fixmate -m $sorted-namesort.bam $sorted-fixmate.bam
-rm -f $sorted-namesort.bam
+# Keep name-sorted file for further filtering
+# rm -f $sorted-namesort.bam
 
 # markdup requires coordinate-sorted input
 # -m: Specify max memory use.  More mem means fewer temp files
