@@ -27,6 +27,9 @@
 #SBATCH --output=10-diff-anal/slurm-%A_%a.out
 #SBATCH --error=10-diff-anal/slurm-%A_%a.err
 
+# Non-portable UWM flags
+#SBATCH --nodelist=danio
+
 if [ -z $SLURM_ARRAY_TASK_ID ]; then
     printf "$0 must be run under sbatch or ../slurm-sim\n"
     exit 1

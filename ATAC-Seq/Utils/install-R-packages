@@ -15,7 +15,7 @@ usage()
 
 Usage: $0 prefix cran-URL
 
-Example: $0 /sharedapps/R https://mirror.las.iastate.edu/CRAN/
+Example: $0 /sharedapps/R/4.0 https://mirror.las.iastate.edu/CRAN/
 
 See https://cran.r-project.org/mirrors.html for mirror URLs
 

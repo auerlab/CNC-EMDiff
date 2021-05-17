@@ -2,7 +2,7 @@
 
 ##########################################################################
 #   Script description:
-#       Merge alignments of replicate samples for viewing?
+#       Merge alignments of replicate samples for viewing
 #
 #   Usage:
 #       SLURM Cluster:

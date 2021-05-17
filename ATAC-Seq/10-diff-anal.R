@@ -22,9 +22,6 @@ cell_type <- args[1]
 # Compensate for misnamed sequence files.
 swap_replicate_and_condition <- TRUE
 
-# Use merged peaklets from 9-process-peaks
-pre_merge<-TRUE
-
 # Use DiffBind summits option to recenter and trim peaks?
 diffbind_summits<-FALSE
 
@@ -52,14 +49,8 @@ Sys.umask(mode = 007)
 
 setwd("10-diff-anal")
 
-# Peaklets generated externally using bedtools
-if ( pre_merge ) {
-    Peaks <- paste0("../9-process-peaks/p10-",
-		    cell_type, "-501-merged.bed")
-} else {
-    Peaks <- paste0("../9-process-peaks/p10-",
-		    cell_type, "-501.bed")
-}
+Peaks <- paste0("../9-process-peaks/p10-",
+		cell_type, "-501-merged.bed")
 if ( ! file.exists(Peaks) ) {
     print(paste0("Error: File ", Peaks))
     print("does not exist.  Run 9-process-peaks.sbatch first.")
@@ -76,9 +67,11 @@ print(Peaks)
 # Due to data mislabling, 1 = time point (condition) and A is replicate
 # SampleID <- strsplit(dir("ALIGNED_TRANS/"), split=".", fixed=TRUE) %>%
 # Could this just as well use the merged BAMs in 8-?
-SampleID <- strsplit(dir("../4-bwa-mem/", pattern=paste0(cell_type, ".*.bam")),
-  split="-", fixed=TRUE) %>% lapply(., function(x) x[1]) %>%
-  unlist() %>% unique()
+# Was using 4-bwa-mem.  Because deduped BAMs were previously stored there?
+SampleID <- strsplit(dir("../6-remove-duplicates/",
+    pattern=paste0(cell_type, ".*-nodup-uniq.bam")),
+    split="-", fixed=TRUE) %>% lapply(., function(x) x[1]) %>%
+    unlist() %>% unique()
 
 print("SampleID")
 print(SampleID)
