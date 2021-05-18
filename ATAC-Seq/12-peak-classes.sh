@@ -35,7 +35,7 @@ for peaks_file in 9-process-peaks/p10-*CA-501-merged.bed; do
     filtered_overlaps=${overlaps_file%.tsv}-filtered.tsv
     printf "Filtered:       $filtered_overlaps\n"
     filter-overlaps $overlaps_file $filtered_overlaps five_prime_utr intron \
-	exon upstream1000 upstream10000 upstream100000 upstream-other
+	exon upstream1000 upstream10000 upstream100000 upstream-beyond
 done
 
 ##########################################################################
@@ -62,5 +62,5 @@ for file in 10-diff-anal/*CA-T*.tsv; do
     
     filtered_overlaps=${overlaps_file%.tsv}-filtered.tsv
     filter-overlaps $overlaps_file $filtered_overlaps five_prime_utr intron \
-	exon upstream1000 upstream10000 upstream100000 upstream-other
+	exon upstream1000 upstream10000 upstream100000 upstream-beyond
 done
