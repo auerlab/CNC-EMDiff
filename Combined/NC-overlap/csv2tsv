@@ -1,6 +1,9 @@
 #!/bin/sh -e
 
-for file in *.csv; do
+for file in neuro*.csv chondro*.csv; do
     echo $file
-    tr -s ', ' '\t-' < $file > ${file%.csv}.tsv
+    tsv=${file%.csv}.tsv
+    awk -F , -f fill.awk $file | tr -s ', ' '\t-' \
+	| cut -f 1,2,3,8,9,13,15,17,19 > $tsv
+    more $tsv
 done
