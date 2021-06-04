@@ -10,13 +10,16 @@ if [ $0 != $proper_name ]; then
 fi
 
 ./fetch-gtf.sh
+fetch=$(../../Common/find-fetch.sh)
+build=$(../../Common/genome-build.sh)
+release=$(../../Common/genome-release.sh)
 
 # Chromosome files
 chromosome=1
 while [ $chromosome -le 19 ]; do
-    file=Mus_musculus.GRCm38.dna.chromosome.$chromosome.fa.gz
+    file=Mus_musculus.GRCm$build.dna.chromosome.$chromosome.fa.gz
     if [ ! -e $file ]; then
-	$fetch ftp://ftp.ensembl.org/pub/release-98/fasta/mus_musculus/dna/$file
+	$fetch http://ftp.ensembl.org/pub/release-$release/fasta/mus_musculus/dna/$file
     fi
     chromosome=$((chromosome + 1))
 done
@@ -24,7 +27,7 @@ done
 set -x
 genome='all-but-xy.fa'
 if [ ! -e $genome ]; then
-    zcat Mus_musculus.GRCm38.dna.chromosome.[0-9]*.gz > $genome
+    zcat Mus_musculus.GRCm$build.dna.chromosome.[0-9]*.gz > $genome
 fi
 
 # https://github.com/griffithlab/rnaseq_tutorial/wiki/Kallisto

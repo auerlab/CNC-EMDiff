@@ -12,13 +12,17 @@ fi
 # Need GTF for kallisto quant --genomebam in any case
 ./fetch-gtf.sh
 
-fetch="$(./find-fetch.sh)"
+fetch=$(../../Common/find-fetch.sh)
+build=$(../../Common/genome-build.sh)
+release=$(../../Common/genome-release.sh)
 
 # Can't guarantee this file will always be available.
 # You may need to edit this.
-cdna=Mus_musculus.GRCm38.cdna.all.fa.gz
+cdna=Mus_musculus.GRCm$build.cdna.all.fa.gz
 if [ ! -e $cdna ]; then
-    $fetch ftp://ftp.ensembl.org/pub/release-98/fasta/mus_musculus/cdna/$cdna
+    $fetch ftp://ftp.ensembl.org/pub/release-$release/fasta/mus_musculus/cdna/$cdna
+else
+    printf "$cdna already exists.  Remove and rerun to replace.\n"
 fi
 
 # For compatibility with gtf_to_fasta alternative approach, don't gzip output

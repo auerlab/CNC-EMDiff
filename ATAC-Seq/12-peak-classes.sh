@@ -2,7 +2,13 @@
 
 # Record OS and software versions
 
-gff=Mus_musculus.GRCm38.100.gff3.gz
+build=$(../Common/genome-build.sh)
+release=$(../Common/genome-release.sh)
+
+# FIXME: Why was 100 used?
+# gff=Mus_musculus.GRCm$build.100.gff3.gz
+gff=Mus_musculus.GRCm$build.$release.gff3.gz
+
 if [ ! -e $gff ]; then
     for fetch in fetch curl wget; do
 	if which $fetch; then
@@ -16,7 +22,7 @@ if [ ! -e $gff ]; then
     if [ $fetch = curl ]; then
 	fetch="$fetch -O"
     fi
-    $fetch ftp://ftp.ensembl.org/pub/release-100/gff3/mus_musculus/$gff
+    $fetch ftp://ftp.ensembl.org/pub/release-$release/gff3/mus_musculus/$gff
 fi
 output_dir=12-peak-classes
 mkdir -p $output_dir

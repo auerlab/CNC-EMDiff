@@ -115,6 +115,9 @@ abs_sort="sort -k1,1 -k2,2n -k12,12n"
 rna_ref_dir="../../RNA-Seq/Reference"
 ref_release=$($rna_ref_dir/reference-release)
 gtf="$rna_ref_dir/Mus_musculus.GRCm38.$ref_release.gtf"
+if [ ! -e $gtf ]; then
+    (cd $(dirname $gtf) && ./fetch-gtf.sh)
+fi
 
 gene_locations=gene-locations-$ref_release.tsv
 if [ ! -e $gene_locations ]; then
