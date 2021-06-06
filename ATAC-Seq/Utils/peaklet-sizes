@@ -1,0 +1,10 @@
+#!/bin/sh -e
+
+awk '{ print $3 - $2 }' 9-process-peaks/p10-CCA-501-merged.bed > temp.txt
+for size in 501 600 700 800 900 1000; do
+    printf "%10s" $size
+    awk -v size=$size '$1 <= size' temp.txt | wc -l
+done
+printf "%10s" all
+cat temp.txt | wc -l
+

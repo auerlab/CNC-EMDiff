@@ -1,0 +1,5 @@
+#!/bin/sh -e
+
+file=Mus_musculus.GRCm39.103.gtf.gz
+test -e $file || fetch http://ftp.ensembl.org/pub/release-103/gtf/mus_musculus/$file
+gzcat $file | awk '$1 !~ "^#" { print $3 }' | sort -u

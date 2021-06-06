@@ -1,0 +1,4 @@
+#!/bin/sh -e
+
+gzcat Mus_musculus.GRCm38.100.gff3.gz | \
+    awk '$1 !~ "^#" && $3 == "exon" { print $0 }' | more
