@@ -50,10 +50,7 @@ header()
 
 ##########################################################################
 #   Function description:
-#       
-#   Arguments:
-#       
-#   Returns:
+#       Verify that adjusted P-values have not been rounded to 0
 #       
 #   History:
 #   Date        Name        Modification
@@ -264,6 +261,11 @@ for cell_type in CCA NCA; do
 	printf "Generating fastas...\n"
 	atac_ref_dir=../../ATAC-Seq/Reference
 	genome_fasta=$atac_ref_dir/Mus_musculus.GRCm$genome_build.dna.autosomes.fa
+	if [ ! -e $genome_fasta ]; then
+	    printf "Missing $genome_fasta.\n"
+	    printf "Did you run the ATAC-Seq pipeline?\n"
+	    exit 1
+	fi
 
 	fasta_file=$results_dir/$(basename ${peaks_file%.bed}.fasta)
 	$awk '$1 != "Chr"' $pd_peaks_file \
