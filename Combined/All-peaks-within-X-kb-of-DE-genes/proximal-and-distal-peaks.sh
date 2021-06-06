@@ -66,8 +66,8 @@ check_for_zeroes()
     
     # Check for 0s
     $awk '$6 == 0 || $8 == 0 || $10 == 0' \
-	$file > zero.tsv
-    if [ $(cat zero.tsv | wc -l) != 0 ]; then
+	$file > $tmpdir/zero.tsv
+    if [ $(cat $tmpdir/zero.tsv | wc -l) != 0 ]; then
 	printf "Error: Found zeroes in $pd_peaks_file.\n"
 	printf "Check formatting statements.\n"
 	exit 1
@@ -84,13 +84,12 @@ if [ $# != 1 ]; then
 fi
 kb=$1
 
-# 2020-10-21
-# nawk (BSD/Mac): 35 seconds
-# mawk: 19 seconds
-# gawk: 20 seconds
-awk=mawk
+awk=$(../../Common/find-awk.sh)
+results_dir=Proximal+distal-${kb}kb
+mkdir -p $results_dir
 
-bedtools --version > bedtools-version.txt
+bedtools --version > $results_dir/bedtools-version.txt
+
 # Sort by chromosome and start position.  We should not have to look at end
 # position since peaks should not overlap as this point.
 bed_sort="sort -k1,1 -k2,2n"
@@ -110,16 +109,19 @@ abs_sort="sort -k1,1 -k2,2n -k12,12n"
 #   at exons, so use GTF here for consistency.
 ##########################################################################
 
-./cleanup
+./cleanup.sh
 
 rna_ref_dir="../../RNA-Seq/Reference"
-ref_release=$($rna_ref_dir/reference-release)
-gtf="$rna_ref_dir/Mus_musculus.GRCm38.$ref_release.gtf"
+genome_build=$(../../Common/genome-build.sh)
+genome_release=$(../../Common/genome-release.sh)
+gtf="$rna_ref_dir/Mus_musculus.GRCm$genome_build.$genome_release.gtf"
 if [ ! -e $gtf ]; then
     (cd $(dirname $gtf) && ./fetch-gtf.sh)
 fi
 
-gene_locations=gene-locations-$ref_release.tsv
+tmpdir=Temp
+mkdir -p $tmpdir
+gene_locations=$tmpdir/gene-locations-$genome_release.tsv
 if [ ! -e $gene_locations ]; then
     printf "Generating $gene_locations...\n"
     # Output format: chr start stop gene-ID
@@ -143,8 +145,6 @@ head -5 $gene_locations
 #   Clustering performed by Paul Auer
 ##########################################################################
 
-results_dir=Proximal+distal-${kb}kb
-mkdir -p $results_dir
 for cell_type in CCA NCA; do
     
     # Col 16 of augmented Sleuth output contains cluster # for each gene
@@ -156,7 +156,7 @@ for cell_type in CCA NCA; do
 	printf "=== $cell_type, cluster $cluster ===\n"
 	
 	# Generate list of all gene names represented in this cluster
-	cluster_gene_list=genes-$cell_type-c$cluster.txt
+	cluster_gene_list=$tmpdir/genes-$cell_type-c$cluster.txt
 	# Maria's hand-made cluster spreadsheets
 	# $16 = cluster-number, $3 = gene name
 	$awk "\$16 == $cluster { print \$3 }" $tsv | sort | uniq \
@@ -176,7 +176,7 @@ for cell_type in CCA NCA; do
 		start=$2;
 		gene_name=$4;
 		printf("%s\t%s\t%s\t%s\t%s\n", chr, start, start+1, gene_name, start);
-	    }' $cluster_gene_locations > temp.bed
+	    }' $cluster_gene_locations > $tmpdir/temp.bed
 
 	# Generate BED file with gene TSS position +/-${kb}kb
 	# Peaks that overlap this region are within ${kb}kb of the gene
@@ -184,7 +184,7 @@ for cell_type in CCA NCA; do
 	bedtools slop \
 	    -b ${kb}000 \
 	    -g $rna_ref_dir/chromosome-sizes.tsv \
-	    -i temp.bed \
+	    -i $tmpdir/temp.bed \
 	    | $bed_sort > $cluster_tss_vicinity
 	wc -l $cluster_tss_vicinity
 	
@@ -198,7 +198,7 @@ for cell_type in CCA NCA; do
 	# All intervals T1-vs-T0, T2-vs-T0, T2-vs-T1 contain the same
 	# set of peaklets, so pick one from which to extract common info
 	# and read LFC and APV from the other two.
-	peaks_file=peaks-$cell_type-c$cluster.tsv
+	peaks_file=$tmpdir/peaks-$cell_type-c$cluster.tsv
 	# DESeq2 annoyingly decides to use scientific notation for
 	# boundaries sometimes, so convert boundaries to plain integers
 	# while massaging to BED format.
@@ -212,8 +212,7 @@ for cell_type in CCA NCA; do
 	wc -l $peaks_file
 	
 	# Find peaks within intersecting TSS+/-${kb}kb
-	peaks_file=peaks-$cell_type-c$cluster.tsv
-	pd_peaks_file=$results_dir/${cluster_gene_locations%.tsv}-proximal+distal-peaks.tsv
+	pd_peaks_file=$results_dir/$(basename ${cluster_gene_locations%.tsv}-proximal+distal-peaks.tsv)
 	header > $pd_peaks_file
 	# See printfs above to verify:
 	# Cols 1-10:    Peak             chr,start,end,name,LFC,APV,LFC,APV
@@ -264,21 +263,21 @@ for cell_type in CCA NCA; do
 	
 	printf "Generating fastas...\n"
 	atac_ref_dir=../../ATAC-Seq/Reference
-	genome_fasta=$atac_ref_dir/Mus_musculus.GRCm38.dna.autosomes.fa
+	genome_fasta=$atac_ref_dir/Mus_musculus.GRCm$genome_build.dna.autosomes.fa
 
-	fasta_file=$results_dir/${peaks_file%.bed}.fasta
+	fasta_file=$results_dir/$(basename ${peaks_file%.bed}.fasta)
 	$awk '$1 != "Chr"' $pd_peaks_file \
 	    | bedtools getfasta -fi $genome_fasta -bed - \
 	    | seqkit rmdup > $fasta_file
 	wc -l $fasta_file
 
-	fasta_file=$results_dir/${peaks_file%.bed}-over-750.fasta
+	fasta_file=$results_dir/$(basename ${peaks_file%.bed}-over-750.fasta)
 	$awk '$1 != "Chr"' $wide_peaks_file \
 	    | bedtools getfasta -fi $genome_fasta -bed - \
 	    | seqkit rmdup > $fasta_file
 	wc -l $fasta_file
 
-	fasta_file=$results_dir/${peaks_file%.bed}-da.fasta
+	fasta_file=$results_dir/$(basename ${peaks_file%.bed}-da.fasta)
 	$awk '$1 != "Chr"' $da_peaks_file \
 	    | bedtools getfasta -fi $genome_fasta -bed - \
 	    | seqkit rmdup > $fasta_file
