@@ -1,3 +1,5 @@
 #!/bin/sh -e
 
+mkdir -p Data
+cd Data
 mkdir -p 1-trim 2-qc 3-kallisto-index 4-kallisto-quant 5-merge-bams

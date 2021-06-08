@@ -2,8 +2,8 @@
 
 #SBATCH --mem-per-cpu=4000
 #SBATCH --array=1-18
-#SBATCH --output=4-kallisto-quant/slurm-%A_%a.out
-#SBATCH --error=4-kallisto-quant/slurm-%A_%a.err
+#SBATCH --output=Data/4-kallisto-quant/slurm-%A_%a.out
+#SBATCH --error=Data/4-kallisto-quant/slurm-%A_%a.err
 ##SBATCH --exclude=compute-[001-008,012]
 ##SBATCH --partition=batch,256g
 
@@ -16,14 +16,14 @@
 # The format and source of the chromosomes TSV is not clear.  I generated one
 # using an Ensemble GFF with Reference/create-chrom-sizes.sh
 
-mkdir -p 4-kallisto-quant/$SLURM_ARRAY_TASK_ID
+mkdir -p Data/4-kallisto-quant/$SLURM_ARRAY_TASK_ID
 set -x
 kallisto quant \
     --genomebam \
 	--gtf=Reference/Mus_musculus.GRCm38.98.gtf \
 	--chromosomes=Reference/chromosome-sizes.tsv \
-    -i 3-kallisto-index/all-but-xy.index \
-    -o 4-kallisto-quant/$SLURM_ARRAY_TASK_ID \
+    -i Data/3-kallisto-index/all-but-xy.index \
+    -o Data/4-kallisto-quant/$SLURM_ARRAY_TASK_ID \
     -b 500 \
     1-trim/*_S${SLURM_ARRAY_TASK_ID}_L002-R1.fastq.gz \
     1-trim/*_S${SLURM_ARRAY_TASK_ID}_L002-R2.fastq.gz

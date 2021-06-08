@@ -1,15 +1,15 @@
 #!/bin/sh -e
 
 #SBATCH --mem=4g
-#SBATCH --output=3-kallisto-index/slurm-%A.out
-#SBATCH --error=3-kallisto-index/slurm-%A.err
+#SBATCH --output=Data/3-kallisto-index/slurm-%A.out
+#SBATCH --error=Data/3-kallisto-index/slurm-%A.err
 
 save_cwd=$(pwd)
 cd Reference
 
 #############################################################################
 # Choose cdna or gtf2fasta, or copy the kallisto transcriptome.idx file from
-# ../Reference/mus_musculus.tar.gz to 3-kallisto-index/all-but-xy.index
+# ../Reference/mus_musculus.tar.gz to Data/3-kallisto-index/all-but-xy.index
 # and skip running this sbatch script.
 
 # There are multiple possible transcriptome references that can be used with
@@ -35,5 +35,5 @@ samtools faidx $reference   # Needed for kiallisto --genomebam?
 
 cd $save_cwd
 kallisto index \
-    --index=3-kallisto-index/all-but-xy.index \
+    --index=Data/3-kallisto-index/all-but-xy.index \
     Reference/$reference
