@@ -1,20 +1,20 @@
 #!/bin/sh -e
 
-#SBATCH --ntasks=1 --mem=1g
-
-proper_name=./cdna.sh
+proper_name=Reference/cdna.sh
 if [ $0 != "$proper_name" ]; then
     printf "$0 must be run as $proper_name\n"
     printf "from inside the Reference directory.\n"
     exit 1
 fi
 
-# Need GTF for kallisto quant --genomebam in any case
-./fetch-gtf.sh
+cd Data/3-reference
 
-fetch=$(../../Common/find-fetch.sh)
-build=$(../../Common/genome-build.sh)
-release=$(../../Common/genome-release.sh)
+# Need GTF for kallisto quant --genomebam in any case
+../../Reference/fetch-gtf.sh
+
+fetch=$(../../../Common/find-fetch.sh)
+build=$(../../../Common/genome-build.sh)
+release=$(../../../Common/genome-release.sh)
 
 # Can't guarantee this file will always be available.
 # You may need to edit this.
@@ -26,6 +26,6 @@ else
 fi
 
 # For compatibility with gtf_to_fasta alternative approach, don't gzip output
-reference=$(./reference-filename.sh)
+reference=$(../../Reference/reference-filename.sh)
 set -x
-zcat $cdna | awk -f remove-xy.awk > $reference
+zcat $cdna | awk -f ../../Reference/remove-xy.awk > $reference

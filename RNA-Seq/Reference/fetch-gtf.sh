@@ -1,8 +1,8 @@
 #!/bin/sh -e
 
-fetch=$(../../Common/find-fetch.sh)
-gtf=$(./gtf-filename.sh)
-release=$(../../Common/genome-release.sh)
+fetch=$(../../../Common/find-fetch.sh)
+gtf=$(../../Reference/gtf-filename.sh)
+release=$(../../../Common/genome-release.sh)
 
 # GTF
 # Can't guarantee this file or the chromosome files will always be available.

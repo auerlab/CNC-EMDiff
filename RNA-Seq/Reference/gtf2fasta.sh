@@ -1,6 +1,7 @@
 #!/bin/sh -e
 
-#SBATCH --ntasks=1 --mem=1g
+printf "FIXME: Update to run from Data/3-reference\n"
+exit
 
 proper_name="./gtf2fasta.sh"
 if [ $0 != $proper_name ]; then

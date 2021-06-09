@@ -8,7 +8,7 @@ This will remove the contents of 4-kallisto-quant and rebuild them using
 EOM
 read -p "Are you sure you want to do this? yes/[no] " sure
 if [ 0"$sure" = 0yes ]; then
-    rm -rf 4-kallisto-quant/*
-    sbatch 4-kallisto-quant.sbatch
+    rm -rf Data/5-kallisto-quant/*
+    sbatch 5-kallisto-quant.sbatch
     squeue
 fi

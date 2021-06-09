@@ -1,7 +1,0 @@
-.*.bak
-*.fa*
-*.gtf
-*.gz
-all-but-xy*
-transcript_id_list.txt
-mus_musculus
