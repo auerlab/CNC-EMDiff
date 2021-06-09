@@ -15,6 +15,7 @@ cd Data/3-reference
 fetch=$(../../../Common/find-fetch.sh)
 build=$(../../../Common/genome-build.sh)
 release=$(../../../Common/genome-release.sh)
+awk=$(../../../Common/find-awk.sh)
 
 # Can't guarantee this file will always be available.
 # You may need to edit this.
@@ -28,4 +29,4 @@ fi
 # For compatibility with gtf_to_fasta alternative approach, don't gzip output
 reference=$(../../Reference/reference-filename.sh)
 set -x
-zcat $cdna | awk -f ../../Reference/remove-xy.awk > $reference
+zcat $cdna | $awk -f ../../Reference/remove-xy.awk > $reference

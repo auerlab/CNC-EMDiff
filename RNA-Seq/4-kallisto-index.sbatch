@@ -17,7 +17,7 @@ fi
 
 reference=$(Reference/reference-filename.sh)
 
-# Needed for kallisto --genomebam?
+# Needed for kallisto --genomebam
 samtools faidx Data/3-reference/$reference
 
 kallisto index --index=Data/4-kallisto-index/all-but-xy.index \

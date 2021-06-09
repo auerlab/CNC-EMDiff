@@ -10,7 +10,7 @@
 {
     # As long as the description line indicates and X or Y chromosome,
     # discard it and everything to the next sequence line.
-    while ( $0 ~ "GRCm38.[XYxy]" )
+    while ( $0 ~ "GRCm[0-9]*.[XYxy]" )
     {
 	do
 	{

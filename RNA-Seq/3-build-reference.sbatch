@@ -34,3 +34,5 @@ fi
 
 Reference/cdna.sh           # Remove XY from Ensembl cdna transcriptome
 # Reference/gtf2fasta.sh      # Construct genome minus XY using Ensembl GTF
+
+Reference/create-chrom-sizes.sh
