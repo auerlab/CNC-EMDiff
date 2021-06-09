@@ -29,4 +29,4 @@ fi
 # For compatibility with gtf_to_fasta alternative approach, don't gzip output
 reference=$(../../Reference/reference-filename.sh)
 set -x
-zcat $cdna | $awk -f ../../Reference/remove-xy.awk > $reference
+zcat $cdna | $awk -F : -f ../../Reference/keep-autosomes.awk > $reference

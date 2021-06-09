@@ -1,22 +1,24 @@
 #############################################################################
 #   Description:
-#       Remove X and Y chromosomal info from mouse cDNA fasta file
+#       Remove non-autosomal info from mouse cDNA fasta file
 #
 #   History: 
 #   Date        Name        Modification
 #   2019-10-05  Jason Bacon Begin
 #############################################################################
 
+BEGIN {
+    FS=":";
+}
 {
-    # As long as the description line indicates and X or Y chromosome,
+    # As long as the description line does not indicate a numeric chromosome,
     # discard it and everything to the next sequence line.
-    while ( $0 ~ "GRCm[0-9]*.[XYxy]" )
+    while ( ($0 ~ "^>") && ($3 !~ /^[0-9]+$/) )
     {
 	do
 	{
-	    getline
-	}   while ( $0 !~ "^>" );
+	    status=getline
+	}   while ( (status == 1) && ($0 !~ "^>") );
     }
     print $0
 }
-

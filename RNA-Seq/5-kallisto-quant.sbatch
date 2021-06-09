@@ -1,9 +1,11 @@
-#!/bin/sh -e
+#!/usr/bin/env bash
 
 #SBATCH --mem=4000
 #SBATCH --array=1-18
 #SBATCH --output=Data/5-kallisto-quant/slurm-%A_%a.out
 #SBATCH --error=Data/5-kallisto-quant/slurm-%A_%a.err
+
+set -e
 
 ##############################################################################
 # Run kallisto with 500 bootstraps for Sleuth
@@ -28,7 +30,10 @@ fi
 build=$(../Common/genome-build.sh)
 release=$(../Common/genome-release.sh)
 
-set -x
+# https://github.com/pachterlab/kallisto/issues/197
+export HDF5_USE_FILE_LOCKING=FALSE
+
+# Need bash for process substitution: <()
 kallisto quant \
     --genomebam \
 	--gtf=Data/3-reference/Mus_musculus.GRCm$build.$release.gtf \
@@ -36,5 +41,5 @@ kallisto quant \
     -i Data/4-kallisto-index/all-but-xy.index \
     -o Data/5-kallisto-quant \
     -b 500 \
-    Data/1-trim/*_S${SLURM_ARRAY_TASK_ID}_L002-R1.fastq.xz \
-    Data/1-trim/*_S${SLURM_ARRAY_TASK_ID}_L002-R2.fastq.xz
+    <( xzcat Data/1-trim/*_S${SLURM_ARRAY_TASK_ID}_L002-R1.fastq.xz ) \
+    <( xzcat Data/1-trim/*_S${SLURM_ARRAY_TASK_ID}_L002-R2.fastq.xz )
