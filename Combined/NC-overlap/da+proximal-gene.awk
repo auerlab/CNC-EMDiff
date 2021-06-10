@@ -28,7 +28,7 @@ function abs(x)
     # printf("gene = %s\n", gene);
     for (c in genes) {
 	if ( gene == genes[c] ) {
-	    printf("%s\t%s\t%s\t%s\n%s\t%s\t%s\n",
+	    printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
 		    chrom, start, end, gene, $6, $8, $10);
 	}
     }

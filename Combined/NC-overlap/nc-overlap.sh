@@ -31,16 +31,28 @@
 peaks_dir=../All-peaks-within-X-kb-of-DE-genes/Proximal+distal-250kb
 common_genes="$(cat Data/genes-common-*.txt | sort | uniq)"
 common_genes=$(echo $common_genes)  # Convert newlines to spaces
-echo $common_genes
+# echo $common_genes
 printf "%u commonly regulated genes (union of up and down)\n" \
     $(echo $common_genes | wc -w)
 
+all_chondro=Data/all-chondro.bed
+rm -f $all_chondro
 for file in $peaks_dir/genes-CCA-c[1-3].bed-proximal+distal-peaks.tsv; do
     echo $file
-    awk -v genestr="$common_genes" -f da+proximal-gene.awk $file | head
+    awk -v genestr="$common_genes" -f da+proximal-gene.awk $file >> $all_chondro
 done
+
+all_neuro=Data/all-neuro.bed
+rm -f $all_neuro
 for file in $peaks_dir/genes-NCA-c[1-5].bed-proximal+distal-peaks.tsv; do
     echo $file
-    awk -v genestr="$common_genes" -f da+proximal-gene.awk $file | head
+    awk -v genestr="$common_genes" -f da+proximal-gene.awk $file >> $all_neuro
 done
+
+awk '{ print $1, $2, $3 }' $all_chondro | sort -k 1 -k 2 -k 3 | uniq | wc -l
+awk '{ print $1, $2, $3 }' $all_neuro | sort -k 1 -k 2 -k 3 | uniq | wc -l
+
+intersect=Data/intersect.bed
+bedtools intersect -a $all_chondro -b $all_neuro -wo > $intersect
+cat $intersect | wc -l
 
