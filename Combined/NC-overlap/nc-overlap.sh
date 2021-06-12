@@ -49,10 +49,14 @@ for file in $peaks_dir/genes-NCA-c[1-5].bed-proximal+distal-peaks.tsv; do
     awk -v genestr="$common_genes" -f da+proximal-gene.awk $file >> $all_neuro
 done
 
+printf "DA chondro peaks within 250kb of commonly regulated genes:"
 awk '{ print $1, $2, $3 }' $all_chondro | sort -k 1 -k 2 -k 3 | uniq | wc -l
+
+printf "DA neuro peaks within 250kb of commonly regulated genes:  "
 awk '{ print $1, $2, $3 }' $all_neuro | sort -k 1 -k 2 -k 3 | uniq | wc -l
 
 intersect=Data/intersect.bed
 bedtools intersect -a $all_chondro -b $all_neuro -wo > $intersect
+printf "Overlapping peaks:                                        "
 cat $intersect | wc -l
 
