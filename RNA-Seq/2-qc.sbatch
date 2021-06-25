@@ -48,5 +48,5 @@ stem_trimmed2=$(basename ${trimmed2%.fastq.xz})
 # Background the first three to run 4 jobs in parallel
 xzcat $raw1 | fastqc -o Data/2-qc/Raw stdin:$stem_raw1 &
 xzcat $raw2 | fastqc -o Data/2-qc/Raw stdin:$stem_raw2 &
-xzcat $trimmed1 | fastqc -o Data/2-qc/Raw stdin:$stem_trimmed1 &
-xzcat $trimmed2 | fastqc -o Data/2-qc/Raw stdin:$stem_trimmed2
+xzcat $trimmed1 | fastqc -o Data/2-qc/Trimmed stdin:$stem_trimmed1 &
+xzcat $trimmed2 | fastqc -o Data/2-qc/Trimmed stdin:$stem_trimmed2
