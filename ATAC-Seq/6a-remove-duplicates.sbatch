@@ -6,6 +6,8 @@
 #       This script is I/O-intensive, so use slow nodes and limit
 #       concurrency.
 #
+#       FIXME: Explore using Picard MarkDuplicates for this instead
+#
 #   Usage:
 #       SLURM Cluster:
 #           sbatch 6-remove-duplicates.sbatch
