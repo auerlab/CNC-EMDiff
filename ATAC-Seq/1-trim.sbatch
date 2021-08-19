@@ -56,9 +56,9 @@ stem=${base_name%%_R*.fastq.xz}
 # We want to remove bases at 5' end due to bias and last base at 3' end
 
 # Andrea's code:
-# trim_galore --illumina --stringency 3 -q 20 --paired -o 1-trim \
+# trim_galore --stringency 3 -q 20 --paired -o 1-trim \
 #    $input1 $input2 > 1-trim/${stem}-trash.out
-# trim_galore --illumina --stringency 3 -q 20 --paired --trim1 -o 1-trim-trim1 \
+# trim_galore --stringency 3 -q 20 --paired --trim1 -o 1-trim-trim1 \
 #    $input1 $input2 > 1-trim-trim1/${stem}-trash.out
 
 # From trim_galore log:
