@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-#SBATCH --mem=4000
-#SBATCH --array=1-18
+#SBATCH --mem=6000
+#SBATCH --array=1-18%9
 #SBATCH --output=Data/5-kallisto-quant/slurm-%A_%a.out
 #SBATCH --error=Data/5-kallisto-quant/slurm-%A_%a.err
 
@@ -31,15 +31,21 @@ build=$(../Common/genome-build.sh)
 release=$(../Common/genome-release.sh)
 
 # https://github.com/pachterlab/kallisto/issues/197
-export HDF5_USE_FILE_LOCKING=FALSE
+# export HDF5_USE_FILE_LOCKING=FALSE
+
+mkdir Data/5-kallisto-quant/$SLURM_ARRAY_TASK_ID
 
 # Need bash for process substitution: <()
+# 6-merge-bams.sbatch relies on sample N being in Data/5-kallisto-quant/N
+# The sample number comes after _S in the filename, e.g.
+# CE2A_S4_L002-R1.fastq.xz is sample 4
+
 kallisto quant \
     --genomebam \
 	--gtf=Data/3-reference/Mus_musculus.GRCm$build.$release.gtf \
 	--chromosomes=Data/3-reference/chromosome-sizes.tsv \
     -i Data/4-kallisto-index/all-but-xy.index \
-    -o Data/5-kallisto-quant \
+    -o Data/5-kallisto-quant/$SLURM_ARRAY_TASK_ID \
     -b 500 \
-    <( xzcat Data/1-trim/*_S${SLURM_ARRAY_TASK_ID}_L002-R1.fastq.xz ) \
-    <( xzcat Data/1-trim/*_S${SLURM_ARRAY_TASK_ID}_L002-R2.fastq.xz )
+    Data/1-trim/*_S${SLURM_ARRAY_TASK_ID}_L002-R1.fastq.xz \
+    Data/1-trim/*_S${SLURM_ARRAY_TASK_ID}_L002-R2.fastq.xz
