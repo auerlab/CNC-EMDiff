@@ -1,0 +1,33 @@
+#!/bin/sh -e
+
+##########################################################################
+#   Script description:
+#       Generate standardized names for raw files that clearly describe
+#       conditions and replicates, and are easily parsed by subsequent
+#       scripts.
+#
+#       Researchers involved in sample-prep generally don't think about
+#       how filename conventions impact bioinformatics analysis.
+#
+#       Use links to preserve the original files and document the mapping.
+#       
+#   History:
+#   Date        Name        Modification
+#   2021-09-25  Jason Bacon Begin
+##########################################################################
+
+usage()
+{
+    printf "Usage: $0 \n"
+    exit 1
+}
+
+
+##########################################################################
+#   Main
+##########################################################################
+
+if [ $# != 1 ]; then
+    usage
+fi
+
