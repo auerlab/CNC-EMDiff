@@ -1,6 +1,0 @@
-#!/bin/sh -e
-
-mkdir -p Data
-cd Data
-mkdir -p 1-trim 2-qc 3-reference 4-kallisto-index 5-kallisto-quant \
-    6-merge-bams 7-sleuth-DE

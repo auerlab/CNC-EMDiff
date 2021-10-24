@@ -1,0 +1,56 @@
+#!/bin/sh -e
+
+##########################################################################
+#   Script description:
+#       Organize files and create directories needed for analysis
+#
+#       Link raw files to standardized names for that clearly describe
+#       conditions and replicates, and are easily parsed by subsequent
+#       scripts.
+#
+#       Researchers involved in sample-prep generally don't think about
+#       how filename conventions impact bioinformatics analysis, so this
+#       simple step can avoid confusion throughout the pipeline.  In
+#       addition, linking this way can correct for sample mixups, etc.
+#
+#       Use links to preserve the original files and document the mapping.
+#       
+#   History:
+#   Date        Name        Modification
+#   2021-09-25  Jason Bacon Begin
+##########################################################################
+
+usage()
+{
+    printf "Usage: $0\n"
+    exit 1
+}
+
+
+##########################################################################
+#   Main
+##########################################################################
+
+if [ $# != 0 ]; then
+    usage
+fi
+
+mkdir -p Data
+cd Data
+mkdir -p 1-trim 2-qc 3-reference 4-kallisto-index 5-kallisto-quant \
+    6-merge-bams 7-sleuth-DE
+
+# CE1A_S1_L002-R1.fastq.xz
+rm -rf Raw
+mkdir -p Raw
+for rep in 1 2 3; do
+    for time in A B C; do
+	for read in 1 2; do
+	    ln ../../Raw/190822_AHFN3KDRXX-Lane2/CE${rep}${time}_*_L002_R${read}_001.fastq.xz \
+		Raw/chondro-rep${rep}-time${time}-R${read}.fastq.xz
+	    ln ../../Raw/190822_AHFN3KDRXX-Lane2/NE${rep}${time}_*_L002_R${read}_001.fastq.xz \
+		Raw/neuro-rep${rep}-time${time}-R${read}.fastq.xz
+	done
+    done
+done
+ls Raw
