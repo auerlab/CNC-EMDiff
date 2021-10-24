@@ -46,11 +46,11 @@ mkdir -p Raw
 for rep in 1 2 3; do
     for time in A B C; do
 	for read in 1 2; do
-	    ln ../../Raw/190822_AHFN3KDRXX-Lane2/CE${rep}${time}_*_L002_R${read}_001.fastq.xz \
+	    ln -s ../../Raw/190822_AHFN3KDRXX-Lane2/CE${rep}${time}_*_L002_R${read}_001.fastq.xz \
 		Raw/chondro-rep${rep}-time${time}-R${read}.fastq.xz
-	    ln ../../Raw/190822_AHFN3KDRXX-Lane2/NE${rep}${time}_*_L002_R${read}_001.fastq.xz \
+	    ln -s ../../Raw/190822_AHFN3KDRXX-Lane2/NE${rep}${time}_*_L002_R${read}_001.fastq.xz \
 		Raw/neuro-rep${rep}-time${time}-R${read}.fastq.xz
 	done
     done
 done
-ls Raw
+ls -l Raw
