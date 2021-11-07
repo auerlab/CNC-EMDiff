@@ -13,12 +13,11 @@
 
 # Each job in the array will run a cutadapt (python) process and a
 # compression process for part of the time.  If you don't want to
-# oversubscribe compute nodes even for a little while, add
-# --cpus-per-task=2
+# oversubscribe compute nodes even for a little while, add --cpus-per-task=2
 #SBATCH --array=1-18
 #SBATCH --mem-per-cpu=250
-#SBATCH --output=Data/1-trim/slurm-%A_%a.out
-#SBATCH --error=Data/1-trim/slurm-%A_%a.err
+#SBATCH --output=Logs/1-trim/slurm-%A_%a.out
+#SBATCH --error=Logs/1-trim/slurm-%A_%a.err
 
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
@@ -26,12 +25,12 @@
 
 # Document software versions used for publication
 if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
-    uname -a > Data/1-trim/os-version-$SLURM_JOB_ID.txt 2>&1
-    cutadapt --version > Data/1-trim/cutadapt-version-$SLURM_JOB_ID.txt 2>&1
+    uname -a > Logs/1-trim/os-version-$SLURM_JOB_ID.txt 2>&1
+    cutadapt --version > Logs/1-trim/cutadapt-version-$SLURM_JOB_ID.txt 2>&1
 fi
 
-input1=$(ls ../Raw/190822_AHFN3KDRXX-Lane2/*_S${SLURM_ARRAY_TASK_ID}_*R1*)
-input2=$(ls ../Raw/190822_AHFN3KDRXX-Lane2/*_S${SLURM_ARRAY_TASK_ID}_*R2*)
+input1=$(ls Data/Raw-renamed/*-sample${SLURM_ARRAY_TASK_ID}-*R1*)
+input2=$(ls Data/Raw-renamed/*-sample${SLURM_ARRAY_TASK_ID}-*R2*)
 base=$(basename $input1)
 stem=${base%%_R*.fastq.xz}
 

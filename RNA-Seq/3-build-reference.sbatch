@@ -1,17 +1,15 @@
 #!/bin/sh -e
 
 #SBATCH --mem=4g
-#SBATCH --output=Data/3-reference/slurm-%A.out
-#SBATCH --error=Data/3-reference/slurm-%A.err
+#SBATCH --output=Logs/3-reference/slurm-%A.out
+#SBATCH --error=Logs/3-reference/slurm-%A.err
 
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
 : ${SLURM_JOB_ID:=test}
 
 # Document software versions used for publication
-if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
-    uname -a > Data/3-reference/os-version-$SLURM_JOB_ID.txt 2>&1
-fi
+uname -a > Logs/3-reference/os-version-$SLURM_JOB_ID.txt 2>&1
 
 #############################################################################
 # Choose cdna or gtf2fasta, or copy the kallisto transcriptome.idx file from
@@ -32,7 +30,7 @@ fi
 # More importantly, the CDNA does not document features such as exons, UTRs,
 # etc.  If downstream analysis will examine such features, use the GTF.
 
-Reference/cdna.sh           # Remove XY from Ensembl cdna transcriptome
-# Reference/gtf2fasta.sh      # Construct genome minus XY using Ensembl GTF
+# Reference/cdna.sh           # Remove XY from Ensembl cdna transcriptome
+Reference/gtf2fasta.sh      # Construct genome minus XY using Ensembl GTF
 
 Reference/create-chrom-sizes.sh

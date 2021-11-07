@@ -16,8 +16,8 @@
 #SBATCH --cpus-per-task=4
 #SBATCH --array=1-18
 #SBATCH --mem=1g
-#SBATCH --output=Data/2-qc/slurm-%A_%a.out
-#SBATCH --error=Data/2-qc/slurm-%A_%a.err
+#SBATCH --output=Logs/2-qc/slurm-%A_%a.out
+#SBATCH --error=Logs/2-qc/slurm-%A_%a.err
 
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
@@ -25,19 +25,19 @@
 
 # Document software versions used for publication
 if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
-    uname -a > Data/2-qc/os-version-$SLURM_JOB_ID.txt 2>&1
-    fastqc --version > Data/2-qc/fastqc-version-$SLURM_JOB_ID.txt 2>&1
+    uname -a > Logs/2-qc/os-version-$SLURM_JOB_ID.txt 2>&1
+    fastqc --version > Logs/2-qc/fastqc-version-$SLURM_JOB_ID.txt 2>&1
 fi
 
 mkdir -p Data/2-qc/Raw Data/2-qc/Trimmed
 
 # Raw files from sequencing center
-raw1=$(ls ../Raw/190822_AHFN3KDRXX-Lane2/*_S${SLURM_ARRAY_TASK_ID}_*R1*.fastq.xz)
-raw2=$(ls ../Raw/190822_AHFN3KDRXX-Lane2/*_S${SLURM_ARRAY_TASK_ID}_*R2*.fastq.xz)
+raw1=$(ls Data/Raw-renamed/*-sample${SLURM_ARRAY_TASK_ID}-*R1*.fastq.xz)
+raw2=$(ls Data/Raw-renamed/*-sample${SLURM_ARRAY_TASK_ID}-*R2*.fastq.xz)
 
 # Cutadapt output
-trimmed1=$(ls Data/1-trim/*_S${SLURM_ARRAY_TASK_ID}_*R1*.fastq.xz)
-trimmed2=$(ls Data/1-trim/*_S${SLURM_ARRAY_TASK_ID}_*R2*.fastq.xz)
+trimmed1=$(ls Data/1-trim/*-sample${SLURM_ARRAY_TASK_ID}-*R1*.fastq.xz)
+trimmed2=$(ls Data/1-trim/*-sample${SLURM_ARRAY_TASK_ID}-*R2*.fastq.xz)
 
 # Filename stems for fastqc output
 stem_raw1=$(basename ${raw1%.fastq.xz})

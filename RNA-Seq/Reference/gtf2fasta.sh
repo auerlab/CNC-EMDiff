@@ -1,16 +1,16 @@
 #!/bin/sh -e
 
-printf "FIXME: Update to run from Data/3-reference\n"
-exit
-
-proper_name="./gtf2fasta.sh"
+proper_name="Reference/gtf2fasta.sh"
 if [ $0 != $proper_name ]; then
     printf "$0 must be run as $proper_name\n"
     printf "from inside the Reference directory.\n"
     exit 1
 fi
 
-./fetch-gtf.sh
+echo "Fix to run from top dir"
+exit
+
+Reference/fetch-gtf.sh
 fetch=$(../../Common/find-fetch.sh)
 build=$(../../Common/genome-build.sh)
 release=$(../../Common/genome-release.sh)

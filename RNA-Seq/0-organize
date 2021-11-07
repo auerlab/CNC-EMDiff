@@ -35,22 +35,30 @@ if [ $# != 0 ]; then
     usage
 fi
 
-mkdir -p Data
-cd Data
-mkdir -p 1-trim 2-qc 3-reference 4-kallisto-index 5-kallisto-quant \
-    6-merge-bams 7-sleuth-DE
+mkdir -p Data Logs
+for stage in 1-trim 2-qc 3-reference 4-kallisto-index 5-kallisto-quant \
+    6-merge-bams 7-sleuth-DE;do
+    mkdir -p Data/$stage Logs/$stage
+done
 
 # CE1A_S1_L002-R1.fastq.xz
-rm -rf Raw
-mkdir -p Raw
+cd Data
+rm -rf Raw-renamed
+mkdir -p Raw-renamed
+cd Raw-renamed
 for rep in 1 2 3; do
     for time in A B C; do
+	numeric_time=$(echo $time | tr "ABC" "123")
 	for read in 1 2; do
-	    ln -s ../../Raw/190822_AHFN3KDRXX-Lane2/CE${rep}${time}_*_L002_R${read}_001.fastq.xz \
-		Raw/chondro-rep${rep}-time${time}-R${read}.fastq.xz
-	    ln -s ../../Raw/190822_AHFN3KDRXX-Lane2/NE${rep}${time}_*_L002_R${read}_001.fastq.xz \
-		Raw/neuro-rep${rep}-time${time}-R${read}.fastq.xz
+	    orig=$(ls ../../../Raw/190822_AHFN3KDRXX-Lane2/CE${rep}${time}_*_L002_R${read}_001.fastq.xz)
+	    sample=$(echo $orig | awk -F '_' '{ print $3 }' | sed -e 's|S|sample|')
+	    ln -s $orig \
+		chondro-$sample-rep${rep}-time${numeric_time}-R${read}.fastq.xz
+	    orig=$(ls ../../../Raw/190822_AHFN3KDRXX-Lane2/NE${rep}${time}_*_L002_R${read}_001.fastq.xz)
+	    sample=$(echo $orig | awk -F '_' '{ print $3 }' | sed -e 's|S|sample|')
+	    ln -s $orig \
+		neuro-$sample-rep${rep}-time${numeric_time}-R${read}.fastq.xz
 	done
     done
 done
-ls -l Raw
+ls -l
