@@ -1,4 +1,4 @@
-#!/bin/sh -ex
+#!/bin/sh -e
 
 #SBATCH --mem=4g
 #SBATCH --output=Logs/4-kallisto-index/slurm-%A.out
@@ -9,15 +9,18 @@
 : ${SLURM_JOB_ID:=test}
 
 # Document software versions used for publication
-uname -a > Data/4-kallisto-index/os-version-$SLURM_JOB_ID.txt 2>&1
-kallisto version > Data/4-kallisto-index/kallisto-version-$SLURM_JOB_ID.txt 2>&1
-samtools --version > Data/4-kallisto-index/samtools-version-$SLURM_JOB_ID.txt 2>&1
+uname -a > Logs/4-kallisto-index/os-version-$SLURM_JOB_ID.txt 2>&1
+kallisto version > Logs/4-kallisto-index/kallisto-version-$SLURM_JOB_ID.txt 2>&1
+samtools --version > Logs/4-kallisto-index/samtools-version-$SLURM_JOB_ID.txt 2>&1
 
-reference=$(Reference/reference-filename.sh)
+reference=Data/3-reference/$(Reference/reference-filename.sh)
 printf "Using reference $reference...\n"
 
 # Needed for kallisto --genomebam
-samtools faidx Data/3-reference/$reference
+if [ ! -e $reference.fai ]; then
+    printf "Building $reference...\n"
+    samtools faidx $reference
+fi
 
-kallisto index --index=Data/4-kallisto-index/all-but-xy.index \
-    Data/3-reference/$reference
+printf "Building kallisto index...\n"
+kallisto index --index=Data/4-kallisto-index/all-but-xy.index $reference

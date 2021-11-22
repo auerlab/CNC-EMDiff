@@ -34,8 +34,14 @@ else
     printf "Using existing $genome...\n"
 fi
 
+if [ ! -e $genome.fai ]; then
+    printf "Creating index $genome.fai...\n"
+    samtools faidx $genome      # Speed up gffread
+fi
+
 # https://github.com/griffithlab/rnaseq_tutorial/wiki/Kallisto
 transcripts=all-but-xy.transcripts.fa
+rm -f $transcripts
 if [ ! -e $transcripts ]; then
     # gtf_to_fasta is part of tophat, which is obsolete
     # gtf_to_fasta $gtf $genome $transcripts
@@ -48,14 +54,19 @@ if [ ! -e $transcripts ]; then
     # Error: no genomic sequence available (check -g option!).
     # Abort trap (core dumped)
     printf "Converting $gff to $transcripts...\n"
-    samtools faidx $genome      # Speed up gffread
-    seq 1 19 > all-but-xy.list  # Mouse autosomes
-    gffread --ids all-but-xy.list -w $transcripts -g $genome $gff
+    head -5 $genome
+    grep -v '^#' $gff | head -5
+    gffread -w $transcripts -g $genome $gff
+    head -5 $transcripts
 else
     printf "Using existing $transcripts...\n"
 fi
 
 # Tidy up headers
-printf "Cleaning up headers, output in $reference...\n"
-perl -ne 'if ($_ =~/^\>\d+\s+\w+\s+(ERCC\S+)[\+\-]/){print ">$1\n"}elsif($_ =~ /\d+\s+(ENST\d+)/){print ">$1\n"}else{print $_}' \
-    $transcripts > $reference
+if [ ! -e $reference ]; then
+    printf "Cleaning up headers, output in $reference...\n"
+    perl -ne 'if ($_ =~/^\>\d+\s+\w+\s+(ERCC\S+)[\+\-]/){print ">$1\n"}elsif($_ =~ /\d+\s+(ENST\d+)/){print ">$1\n"}else{print $_}' \
+	$transcripts > $reference
+else
+    printf "Using existing $reference...\n"
+fi
