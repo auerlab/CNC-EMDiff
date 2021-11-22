@@ -7,18 +7,18 @@ if [ $0 != "$proper_name" ]; then
     exit 1
 fi
 
-cd Data/3-reference
+# Need GFF for kallisto quant --genomebam in any case
+Reference/fetch-gff.sh
 
-# Need GTF for kallisto quant --genomebam in any case
-../../Reference/fetch-gtf.sh
-
-fetch=$(../../../Common/find-fetch.sh)
-build=$(../../../Common/genome-build.sh)
-release=$(../../../Common/genome-release.sh)
-awk=$(../../../Common/find-awk.sh)
+fetch=$(../Common/find-fetch.sh)
+build=$(../Common/genome-build.sh)
+release=$(../Common/genome-release.sh)
+awk=$(../Common/find-awk.sh)
+reference=$(Reference/reference-filename.sh)
 
 # Can't guarantee this file will always be available.
 # You may need to edit this.
+cd Data/3-reference
 cdna=Mus_musculus.GRCm$build.cdna.all.fa.gz
 if [ ! -e $cdna ]; then
     $fetch ftp://ftp.ensembl.org/pub/release-$release/fasta/mus_musculus/cdna/$cdna
@@ -26,7 +26,5 @@ else
     printf "$cdna already exists.  Remove and rerun to replace.\n"
 fi
 
-# For compatibility with gtf_to_fasta alternative approach, don't gzip output
-reference=$(../../Reference/reference-filename.sh)
 set -x
-zcat $cdna | $awk -F : -f ../../Reference/keep-autosomes.awk > $reference
+zcat $cdna | $awk -F : -f ../../Reference/keep-autosomes.awk > cdna-$reference

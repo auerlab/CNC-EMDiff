@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/sh -ex
 
 #SBATCH --mem=4g
 #SBATCH --output=Data/4-kallisto-index/slurm-%A.out
@@ -16,6 +16,7 @@ if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
 fi
 
 reference=$(Reference/reference-filename.sh)
+echo $reference
 
 # Needed for kallisto --genomebam
 samtools faidx Data/3-reference/$reference
