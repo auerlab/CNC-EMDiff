@@ -10,6 +10,8 @@
 
 # Document software versions used for publication
 uname -a > Logs/3-reference/os-version-$SLURM_JOB_ID.txt 2>&1
+samtools --version > Logs/3-reference/samtools-version-$SLURM_JOB_ID.txt 2>&1
+gffread --version > Logs/3-reference/gffread-version-$SLURM_JOB_ID.txt 2>&1
 
 #############################################################################
 # Choose cdna or gff2fasta, or copy the kallisto transcriptome.idx file from
