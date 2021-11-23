@@ -42,7 +42,8 @@ mkdir -p Data/5-kallisto-quant/$SLURM_ARRAY_TASK_ID
 # The sample number comes after -sample in the filename, e.g.
 # chondro-sample4-rep2-time1-R1.fastq.xz is sample 4
 
-# kallisto 0.46.1 can't handle xz
+# kallisto 0.46.1 can't handle xz and will simply seg fault rather than
+# issue an error message.
 # Convert to gz rather than raw to reduce NFS load during write
 xz1=$(echo Data/1-trim/*-sample${SLURM_ARRAY_TASK_ID}-*-R1.fastq.xz)
 xz2=$(echo Data/1-trim/*-sample${SLURM_ARRAY_TASK_ID}-*-R2.fastq.xz)

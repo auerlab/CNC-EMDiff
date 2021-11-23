@@ -12,8 +12,8 @@
 #SBATCH --array=1-3,10-12
 # FIXME: Verify memory use
 #SBATCH --mem=1g
-#SBATCH --output=Data/6-merge-bams/slurm-%A_%a.out
-#SBATCH --error=Data/6-merge-bams/slurm-%A_%a.err
+#SBATCH --output=Logs/6-merge-bams/slurm-%A_%a.out
+#SBATCH --error=Logs/6-merge-bams/slurm-%A_%a.err
 
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
@@ -21,8 +21,8 @@
 
 # Document software versions used for publication
 if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
-    uname -a > Data/6-merge-bams/os-version-$SLURM_JOB_ID.txt 2>&1
-    samtools --version > Data/6-merge-bams/samtools-version-$SLURM_JOB_ID.txt 2>&1
+    uname -a > Logs/6-merge-bams/os-version-$SLURM_JOB_ID.txt 2>&1
+    samtools --version > Logs/6-merge-bams/samtools-version-$SLURM_JOB_ID.txt 2>&1
 fi
 
 input_bam1=Data/5-kallisto-quant/$SLURM_ARRAY_TASK_ID/pseudoalignments.bam
