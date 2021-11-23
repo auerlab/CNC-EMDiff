@@ -1,43 +1,13 @@
 #!/bin/sh -e
 
-# The digit in the 3rd character of the filename (1,2,3) indicates replicate
-# The letter in the 4th character (A, B, C) represents time point
-#   A = time 0, B = time 1, C = time 2
-# The number following _S is the sample #
+#############################################################################
+#   Merge BAM files for the same cell line and time point, e.g.
 #
-# Samples 1-9 are Chondrocyte and 10-18 are Neural
-# Every third sample (those with the same letter A, B, or C in the 4th
-# character of the filename) is from the same time point, e.g.
+#   chondro-sample*-rep*-time1-R1.fastq.xz
 #
-# CE1A_S1, CE2A_S4, and CE3A_S7 are chondrocyte time 0
-# CE1B_S2, CE2B_S5, and CE3B_S8 are Chondrocyte time 1
-#
-# CE1A_S1_L002-R1.fastq.xz
-# CE1A_S1_L002-R2.fastq.xz
-# CE1B_S2_L002-R1.fastq.xz
-# CE1B_S2_L002-R2.fastq.xz
-# CE1C_S3_L002-R1.fastq.xz
-# CE1C_S3_L002-R2.fastq.xz
-# CE2A_S4_L002-R1.fastq.xz
-# CE2A_S4_L002-R2.fastq.xz
-# CE2B_S5_L002-R1.fastq.xz
-# CE2B_S5_L002-R2.fastq.xz
-# CE2C_S6_L002-R1.fastq.xz
-# CE2C_S6_L002-R2.fastq.xz
-# CE3A_S7_L002-R1.fastq.xz
-# CE3A_S7_L002-R2.fastq.xz
-# CE3B_S8_L002-R1.fastq.xz
-# CE3B_S8_L002-R2.fastq.xz
-# CE3C_S9_L002-R1.fastq.xz
-# CE3C_S9_L002-R2.fastq.xz
-# NE1A_S10_L002-R1.fastq.xz
-# NE1A_S10_L002-R2.fastq.xz
-# ...
-# NE3C_S18_L002-R2.fastq.xz
-
-# Merge BAM files for the same cell line and time point, e.g. CE*A*
-# One job for input bam X, X+3, and X+6
-# 5-kallisto-quant places sample N in directory Data/5-kallisto-quant/N
+#   One job for input bam X, X+3, and X+6
+#   5-kallisto-quant places sample N in directory Data/5-kallisto-quant/N
+#############################################################################
 
 #SBATCH --array=1-3,10-12
 # FIXME: Verify memory use
