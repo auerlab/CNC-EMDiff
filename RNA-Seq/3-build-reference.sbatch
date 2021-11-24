@@ -33,6 +33,6 @@ gffread --version > Logs/3-reference/gffread-version-$SLURM_JOB_ID.txt 2>&1
 # etc.  If downstream analysis will examine such features, use the GFF.
 
 # Reference/cdna.sh       # Remove XY from Ensembl cdna transcriptome
-Reference/gff2fasta.sh  # Construct genome minus XY using Ensembl GFF
+Reference/gtf2fasta.sh  # Construct genome minus XY using Ensembl GFF
 
 Reference/create-chrom-sizes.sh

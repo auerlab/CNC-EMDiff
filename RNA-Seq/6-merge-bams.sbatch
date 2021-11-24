@@ -3,10 +3,16 @@
 #############################################################################
 #   Merge BAM files for the same cell line and time point, e.g.
 #
-#   chondro-sample*-rep*-time1-R1.fastq.xz
+#   This means every third sample, e.g.
+#       chondro-sample1-*-time1-*
+#       chondro-sample4-*-time1-*
+#       chondro-sample7-*-time1-*
 #
-#   One job for input bam X, X+3, and X+6
-#   5-kallisto-quant places sample N in directory Data/5-kallisto-quant/N
+#   ls Data/1-trim
+#
+#   One job to merge each group of 3 input bams
+#   5-kallisto-quant places sample N in directory Data/5-kallisto-quant/N,
+#   so one job for samples 1,4,7, another for 2,5,8, etc.
 #############################################################################
 
 #SBATCH --array=1-3,10-12
@@ -30,11 +36,14 @@ input_bam2=Data/5-kallisto-quant/$((SLURM_ARRAY_TASK_ID + 3))/pseudoalignments.b
 input_bam3=Data/5-kallisto-quant/$((SLURM_ARRAY_TASK_ID + 6))/pseudoalignments.bam
 
 # Task ID is either 1-3 (chondro) or 10-12 (neuro)
+first=$SLURM_ARRAY_TASK_ID
+last=$(($SLURM_ARRAY_TASK_ID + 2))
 if [ $SLURM_ARRAY_TASK_ID -le 3 ]; then
-    output_bam=Data/6-merge-bams/rna-chondrocyte-$SLURM_ARRAY_TASK_ID.bam
+    output_bam=Data/6-merge-bams/chondro-$first-$last.bam
 else
-    output_bam=Data/6-merge-bams/rna-neural-$((SLURM_ARRAY_TASK_ID - 9)).bam
+    output_bam=Data/6-merge-bams/neuro-$first-$last.bam
 fi
 
-samtools merge $output_bam $input_bam1 $input_bam2 $input_bam3
+set -x
+samtools merge --no-PG -o $output_bam $input_bam1 $input_bam2 $input_bam3
 samtools index $output_bam

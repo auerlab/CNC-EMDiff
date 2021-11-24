@@ -1,18 +1,18 @@
 #!/bin/sh -e
 
-proper_name="Reference/gff2fasta.sh"
+proper_name="Reference/gtf2fasta.sh"
 if [ $0 != $proper_name ]; then
     printf "$0 must be run as $proper_name\n"
     printf "from inside the Reference directory.\n"
     exit 1
 fi
 
-Reference/fetch-gff.sh
+Reference/fetch-gtf.sh
 fetch=$(../Common/find-fetch.sh)
 build=$(../Common/genome-build.sh)
 release=$(../Common/genome-release.sh)
 reference=$(Reference/reference-filename.sh)
-gff=$(Reference/gff-filename.sh)
+gtf=$(Reference/gtf-filename.sh)
 
 cd Data/3-reference
 
@@ -47,16 +47,16 @@ if [ ! -e $transcripts ]; then
     # gtf_to_fasta $gtf $genome $transcripts
     
     # Maybe?
-    # bedtools getfasta -fi $genome -bed $gff > $transcripts
+    # bedtools getfasta -fi $genome -bed $gtf > $transcripts
     
     # Recommended by Biostar RNA-Seq by Example
     # Warning: couldn't find fasta record for 'MT'!
     # Error: no genomic sequence available (check -g option!).
     # Abort trap (core dumped)
-    printf "Converting $gff to $transcripts...\n"
+    printf "Converting $gtf to $transcripts...\n"
     head -5 $genome
-    grep -v '^#' $gff | head -5
-    gffread -w $transcripts -g $genome $gff
+    grep -v '^#' $gtf | head -5
+    gffread -w $transcripts -g $genome $gtf
     head -5 $transcripts
 else
     printf "Using existing $transcripts...\n"

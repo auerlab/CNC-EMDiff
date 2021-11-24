@@ -23,4 +23,5 @@ if [ ! -e $reference.fai ]; then
 fi
 
 printf "Building kallisto index...\n"
+set -x
 kallisto index --index=Data/4-kallisto-index/all-but-xy.index $reference
