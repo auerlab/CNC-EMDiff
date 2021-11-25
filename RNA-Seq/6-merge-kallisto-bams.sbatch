@@ -19,8 +19,8 @@
 # top showed a steady 25M virtual, 12 res with a spike to 42/30 at the
 # end (samtools index?) on FreeBSD 13
 #SBATCH --mem=50m
-#SBATCH --output=Logs/6-merge-bams/slurm-%A_%a.out
-#SBATCH --error=Logs/6-merge-bams/slurm-%A_%a.err
+#SBATCH --output=Logs/6-merge-kallisto-bams/slurm-%A_%a.out
+#SBATCH --error=Logs/6-merge-kallisto-bams/slurm-%A_%a.err
 
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
@@ -28,21 +28,22 @@
 
 # Document software versions used for publication
 if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
-    uname -a > Logs/6-merge-bams/os-version-$SLURM_JOB_ID.txt 2>&1
-    samtools --version > Logs/6-merge-bams/samtools-version-$SLURM_JOB_ID.txt 2>&1
+    uname -a > Logs/6-merge-kallisto-bams/os-version-$SLURM_JOB_ID.txt 2>&1
+    samtools --version > Logs/6-merge-kallisto-bams/samtools-version-$SLURM_JOB_ID.txt 2>&1
 fi
 
-input_bam1=Data/5-kallisto-quant/$SLURM_ARRAY_TASK_ID/pseudoalignments.bam
-input_bam2=Data/5-kallisto-quant/$((SLURM_ARRAY_TASK_ID + 3))/pseudoalignments.bam
-input_bam3=Data/5-kallisto-quant/$((SLURM_ARRAY_TASK_ID + 6))/pseudoalignments.bam
+dir=Data/5-kallisto-quant
+input_bam1=$(echo $dir/*-sample${SLURM_ARRAY_TASK_ID}-*/pseudoalignments.bam)
+input_bam2=$(echo $dir/*-sample$((SLURM_ARRAY_TASK_ID + 3))-*/pseudoalignments.bam)
+input_bam3=$(echo $dir/*-sample$((SLURM_ARRAY_TASK_ID + 6))-*/pseudoalignments.bam)
 
 # Task ID is either 1-3 (chondro) or 10-12 (neuro)
 first=$SLURM_ARRAY_TASK_ID
 last=$(($SLURM_ARRAY_TASK_ID + 2))
 if [ $SLURM_ARRAY_TASK_ID -le 3 ]; then
-    output_bam=Data/6-merge-bams/chondro-$first-$last.bam
+    output_bam=Data/6-merge-kallisto-bams/chondro-$first-$last.bam
 else
-    output_bam=Data/6-merge-bams/neuro-$first-$last.bam
+    output_bam=Data/6-merge-kallisto-bams/neuro-$first-$last.bam
 fi
 
 set -x

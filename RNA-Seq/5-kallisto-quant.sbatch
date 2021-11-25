@@ -36,10 +36,6 @@ release=$(../Common/genome-release.sh)
 # https://github.com/pachterlab/kallisto/issues/197
 # export HDF5_USE_FILE_LOCKING=FALSE
 
-# Kallisto requires an output subdirectory for each sample
-out_dir=Data/5-kallisto-quant/$SLURM_ARRAY_TASK_ID
-mkdir -p $out_dir
-
 # 6-merge-bams.sbatch relies on sample N being in Data/5-kallisto-quant/N
 # The sample number comes after -sample in the filename, e.g.
 # chondro-sample4-rep2-time1-R1.fastq.xz is sample 4
@@ -53,6 +49,12 @@ gz1=${xz1%.xz}.gz
 gz2=${xz2%.xz}.gz
 test -e $gz1 || xzcat $xz1 | gzip --stdout > $gz1
 test -e $gz2 || xzcat $xz2 | gzip --stdout > $gz2
+
+# Kallisto requires an output subdirectory for each sample
+stem=$(basename ${xz1%-R1*})
+out_dir=Data/5-kallisto-quant/$stem
+echo $out_dir
+mkdir -p $out_dir
 
 # Manual says a GTF is needed.  Kallisto aborts using GFF3.
 set -x

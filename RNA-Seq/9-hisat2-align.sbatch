@@ -43,3 +43,5 @@ set -x
 hisat2 --threads 2 -x $reference -1 $gz1 -2 $gz2 | samtools sort > $bam
 samtools index $bam
 
+# Remove temporary .gz files, keep .xz which is ~40% smaller
+rm -f $gz1 $gz2
