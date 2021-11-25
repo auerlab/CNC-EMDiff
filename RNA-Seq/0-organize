@@ -36,8 +36,8 @@ if [ $# != 0 ]; then
 fi
 
 mkdir -p Data Logs
-for stage in 1-trim 2-qc 3-reference 4-kallisto-index 5-kallisto-quant \
-    6-merge-bams 7-sleuth-DE;do
+for stage in 1-trim 2-qc 3-reference 4-kallisto-index 4b-hisat2-index \
+    5-kallisto-quant 5b-hisat2-align 6-merge-bams 7-sleuth-DE;do
     mkdir -p Data/$stage Logs/$stage
 done
 
@@ -91,13 +91,12 @@ for rep in 1 2 3; do
 	for read in 1 2; do
 	    orig=$(ls ../../../Raw/190822_AHFN3KDRXX-Lane2/CE${rep}${time}_*_L002_R${read}_001.fastq.xz)
 	    sample=$(echo $orig | awk -F '_' '{ print $3 }' | sed -e 's|S|sample|')
-	    ln -s $orig \
+	    ln -sf $orig \
 		chondro-$sample-rep${rep}-time${numeric_time}-R${read}.fastq.xz
 	    orig=$(ls ../../../Raw/190822_AHFN3KDRXX-Lane2/NE${rep}${time}_*_L002_R${read}_001.fastq.xz)
 	    sample=$(echo $orig | awk -F '_' '{ print $3 }' | sed -e 's|S|sample|')
-	    ln -s $orig \
+	    ln -sf $orig \
 		neuro-$sample-rep${rep}-time${numeric_time}-R${read}.fastq.xz
 	done
     done
 done
-ls -l
