@@ -3,8 +3,8 @@
 #SBATCH --mem=6000
 #SBATCH --array=1-18
 #SBATCH --ntasks=2
-#SBATCH --output=Logs/5-kallisto-quant/slurm-%A_%a.out
-#SBATCH --error=Logs/5-kallisto-quant/slurm-%A_%a.err
+#SBATCH --output=Logs/05-kallisto-quant/slurm-%A_%a.out
+#SBATCH --error=Logs/05-kallisto-quant/slurm-%A_%a.err
 
 ##############################################################################
 # Run kallisto with 500 bootstraps for Sleuth
@@ -25,8 +25,8 @@
 
 # Document software versions used for publication
 if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
-    uname -a > Logs/5-kallisto-quant/os-version-$SLURM_JOB_ID.txt 2>&1
-    kallisto version > Logs/5-kallisto-quant/kallisto-version-$SLURM_JOB_ID.txt 2>&1
+    uname -a > Logs/05-kallisto-quant/os-version-$SLURM_JOB_ID.txt 2>&1
+    kallisto version > Logs/05-kallisto-quant/kallisto-version-$SLURM_JOB_ID.txt 2>&1
 fi
 
 build=$(../Common/genome-build.sh)
@@ -36,15 +36,15 @@ release=$(../Common/genome-release.sh)
 # https://github.com/pachterlab/kallisto/issues/197
 # export HDF5_USE_FILE_LOCKING=FALSE
 
-# 6-merge-bams.sbatch relies on sample N being in Data/5-kallisto-quant/N
+# 6-merge-bams.sbatch relies on sample N being in Data/05-kallisto-quant/N
 # The sample number comes after -sample in the filename, e.g.
 # chondro-sample4-rep2-time1-R1.fastq.xz is sample 4
 
 # kallisto 0.46.1 can't handle xz and will simply seg fault rather than
 # issue an error message.
 # Convert xz to gz rather than raw to reduce NFS load from compute nodes
-xz1=$(echo Data/1-trim/*-sample${SLURM_ARRAY_TASK_ID}-*-R1.fastq.xz)
-xz2=$(echo Data/1-trim/*-sample${SLURM_ARRAY_TASK_ID}-*-R2.fastq.xz)
+xz1=$(echo Data/01-trim/*-sample${SLURM_ARRAY_TASK_ID}-*-R1.fastq.xz)
+xz2=$(echo Data/01-trim/*-sample${SLURM_ARRAY_TASK_ID}-*-R2.fastq.xz)
 gz1=${xz1%.xz}.gz
 gz2=${xz2%.xz}.gz
 test -e $gz1 || xzcat $xz1 | gzip --stdout > $gz1
@@ -52,7 +52,7 @@ test -e $gz2 || xzcat $xz2 | gzip --stdout > $gz2
 
 # Kallisto requires an output subdirectory for each sample
 stem=$(basename ${xz1%-R1*})
-out_dir=Data/5-kallisto-quant/$stem
+out_dir=Data/05-kallisto-quant/$stem
 echo $out_dir
 mkdir -p $out_dir
 
@@ -60,11 +60,11 @@ mkdir -p $out_dir
 set -x
 kallisto quant \
     --genomebam \
-	--gtf=Data/3-reference/Mus_musculus.GRCm$build.$release.chr.gtf \
-	--chromosomes=Data/3-reference/chromosome-sizes.tsv \
+	--gtf=Data/03-reference/Mus_musculus.GRCm$build.$release.chr.gtf \
+	--chromosomes=Data/03-reference/chromosome-sizes.tsv \
     --bootstrap-samples=500 \
     --threads=2 \
-    --index=Data/4-kallisto-index/all-but-xy.index \
+    --index=Data/04-kallisto-index/all-but-xy.index \
     --output-dir=$out_dir $gz1 $gz2
 
 # Remove temporary .gz files, keep .xz which is ~40% smaller

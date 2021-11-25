@@ -1,22 +1,22 @@
 #!/bin/sh -e
 
 #SBATCH --mem=4g
-#SBATCH --output=Logs/3-reference/slurm-%A.out
-#SBATCH --error=Logs/3-reference/slurm-%A.err
+#SBATCH --output=Logs/03-reference/slurm-%A.out
+#SBATCH --error=Logs/03-reference/slurm-%A.err
 
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
 : ${SLURM_JOB_ID:=test}
 
 # Document software versions used for publication
-uname -a > Logs/3-reference/os-version-$SLURM_JOB_ID.txt 2>&1
-samtools --version > Logs/3-reference/samtools-version-$SLURM_JOB_ID.txt 2>&1
-gffread --version > Logs/3-reference/gffread-version-$SLURM_JOB_ID.txt 2>&1
+uname -a > Logs/03-reference/os-version-$SLURM_JOB_ID.txt 2>&1
+samtools --version > Logs/03-reference/samtools-version-$SLURM_JOB_ID.txt 2>&1
+gffread --version > Logs/03-reference/gffread-version-$SLURM_JOB_ID.txt 2>&1
 
 #############################################################################
 # Choose cdna.sh or gff2fasta.sh, or download the prebuilt kallisto
 # file mus_musculus.tar.gz, extract, and copy transcriptome.idx to
-# Data/3-kallisto-index/all-but-xy.index.
+# Data/03-kallisto-index/all-but-xy.index.
 #
 # There are multiple possible transcriptome references that can be used with
 # kallisto.

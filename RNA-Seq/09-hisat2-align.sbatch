@@ -4,8 +4,8 @@
 #SBATCH --mem=6000
 #SBATCH --array=1-18
 #SBATCH --ntasks=2
-#SBATCH --output=Logs/5b-hisat2-align/slurm-%A_%a.out
-#SBATCH --error=Logs/5b-hisat2-align/slurm-%A_%a.err
+#SBATCH --output=Logs/09-hisat2-align/slurm-%A_%a.out
+#SBATCH --error=Logs/09-hisat2-align/slurm-%A_%a.err
 
 ##############################################################################
 # Run hisat2
@@ -17,20 +17,20 @@
 
 # Document software versions used for publication
 if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
-    uname -a > Logs/5b-hisat2-align/os-version-$SLURM_JOB_ID.txt 2>&1
-    hisat2 --version > Logs/5b-hisat2-align/hisat2-version-$SLURM_JOB_ID.txt 2>&1
+    uname -a > Logs/09-hisat2-align/os-version-$SLURM_JOB_ID.txt 2>&1
+    hisat2 --version > Logs/09-hisat2-align/hisat2-version-$SLURM_JOB_ID.txt 2>&1
 fi
 
 build=$(../Common/genome-build.sh)
 release=$(../Common/genome-release.sh)
-reference=../4b-hisat2-index/all-but-xy.transcripts.clean.fa
+reference=../08-hisat2-index/all-but-xy.transcripts.clean.fa
 
-cd Data/5b-hisat2-align
+cd Data/09-hisat2-align
 
 # hisat2 can't handle xz.
 # Convert xz to gz rather than raw to reduce NFS load from compute nodes
-xz1=$(echo ../1-trim/*-sample${SLURM_ARRAY_TASK_ID}-*-R1.fastq.xz)
-xz2=$(echo ../1-trim/*-sample${SLURM_ARRAY_TASK_ID}-*-R2.fastq.xz)
+xz1=$(echo ../01-trim/*-sample${SLURM_ARRAY_TASK_ID}-*-R1.fastq.xz)
+xz2=$(echo ../01-trim/*-sample${SLURM_ARRAY_TASK_ID}-*-R2.fastq.xz)
 gz1=${xz1%.xz}.gz
 gz2=${xz2%.xz}.gz
 test -e $gz1 || xzcat $xz1 | gzip --stdout > $gz1

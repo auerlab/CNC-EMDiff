@@ -8,7 +8,7 @@
 #       chondro-sample4-*-time1-*
 #       chondro-sample7-*-time1-*
 #
-#   ls Data/1-trim
+#   ls Data/01-trim
 #
 #   One job to merge each group of 3 input bams
 #   so one job for samples 1,4,7, another for 2,5,8, etc.
@@ -31,7 +31,7 @@ if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
     samtools --version > Logs/10-merge-hisat2-bams/samtools-version-$SLURM_JOB_ID.txt 2>&1
 fi
 
-dir=Data/9-hisat2-align
+dir=Data/09-hisat2-align
 input_bam1=$(echo $dir/*-sample${SLURM_ARRAY_TASK_ID}-*.bam)
 input_bam2=$(echo $dir/*-sample$((SLURM_ARRAY_TASK_ID + 3))-*.bam)
 input_bam3=$(echo $dir/*-sample$((SLURM_ARRAY_TASK_ID + 6))-*.bam)

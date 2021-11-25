@@ -36,9 +36,9 @@ if [ $# != 0 ]; then
 fi
 
 mkdir -p Data Logs
-for stage in 1-trim 2-qc 3-reference \
-    4-kallisto-index 5-kallisto-quant 6-merge-kallisto-bams 7-sleuth-DE \
-    8-hisat2-index 9-hisat2-align 10-merge-hisat2-bams; do
+for stage in 01-trim 02-qc 03-reference \
+    04-kallisto-index 05-kallisto-quant 06-merge-kallisto-bams 07-sleuth-DE \
+    08-hisat2-index 09-hisat2-align 10-merge-hisat2-bams; do
     mkdir -p Data/$stage Logs/$stage
 done
 

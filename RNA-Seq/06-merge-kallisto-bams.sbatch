@@ -8,10 +8,10 @@
 #       chondro-sample4-*-time1-*
 #       chondro-sample7-*-time1-*
 #
-#   ls Data/1-trim
+#   ls Data/01-trim
 #
 #   One job to merge each group of 3 input bams
-#   5-kallisto-quant places sample N in directory Data/5-kallisto-quant/N,
+#   5-kallisto-quant places sample N in directory Data/05-kallisto-quant/N,
 #   so one job for samples 1,4,7, another for 2,5,8, etc.
 #############################################################################
 
@@ -19,8 +19,8 @@
 # top showed a steady 25M virtual, 12 res with a spike to 42/30 at the
 # end (samtools index?) on FreeBSD 13
 #SBATCH --mem=50m
-#SBATCH --output=Logs/6-merge-kallisto-bams/slurm-%A_%a.out
-#SBATCH --error=Logs/6-merge-kallisto-bams/slurm-%A_%a.err
+#SBATCH --output=Logs/06-merge-kallisto-bams/slurm-%A_%a.out
+#SBATCH --error=Logs/06-merge-kallisto-bams/slurm-%A_%a.err
 
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
@@ -28,11 +28,11 @@
 
 # Document software versions used for publication
 if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
-    uname -a > Logs/6-merge-kallisto-bams/os-version-$SLURM_JOB_ID.txt 2>&1
-    samtools --version > Logs/6-merge-kallisto-bams/samtools-version-$SLURM_JOB_ID.txt 2>&1
+    uname -a > Logs/06-merge-kallisto-bams/os-version-$SLURM_JOB_ID.txt 2>&1
+    samtools --version > Logs/06-merge-kallisto-bams/samtools-version-$SLURM_JOB_ID.txt 2>&1
 fi
 
-dir=Data/5-kallisto-quant
+dir=Data/05-kallisto-quant
 input_bam1=$(echo $dir/*-sample${SLURM_ARRAY_TASK_ID}-*/pseudoalignments.bam)
 input_bam2=$(echo $dir/*-sample$((SLURM_ARRAY_TASK_ID + 3))-*/pseudoalignments.bam)
 input_bam3=$(echo $dir/*-sample$((SLURM_ARRAY_TASK_ID + 6))-*/pseudoalignments.bam)
@@ -41,9 +41,9 @@ input_bam3=$(echo $dir/*-sample$((SLURM_ARRAY_TASK_ID + 6))-*/pseudoalignments.b
 first=$SLURM_ARRAY_TASK_ID
 last=$(($SLURM_ARRAY_TASK_ID + 2))
 if [ $SLURM_ARRAY_TASK_ID -le 3 ]; then
-    output_bam=Data/6-merge-kallisto-bams/chondro-$first-$last.bam
+    output_bam=Data/06-merge-kallisto-bams/chondro-$first-$last.bam
 else
-    output_bam=Data/6-merge-kallisto-bams/neuro-$first-$last.bam
+    output_bam=Data/06-merge-kallisto-bams/neuro-$first-$last.bam
 fi
 
 set -x
