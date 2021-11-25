@@ -16,8 +16,9 @@
 #############################################################################
 
 #SBATCH --array=1-3,10-12
-# FIXME: Verify memory use
-#SBATCH --mem=1g
+# top showed a steady 25M virtual, 12 res with a spike to 42/30 at the
+# end (samtools index?) on FreeBSD 13
+#SBATCH --mem=50m
 #SBATCH --output=Logs/6-merge-bams/slurm-%A_%a.out
 #SBATCH --error=Logs/6-merge-bams/slurm-%A_%a.err
 
@@ -45,5 +46,5 @@ else
 fi
 
 set -x
-samtools merge --no-PG -o $output_bam $input_bam1 $input_bam2 $input_bam3
+samtools merge -o $output_bam $input_bam1 $input_bam2 $input_bam3
 samtools index $output_bam
