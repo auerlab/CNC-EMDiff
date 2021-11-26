@@ -13,15 +13,15 @@ uname -a > Logs/04-kallisto-index/os-version-$SLURM_JOB_ID.txt 2>&1
 kallisto version > Logs/04-kallisto-index/kallisto-version-$SLURM_JOB_ID.txt 2>&1
 samtools --version > Logs/04-kallisto-index/samtools-version-$SLURM_JOB_ID.txt 2>&1
 
-reference=Data/03-reference/$(Reference/reference-filename.sh)
-printf "Using reference $reference...\n"
+transcriptome=Data/03-reference/$(Reference/transcriptome-filename.sh)
+printf "Using reference $transcriptome...\n"
 
 # Needed for kallisto --genomebam
-if [ ! -e $reference.fai ]; then
-    printf "Building $reference...\n"
-    samtools faidx $reference
+if [ ! -e $transcriptome.fai ]; then
+    printf "Building $transcriptome...\n"
+    samtools faidx $transcriptome
 fi
 
 printf "Building kallisto index...\n"
 set -x
-kallisto index --index=Data/04-kallisto-index/all-but-xy.index $reference
+kallisto index --index=Data/04-kallisto-index/all-but-xy.index $transcriptome

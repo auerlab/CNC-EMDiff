@@ -29,8 +29,7 @@ if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
     kallisto version > Logs/05-kallisto-quant/kallisto-version-$SLURM_JOB_ID.txt 2>&1
 fi
 
-build=$(../Common/genome-build.sh)
-release=$(../Common/genome-release.sh)
+gtf=$(Reference/gtf-filename.sh)
 
 # If using hdf5, you may need this:
 # https://github.com/pachterlab/kallisto/issues/197
@@ -53,14 +52,13 @@ test -e $gz2 || xzcat $xz2 | gzip --stdout > $gz2
 # Kallisto requires an output subdirectory for each sample
 stem=$(basename ${xz1%-R1*})
 out_dir=Data/05-kallisto-quant/$stem
-echo $out_dir
 mkdir -p $out_dir
 
 # Manual says a GTF is needed.  Kallisto aborts using GFF3.
 set -x
 kallisto quant \
     --genomebam \
-	--gtf=Data/03-reference/Mus_musculus.GRCm$build.$release.chr.gtf \
+	--gtf=Data/03-reference/$gtf \
 	--chromosomes=Data/03-reference/chromosome-sizes.tsv \
     --bootstrap-samples=500 \
     --threads=2 \
