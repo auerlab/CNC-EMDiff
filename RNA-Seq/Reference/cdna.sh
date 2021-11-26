@@ -14,11 +14,11 @@ fetch=$(../Common/find-fetch.sh)
 build=$(../Common/genome-build.sh)
 release=$(../Common/genome-release.sh)
 awk=$(../Common/find-awk.sh)
-reference=$(Reference/reference-filename.sh)
+transcriptome=$(Reference/transcriptome-filename.sh)
 
 # Can't guarantee this file will always be available.
 # You may need to edit this.
-cd Data/3-reference
+cd Data/03-reference
 cdna=Mus_musculus.GRCm$build.cdna.all.fa.gz
 if [ ! -e $cdna ]; then
     $fetch ftp://ftp.ensembl.org/pub/release-$release/fasta/mus_musculus/cdna/$cdna
@@ -27,4 +27,4 @@ else
 fi
 
 set -x
-zcat $cdna | $awk -F : -f ../../Reference/keep-autosomes.awk > cdna-$reference
+zcat $cdna | $awk -F : -f ../../Reference/keep-autosomes.awk > cdna-$transcriptome

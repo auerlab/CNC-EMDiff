@@ -11,10 +11,10 @@ Reference/fetch-gtf.sh
 fetch=$(../Common/find-fetch.sh)
 build=$(../Common/genome-build.sh)
 release=$(../Common/genome-release.sh)
-reference=$(Reference/reference-filename.sh)
+transcriptome=$(Reference/transcriptome-filename.sh)
 gtf=$(Reference/gtf-filename.sh)
 
-cd Data/3-reference
+cd Data/03-reference
 
 # Chromosome files
 chromosome=1
@@ -40,33 +40,23 @@ if [ ! -e $genome.fai ]; then
 fi
 
 # https://github.com/griffithlab/rnaseq_tutorial/wiki/Kallisto
-transcripts=all-but-xy.transcripts.fa
-rm -f $transcripts
-if [ ! -e $transcripts ]; then
+if [ ! -e $transcriptome ]; then
     # gtf_to_fasta is part of tophat, which is obsolete
-    # gtf_to_fasta $gtf $genome $transcripts
+    # gtf_to_fasta $gtf $genome $transcriptome
     
     # Maybe?
-    # bedtools getfasta -fi $genome -bed $gtf > $transcripts
+    # bedtools getfasta -fi $genome -bed $gtf > $transcriptome
     
     # Recommended by Biostar RNA-Seq by Example
     # Warning: couldn't find fasta record for 'MT'!
     # Error: no genomic sequence available (check -g option!).
     # Abort trap (core dumped)
-    printf "Converting $gtf to $transcripts...\n"
-    head -5 $genome
-    grep -v '^#' $gtf | head -5
-    gffread -w $transcripts -g $genome $gtf
-    head -5 $transcripts
+    printf "Converting $gtf to $transcriptome...\n"
+    gffread -w $transcriptome -g $genome $gtf
 else
-    printf "Using existing $transcripts...\n"
+    printf "Using existing $transcriptome...\n"
 fi
 
-# Tidy up headers
-if [ ! -e $reference ]; then
-    printf "Cleaning up headers, output in $reference...\n"
-    perl -ne 'if ($_ =~/^\>\d+\s+\w+\s+(ERCC\S+)[\+\-]/){print ">$1\n"}elsif($_ =~ /\d+\s+(ENST\d+)/){print ">$1\n"}else{print $_}' \
-	$transcripts > $reference
-else
-    printf "Using existing $reference...\n"
-fi
+# Tidy up headers: Actually has no effect
+# perl -ne 'if ($_ =~/^\>\d+\s+\w+\s+(ERCC\S+)[\+\-]/){print ">$1\n"}elsif($_ =~ /\d+\s+(ENST\d+)/){print ">$1\n"}else{print $_}' \
+

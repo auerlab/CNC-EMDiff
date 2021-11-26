@@ -13,17 +13,19 @@ uname -a > Logs/08-hisat2-index/os-version-$SLURM_JOB_ID.txt 2>&1
 hisat2 --version > Logs/08-hisat2-index/hisat2-version-$SLURM_JOB_ID.txt 2>&1
 samtools --version > Logs/08-hisat2-index/samtools-version-$SLURM_JOB_ID.txt 2>&1
 
-reference=Data/03-reference/$(Reference/reference-filename.sh)
-cp $reference Data/08-hisat2-index
-reference=Data/08-hisat2-index/$(basename $reference)
-printf "Using reference $reference...\n"
+# Run hisat2-build on a copy in 08-hisat2-index so it will put the .ht2
+# files there
+genome=$(Reference/genome-filename.sh)
+ln -f Data/03-reference/$genome Data/08-hisat2-index
+genome=Data/08-hisat2-index/$genome
+printf "Using reference $genome...\n"
 
-if [ ! -e $reference.8.ht2 ]; then
-    printf "Building $reference.*.ht2...\n"
-    hisat2-build $reference $reference
+if [ ! -e $genome.8.ht2 ]; then
+    printf "Building $genome.*.ht2...\n"
+    hisat2-build $genome $genome
 fi
-if [ ! -e $reference.fai ]; then
-    printf "Building $reference.fai...\n"
-    samtools faidx $reference
+if [ ! -e $genome.fai ]; then
+    printf "Building $genome.fai...\n"
+    samtools faidx $genome
 fi
 ls Data/08-hisat2-index

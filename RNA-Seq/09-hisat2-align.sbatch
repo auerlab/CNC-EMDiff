@@ -8,8 +8,7 @@
 #SBATCH --error=Logs/09-hisat2-align/slurm-%A_%a.err
 
 ##############################################################################
-# Run hisat2
-#
+# Align with hisat2, which can handle splice junctions in RNA reads
 
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
@@ -23,7 +22,7 @@ fi
 
 build=$(../Common/genome-build.sh)
 release=$(../Common/genome-release.sh)
-reference=../08-hisat2-index/all-but-xy.transcripts.clean.fa
+genome=$(Reference/genome-filename.sh)
 
 cd Data/09-hisat2-align
 
@@ -40,7 +39,8 @@ bam=$(basename $gz1)
 bam=${bam%-R*}.bam
 
 set -x
-hisat2 --threads 2 -x $reference -1 $gz1 -2 $gz2 | samtools sort > $bam
+hisat2 --threads 2 -x ../../Data/hisat2-index/$genome \
+    -1 $gz1 -2 $gz2 | samtools sort > $bam
 samtools index $bam
 
 # Remove temporary .gz files, keep .xz which is ~40% smaller
