@@ -39,7 +39,7 @@ gzb=$(basename $gz1)
 bam=${gzb%-R*}.bam
 
 set -x
-hisat2 --threads 2 -x ../../Data/08-hisat2-index/$genome \
+hisat2 --threads $SLURM_NTASKS -x ../../Data/08-hisat2-index/$genome \
     -1 $gz1 -2 $gz2 | samtools sort > $bam
 samtools index $bam
 
