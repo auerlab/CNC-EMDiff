@@ -4,7 +4,7 @@
 #   https://hbctraining.github.io/Intro-to-rnaseq-hpc-O2/lessons/03_alignment.html
 ##########################################################################
 
-#SBATCH --mem=21g
+#SBATCH --mem=24g
 #SBATCH --ntasks=6
 #SBATCH --output=Logs/12-star-index/slurm-%A.out
 #SBATCH --error=Logs/12-star-index/slurm-%A.err

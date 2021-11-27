@@ -35,11 +35,11 @@ gz2=${xz2%.xz}.gz
 test -e $gz1 || xzcat $xz1 | gzip --stdout > $gz1
 test -e $gz2 || xzcat $xz2 | gzip --stdout > $gz2
 
-bam=$(basename $gz1)
-bam=${bam%-R*}.bam
+gzb=$(basename $gz1)
+bam=${gzb%-R*}.bam
 
 set -x
-hisat2 --threads 2 -x ../../Data/hisat2-index/$genome \
+hisat2 --threads 2 -x ../../Data/08-hisat2-index/$genome \
     -1 $gz1 -2 $gz2 | samtools sort > $bam
 samtools index $bam
 
