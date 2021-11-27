@@ -1,5 +1,20 @@
 #!/bin/sh -e
 
+##########################################################################
+#   Description:
+#       Build kallisto index for reference transcriptome.
+#
+#       All necessary tools are assumed to be in PATH.  If this is not
+#       the case, add whatever code is needed here to gain access.
+#       (Adding such code to your .bashrc or other startup script is
+#       generally a bad idea since it's too complicated to support
+#       every program with one environment.)
+#       
+#   History:
+#   Date        Name        Modification
+#   2019-11-??  Jason Bacon Begin
+##########################################################################
+
 # Memory requirements can only be determined by trial and error.
 # Run a sample job and monitor closely in "top" or rununder a tool that
 # reports maximum memory use.

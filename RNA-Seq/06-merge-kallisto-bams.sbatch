@@ -1,18 +1,25 @@
 #!/bin/sh -e
 
 #############################################################################
-#   Merge BAM files for the same cell line and time point, e.g.
+#   Description:
+#       Merge BAM files for the same cell line and time point, e.g.
 #
-#   This means every third sample, e.g.
-#       chondro-sample1-*-time1-*
-#       chondro-sample4-*-time1-*
-#       chondro-sample7-*-time1-*
+#       This means every third sample, e.g.
+#           chondro-sample1-*-time1-*
+#           chondro-sample4-*-time1-*
+#           chondro-sample7-*-time1-*
 #
-#   ls Data/01-trim
+#       ls Data/01-trim
 #
-#   One job to merge each group of 3 input bams
-#   5-kallisto-quant places sample N in directory Data/05-kallisto-quant/N,
-#   so one job for samples 1,4,7, another for 2,5,8, etc.
+#       One job to merge each group of 3 input bams
+#       5-kallisto-quant places sample N in directory Data/05-kallisto-quant/N,
+#       so one job for samples 1,4,7, another for 2,5,8, etc.
+#
+#       All necessary tools are assumed to be in PATH.  If this is not
+#       the case, add whatever code is needed here to gain access.
+#       (Adding such code to your .bashrc or other startup script is
+#       generally a bad idea since it's too complicated to support
+#       every program with one environment.)
 #############################################################################
 
 #SBATCH --array=1-3,10-12

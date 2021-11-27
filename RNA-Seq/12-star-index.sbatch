@@ -1,6 +1,21 @@
 #!/bin/sh -e
 
 ##########################################################################
+#   Description:
+#       Build STAR aligner index for reference genome.
+#
+#       All necessary tools are assumed to be in PATH.  If this is not
+#       the case, add whatever code is needed here to gain access.
+#       (Adding such code to your .bashrc or other startup script is
+#       generally a bad idea since it's too complicated to support
+#       every program with one environment.)
+#       
+#   History:
+#   Date        Name        Modification
+#   2021-11-26  Jason Bacon Begin
+##########################################################################
+
+##########################################################################
 #   https://hbctraining.github.io/Intro-to-rnaseq-hpc-O2/lessons/03_alignment.html
 ##########################################################################
 
