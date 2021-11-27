@@ -4,4 +4,4 @@
 #   Run differential analysis on hisat2 alignments
 ##########################################################################
 
-
+hostname

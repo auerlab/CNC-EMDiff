@@ -4,11 +4,13 @@
 #   https://hbctraining.github.io/Intro-to-rnaseq-hpc-O2/lessons/03_alignment.html
 ##########################################################################
 
-# Based on run of sample 1, peaked at 12G resident
-#SBATCH --mem=16000
 #SBATCH --array=1-18
 # 1 for STAR, 1 for each xzcat
-#SBATCH --ntasks=3
+#SBATCH --cpus-per-task=3
+# Memory requirements can only be determined by trial and error.
+# Run a sample job and monitor closely in "top" or rununder a tool that
+# reports maximum memory use.
+#SBATCH --mem=24000
 #SBATCH --output=Logs/13-star-align/slurm-%A_%a.out
 #SBATCH --error=Logs/13-star-align/slurm-%A_%a.err
 
@@ -18,13 +20,14 @@
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
 : ${SLURM_JOB_ID:=test}
-: ${SLURM_NTASKS:=4}
+: ${SLURM_CPUS_PER_TASK:=4}
 
 # Document software versions used for publication
 if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
     uname -a > Logs/13-star-align/os-version-$SLURM_JOB_ID.txt 2>&1
     STAR --version > Logs/13-star-align/star-version-$SLURM_JOB_ID.txt 2>&1
 fi
+hostname
 
 build=$(../Common/genome-build.sh)
 release=$(../Common/genome-release.sh)
@@ -46,4 +49,5 @@ STAR --genomeDir Data/12-star-index \
     --outSAMtype BAM SortedByCoordinate \
     --outSAMunmapped Within \
     --outSAMattributes Standard
+
 samtools index $bam

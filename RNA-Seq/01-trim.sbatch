@@ -15,6 +15,9 @@
 # compression process for part of the time.  If you don't want to
 # oversubscribe compute nodes even for a little while, add --cpus-per-task=2
 #SBATCH --array=1-18
+# Memory requirements can only be determined by trial and error.
+# Run a sample job and monitor closely in "top" or rununder a tool that
+# reports maximum memory use.
 #SBATCH --mem-per-cpu=250
 #SBATCH --output=Logs/01-trim/slurm-%A_%a.out
 #SBATCH --error=Logs/01-trim/slurm-%A_%a.err
@@ -28,6 +31,7 @@ if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
     uname -a > Logs/01-trim/os-version-$SLURM_JOB_ID.txt 2>&1
     cutadapt --version > Logs/01-trim/cutadapt-version-$SLURM_JOB_ID.txt 2>&1
 fi
+hostname
 
 input1=$(ls Data/Raw-renamed/*-sample${SLURM_ARRAY_TASK_ID}-*R1*)
 input2=$(ls Data/Raw-renamed/*-sample${SLURM_ARRAY_TASK_ID}-*R2*)

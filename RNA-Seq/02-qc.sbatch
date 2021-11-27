@@ -13,8 +13,11 @@
 
 # Each invocation of this script will run 4 fastqc processes, forward
 # and reverse raw and forward and reverse trimmed
-#SBATCH --cpus-per-task=4
 #SBATCH --array=1-18
+#SBATCH --cpus-per-task=4
+# Memory requirements can only be determined by trial and error.
+# Run a sample job and monitor closely in "top" or rununder a tool that
+# reports maximum memory use.
 #SBATCH --mem=1g
 #SBATCH --output=Logs/02-qc/slurm-%A_%a.out
 #SBATCH --error=Logs/02-qc/slurm-%A_%a.err
@@ -28,6 +31,7 @@ if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
     uname -a > Logs/02-qc/os-version-$SLURM_JOB_ID.txt 2>&1
     fastqc --version > Logs/02-qc/fastqc-version-$SLURM_JOB_ID.txt 2>&1
 fi
+hostname
 
 mkdir -p Data/02-qc/Raw Data/02-qc/Trimmed
 

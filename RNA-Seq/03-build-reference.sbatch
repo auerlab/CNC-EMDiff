@@ -1,5 +1,8 @@
 #!/bin/sh -e
 
+# Memory requirements can only be determined by trial and error.
+# Run a sample job and monitor closely in "top" or rununder a tool that
+# reports maximum memory use.
 #SBATCH --mem=4g
 #SBATCH --output=Logs/03-reference/slurm-%A.out
 #SBATCH --error=Logs/03-reference/slurm-%A.err
@@ -12,6 +15,7 @@
 uname -a > Logs/03-reference/os-version-$SLURM_JOB_ID.txt 2>&1
 samtools --version > Logs/03-reference/samtools-version-$SLURM_JOB_ID.txt 2>&1
 gffread --version > Logs/03-reference/gffread-version-$SLURM_JOB_ID.txt 2>&1
+hostname
 
 #############################################################################
 # Choose cdna.sh or gff2fasta.sh, or download the prebuilt kallisto

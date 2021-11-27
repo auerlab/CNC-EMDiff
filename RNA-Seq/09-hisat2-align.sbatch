@@ -1,9 +1,11 @@
 #!/bin/sh -e
 
-# FIXME: mem is from kallisto
-#SBATCH --mem=6000
 #SBATCH --array=1-18
-#SBATCH --ntasks=2
+#SBATCH --cpus-per-task=2
+# Memory requirements can only be determined by trial and error.
+# Run a sample job and monitor closely in "top" or rununder a tool that
+# reports maximum memory use.
+#SBATCH --mem=6000
 #SBATCH --output=Logs/09-hisat2-align/slurm-%A_%a.out
 #SBATCH --error=Logs/09-hisat2-align/slurm-%A_%a.err
 
@@ -19,6 +21,7 @@ if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
     uname -a > Logs/09-hisat2-align/os-version-$SLURM_JOB_ID.txt 2>&1
     hisat2 --version > Logs/09-hisat2-align/hisat2-version-$SLURM_JOB_ID.txt 2>&1
 fi
+hostname
 
 build=$(../Common/genome-build.sh)
 release=$(../Common/genome-release.sh)
@@ -39,7 +42,7 @@ gzb=$(basename $gz1)
 bam=${gzb%-R*}.bam
 
 set -x
-hisat2 --threads $SLURM_NTASKS -x ../../Data/08-hisat2-index/$genome \
+hisat2 --threads $SLURM_CPUS_PER_TASK -x ../../Data/08-hisat2-index/$genome \
     -1 $gz1 -2 $gz2 | samtools sort > $bam
 samtools index $bam
 

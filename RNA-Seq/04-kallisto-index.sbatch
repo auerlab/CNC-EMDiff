@@ -1,5 +1,8 @@
 #!/bin/sh -e
 
+# Memory requirements can only be determined by trial and error.
+# Run a sample job and monitor closely in "top" or rununder a tool that
+# reports maximum memory use.
 #SBATCH --mem=4g
 #SBATCH --output=Logs/04-kallisto-index/slurm-%A.out
 #SBATCH --error=Logs/04-kallisto-index/slurm-%A.err
@@ -12,6 +15,7 @@
 uname -a > Logs/04-kallisto-index/os-version-$SLURM_JOB_ID.txt 2>&1
 kallisto version > Logs/04-kallisto-index/kallisto-version-$SLURM_JOB_ID.txt 2>&1
 samtools --version > Logs/04-kallisto-index/samtools-version-$SLURM_JOB_ID.txt 2>&1
+hostname
 
 transcriptome=Data/03-reference/$(Reference/transcriptome-filename.sh)
 printf "Using reference $transcriptome...\n"

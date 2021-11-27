@@ -14,7 +14,11 @@
 #   so one job for samples 1,4,7, another for 2,5,8, etc.
 #############################################################################
 
+# Each task will merge 3 BAMs from samples n, n+3, and n+6
 #SBATCH --array=1-3,10-12
+# Memory requirements can only be determined by trial and error.
+# Run a sample job and monitor closely in "top" or rununder a tool that
+# reports maximum memory use.
 # top showed a steady 25M virtual, 12 res with a spike to 42/30 at the
 # end (samtools index?) on FreeBSD 13
 #SBATCH --mem=50m
@@ -30,6 +34,7 @@ if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
     uname -a > Logs/10-merge-hisat2-bams/os-version-$SLURM_JOB_ID.txt 2>&1
     samtools --version > Logs/10-merge-hisat2-bams/samtools-version-$SLURM_JOB_ID.txt 2>&1
 fi
+hostname
 
 dir=Data/09-hisat2-align
 input_bam1=$(echo $dir/*-sample${SLURM_ARRAY_TASK_ID}-*.bam)

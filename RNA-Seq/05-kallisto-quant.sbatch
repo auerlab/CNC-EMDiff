@@ -1,8 +1,11 @@
 #!/bin/sh -e
 
-#SBATCH --mem=6000
 #SBATCH --array=1-18
-#SBATCH --ntasks=2
+#SBATCH --cpus-per-task=2
+# Memory requirements can only be determined by trial and error.
+# Run a sample job and monitor closely in "top" or rununder a tool that
+# reports maximum memory use.
+#SBATCH --mem=6000
 #SBATCH --output=Logs/05-kallisto-quant/slurm-%A_%a.out
 #SBATCH --error=Logs/05-kallisto-quant/slurm-%A_%a.err
 
@@ -28,6 +31,7 @@ if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
     uname -a > Logs/05-kallisto-quant/os-version-$SLURM_JOB_ID.txt 2>&1
     kallisto version > Logs/05-kallisto-quant/kallisto-version-$SLURM_JOB_ID.txt 2>&1
 fi
+hostname
 
 gtf=$(Reference/gtf-filename.sh)
 
