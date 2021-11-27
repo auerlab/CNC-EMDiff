@@ -55,14 +55,22 @@ xzb=$(basename $xz1)
 filename_prefix=${xzb%-R*}-
 bam=Data/13-star-align/${filename_prefix}Aligned.sortedByCoord.out.bam
 
+unxz1=${xz1%.xz}
+unxz2=${xz2%.xz}
 set -x
+
+# Empty BAM files may be caused by failing --readFilesCommand
+# This didn't help.  2 issues on Github about empty BAM files, so
+# probably a bug.
+test -e $unxz1 || xzcat $xz1 > $unxz1
+test -e $unxz2 || xzcat $xz2 > $unxz2
+
 STAR --genomeDir Data/12-star-index \
     --runThreadN 1 \
-    --readFilesIn $xz1 $xz2 \
-    --readFilesCommand xzcat \
+    --readFilesIn $unxz1 $unxz2 \
     --outFileNamePrefix Data/13-star-align/$filename_prefix \
-    --outSAMtype BAM SortedByCoordinate \
+    --outSAMtype BAM Unsorted \
     --outSAMunmapped Within \
     --outSAMattributes Standard
 
-samtools index $bam
+#samtools index $bam
