@@ -55,8 +55,6 @@ xzb=$(basename $xz1)
 filename_prefix=${xzb%-R*}-
 bam=Data/13-star-align/${filename_prefix}Aligned.sortedByCoord.out.bam
 
-set -x
-
 # Empty BAM files may be caused by failing --readFilesCommand
 # This didn't help.  2 issues on Github about empty BAM files, so
 # probably a bug.

@@ -29,7 +29,11 @@ done
 genome='all-but-xy.fa'
 if [ ! -e $genome ]; then
     printf "Concatenating chromosome FASTAs...\n"
-    zcat Mus_musculus.GRCm$build.dna.chromosome.[0-9]*.gz > $genome
+    for chrom in $(seq 1 19); do
+	printf "$chrom "
+	zcat Mus_musculus.GRCm$build.dna.chromosome.$chrom.fa.gz >> $genome
+    done
+    printf "\n"
 else
     printf "Using existing $genome...\n"
 fi

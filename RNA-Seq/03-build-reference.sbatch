@@ -27,9 +27,10 @@
 : ${SLURM_JOB_ID:=test}
 
 # Document software versions used for publication
-uname -a > Logs/03-reference/os-version-$SLURM_JOB_ID.txt 2>&1
-samtools --version > Logs/03-reference/samtools-version-$SLURM_JOB_ID.txt 2>&1
-gffread --version > Logs/03-reference/gffread-version-$SLURM_JOB_ID.txt 2>&1
+uname -a > Logs/03-reference/os-version.txt 2>&1
+samtools --version > Logs/03-reference/samtools-version.txt 2>&1
+gffread --version > Logs/03-reference/gffread-version.txt 2>&1
+blt --version > Logs/03-reference/biolibc-tools-version.txt 2>&1
 hostname
 
 #############################################################################
@@ -54,4 +55,8 @@ hostname
 # Reference/cdna.sh       # Remove XY from Ensembl cdna transcriptome
 Reference/gtf2fasta.sh  # Construct genome minus XY using Ensembl GFF
 
-Reference/create-chrom-sizes.sh
+# Reference/create-chrom-sizes.sh
+chrom_sizes="Data/03-reference/chromosome-sizes.tsv"
+printf "Generating $chrom_sizes...\n"
+blt chrom-lens < Data/03-reference/all-but-xy.fa > $chrom_sizes
+cat $chrom_sizes
