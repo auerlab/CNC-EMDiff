@@ -23,7 +23,7 @@
 # Memory requirements can only be determined by trial and error.
 # Run a sample job and monitor closely in "top" or rununder a tool that
 # reports maximum memory use.
-#SBATCH --mem=24g
+#SBATCH --mem=60g
 #SBATCH --output=Logs/12-star-index/slurm-%A.out
 #SBATCH --error=Logs/12-star-index/slurm-%A.err
 
@@ -31,6 +31,21 @@
 : ${SLURM_ARRAY_TASK_ID:=1}
 : ${SLURM_JOB_ID:=test}
 : ${SLURM_CPUS_PER_TASK:=6}
+
+cat << EOM
+
+STAR genomeGenerate and alignment both report success, but all BAM output
+files are empty.  This is apparently a common problem that the developers
+are aware of but do not know how to solve.
+
+In addition, STAR requires more than 30 gigabytes of memory for some
+operations.
+
+Use of hisat2 is recommended at this time.  It is faster, more reliable,
+and more memory efficient.
+
+EOM
+exit
 
 # Document software versions used for publication
 uname -a > Logs/12-star-index/os-version-$SLURM_JOB_ID.txt 2>&1
@@ -47,7 +62,7 @@ STAR --runThreadN $SLURM_CPUS_PER_TASK \
     --runMode genomeGenerate \
     --genomeDir Data/12-star-index \
     --genomeFastaFiles Data/03-reference/$genome \
-    --sjdbGTFfile Data/03-reference/$gtf
+    --sjdbGTFfile Data/03-reference/$gtf \
     --sjdbOverhang 97
 
 ls Data/12-star-index

@@ -37,6 +37,21 @@
 : ${SLURM_JOB_ID:=test}
 : ${SLURM_CPUS_PER_TASK:=4}
 
+cat << EOM
+
+STAR genomeGenerate and alignment both report success, but all BAM output
+files are empty.  This is apparently a common problem that the developers
+are aware of but do not know how to solve.
+
+In addition, STAR requires more than 30 gigabytes of memory for some
+operations.
+
+Use of hisat2 is recommended at this time.  It is faster, more reliable,
+and more memory efficient.
+
+EOM
+exit
+
 # Document software versions used for publication
 if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
     uname -a > Logs/13-star-align/os-version-$SLURM_JOB_ID.txt 2>&1

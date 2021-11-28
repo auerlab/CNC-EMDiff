@@ -30,11 +30,10 @@ if ! echo $script | grep -q "\.sbatch$"; then
     usage
 fi
 
-printf "Are you sure you want to remove old logs and results? y/[n] "
+base=${script%.sbatch}
+printf "Are you sure you want to remove results from Data/$base? y/[n] "
 read sure
 if [ 0"$sure" = 0y ]; then
-    base=${script%.sbatch}
-    echo $base
     rm -r Data/$base
     ./00-organize.sh
     sbatch $script
