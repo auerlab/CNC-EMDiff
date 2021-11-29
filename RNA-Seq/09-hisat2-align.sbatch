@@ -20,7 +20,7 @@
 # Memory requirements can only be determined by trial and error.
 # Run a sample job and monitor closely in "top" or rununder a tool that
 # reports maximum memory use.
-#SBATCH --mem=6000
+#SBATCH --mem=9000
 #SBATCH --output=Logs/09-hisat2-align/slurm-%A_%a.out
 #SBATCH --error=Logs/09-hisat2-align/slurm-%A_%a.err
 
@@ -62,4 +62,4 @@ hisat2 --threads $SLURM_CPUS_PER_TASK -x ../../Data/08-hisat2-index/$genome \
 samtools index $bam
 
 # Remove temporary .gz files, keep .xz which is ~40% smaller
-rm -f $gz1 $gz2
+# rm -f $gz1 $gz2
