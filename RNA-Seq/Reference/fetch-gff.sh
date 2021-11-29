@@ -1,5 +1,9 @@
 #!/bin/sh -e
 
+##########################################################################
+#   GFF is used by downstream analysis, such as peak classification
+##########################################################################
+
 fetch=$(../Common/find-fetch.sh)
 release=$(../Common/genome-release.sh)
 gff=$(Reference/gff-filename.sh)

@@ -34,7 +34,7 @@ blt --version > Logs/03-reference/biolibc-tools-version.txt 2>&1
 hostname
 
 #############################################################################
-# Choose cdna.sh or gff2fasta.sh, or download the prebuilt kallisto
+# Choose cdna.sh or gtf2fasta.sh, or download the prebuilt kallisto
 # file mus_musculus.tar.gz, extract, and copy transcriptome.idx to
 # Data/03-kallisto-index/all-but-xy.index.
 #

@@ -7,8 +7,8 @@ if [ $0 != "$proper_name" ]; then
     exit 1
 fi
 
-# Need GFF for kallisto quant --genomebam in any case
-Reference/fetch-gff.sh
+# Need GTF for kallisto quant --genomebam in any case
+Reference/fetch-gtf.sh
 
 fetch=$(../Common/find-fetch.sh)
 build=$(../Common/genome-build.sh)
