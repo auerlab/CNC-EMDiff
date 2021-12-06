@@ -29,7 +29,6 @@
 
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
-: ${SLURM_JOB_ID:=test}
 : ${SLURM_CPUS_PER_TASK:=6}
 
 cat << EOM
@@ -48,10 +47,9 @@ EOM
 exit
 
 # Document software versions used for publication
-uname -a > Logs/12-star-index/os-version-$SLURM_JOB_ID.txt 2>&1
-STAR --version > Logs/12-star-index/star-version-$SLURM_JOB_ID.txt 2>&1
-samtools --version > Logs/12-star-index/samtools-version-$SLURM_JOB_ID.txt 2>&1
-hostname
+uname -a
+STAR --version
+pwd
 
 genome=$(Reference/genome-filename.sh)
 gtf=$(Reference/gtf-filename.sh)

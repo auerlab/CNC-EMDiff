@@ -24,14 +24,13 @@
 
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
-: ${SLURM_JOB_ID:=test}
 
 # Document software versions used for publication
-uname -a > Logs/03-reference/os-version.txt 2>&1
-samtools --version > Logs/03-reference/samtools-version.txt 2>&1
-gffread --version > Logs/03-reference/gffread-version.txt 2>&1
-blt --version > Logs/03-reference/biolibc-tools-version.txt 2>&1
-hostname
+uname -a
+samtools --version
+gffread --version
+blt --version
+pwd
 
 #############################################################################
 # Choose cdna.sh or gtf2fasta.sh, or download the prebuilt kallisto

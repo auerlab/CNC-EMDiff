@@ -34,14 +34,11 @@
 
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
-: ${SLURM_JOB_ID:=test}
 
 # Document software versions used for publication
-if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
-    uname -a > Logs/10-merge-hisat2-bams/os-version-$SLURM_JOB_ID.txt 2>&1
-    samtools --version > Logs/10-merge-hisat2-bams/samtools-version-$SLURM_JOB_ID.txt 2>&1
-fi
-hostname
+uname -a
+samtools --version
+pwd
 
 dir=Data/09-hisat2-align
 input_bam1=$(echo $dir/*-sample${SLURM_ARRAY_TASK_ID}-*.bam)

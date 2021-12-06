@@ -34,7 +34,6 @@
 
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
-: ${SLURM_JOB_ID:=test}
 : ${SLURM_CPUS_PER_TASK:=4}
 
 cat << EOM
@@ -53,11 +52,9 @@ EOM
 exit
 
 # Document software versions used for publication
-if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
-    uname -a > Logs/13-star-align/os-version-$SLURM_JOB_ID.txt 2>&1
-    STAR --version > Logs/13-star-align/star-version-$SLURM_JOB_ID.txt 2>&1
-fi
-hostname
+uname -a
+STAR --version
+pwd
 
 build=$(../Common/genome-build.sh)
 release=$(../Common/genome-release.sh)

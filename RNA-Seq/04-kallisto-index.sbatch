@@ -24,13 +24,12 @@
 
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
-: ${SLURM_JOB_ID:=test}
 
 # Document software versions used for publication
-uname -a > Logs/04-kallisto-index/os-version-$SLURM_JOB_ID.txt 2>&1
-kallisto version > Logs/04-kallisto-index/kallisto-version-$SLURM_JOB_ID.txt 2>&1
-samtools --version > Logs/04-kallisto-index/samtools-version-$SLURM_JOB_ID.txt 2>&1
-hostname
+uname -a
+kallisto version
+samtools --version
+pwd
 
 transcriptome=Data/03-reference/$(Reference/transcriptome-filename.sh)
 printf "Using reference $transcriptome...\n"

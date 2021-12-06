@@ -29,14 +29,11 @@
 
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
-: ${SLURM_JOB_ID:=test}
 
 # Document software versions used for publication
-if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
-    uname -a > Logs/09-hisat2-align/os-version-$SLURM_JOB_ID.txt 2>&1
-    hisat2 --version > Logs/09-hisat2-align/hisat2-version-$SLURM_JOB_ID.txt 2>&1
-fi
-hostname
+uname -a
+hisat2 --version
+pwd
 
 build=$(../Common/genome-build.sh)
 release=$(../Common/genome-release.sh)

@@ -39,14 +39,11 @@
 
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
-: ${SLURM_JOB_ID:=test}
 
 # Document software versions used for publication
-if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
-    uname -a > Logs/05-kallisto-quant/os-version-$SLURM_JOB_ID.txt 2>&1
-    kallisto version > Logs/05-kallisto-quant/kallisto-version-$SLURM_JOB_ID.txt 2>&1
-fi
-hostname
+uname -a
+kallisto version
+pwd
 
 gtf=$(Reference/gtf-filename.sh)
 

@@ -30,14 +30,11 @@
 
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
-: ${SLURM_JOB_ID:=test}
 
 # Document software versions used for publication
-if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
-    uname -a > Logs/02-qc/os-version-$SLURM_JOB_ID.txt 2>&1
-    fastqc --version > Logs/02-qc/fastqc-version-$SLURM_JOB_ID.txt 2>&1
-fi
-hostname
+uname -a
+fastqc --version
+pwd
 
 mkdir -p Data/02-qc/Raw Data/02-qc/Trimmed
 

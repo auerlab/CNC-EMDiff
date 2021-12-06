@@ -34,14 +34,11 @@
 
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
-: ${SLURM_JOB_ID:=test}
 
 # Document software versions used for publication
-if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
-    uname -a > Logs/06-merge-kallisto-bams/os-version-$SLURM_JOB_ID.txt 2>&1
-    samtools --version > Logs/06-merge-kallisto-bams/samtools-version-$SLURM_JOB_ID.txt 2>&1
-fi
-hostname
+uname -a
+samtools --version
+pwd
 
 dir=Data/05-kallisto-quant
 input_bam1=$(echo $dir/*-sample${SLURM_ARRAY_TASK_ID}-*/pseudoalignments.bam)

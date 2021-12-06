@@ -30,14 +30,11 @@
 
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
-: ${SLURM_JOB_ID:=test}
 
 # Document software versions used for publication
-if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
-    uname -a > Logs/01-trim/os-version-$SLURM_JOB_ID.txt 2>&1
-    cutadapt --version > Logs/01-trim/cutadapt-version-$SLURM_JOB_ID.txt 2>&1
-fi
-hostname
+uname -a
+cutadapt --version
+pwd
 
 input1=$(ls Data/Raw-renamed/*-sample${SLURM_ARRAY_TASK_ID}-*R1*)
 input2=$(ls Data/Raw-renamed/*-sample${SLURM_ARRAY_TASK_ID}-*R2*)
