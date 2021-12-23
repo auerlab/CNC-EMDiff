@@ -10,18 +10,6 @@
 #   2020-06-15  Jason Bacon Integrate into latest RNA-Seq pipeline
 ##########################################################################
 
-library(sleuth)
-library(biomaRt)
-library(dplyr)
-
-##########################
-###biomaRt stuff #########
-### get gene names etc ###
-mart <- biomaRt::useMart(biomart = "ENSEMBL_MART_ENSEMBL",
-  dataset = "mmusculus_gene_ensembl",
-  host = 'ensembl.org')
-t2g <- biomaRt::getBM(attributes = c("ensembl_transcript_id", "ensembl_gene_id", "external_gene_name"), mart = mart)
-t2g <- dplyr::rename(t2g, target_id = ensembl_transcript_id, ens_gene = ensembl_gene_id, ext_gene = external_gene_name)
 ############################
 #############################
 
@@ -65,22 +53,44 @@ t2g <- dplyr::rename(t2g, target_id = ensembl_transcript_id, ens_gene = ensembl_
 # Read in data
 # From several parameter variations early on:
 # base_dir <- "4-kallisto-quant-m30-u15/"
-base_dir <- "4-kallisto-quant-0.46.1"
-sample_id <- as.character(sort(as.numeric(dir(file.path(base_dir))[1:18])))[1:9]
 
-kal_dirs <- sapply(sample_id, function(id) file.path(base_dir, id))
+# Extract numeric sample IDs from kallisto output directory names
+library(stringr)
+base_dir <- "Data/05-kallisto-quant";
+sample_id <- str_extract(dir(base_dir),"[0-9]+");
+sample_id
+
+kal_dirs <- file.path(base_dir,dir(base_dir))
 kal_dirs
 
 expdesign <- data.frame(sample=sample_id,
-			time=factor(c("A", "B", "C", "A", "B", "C", "A", "B", "C")),
+			time=factor(c("T1", "T2", "T3", "T1", "T2", "T3", "T1", "T2", "T3")),
 			replicate=c(1,1,1,2,2,2,3,3,3),
 			path=kal_dirs,
 			stringsAsFactors=FALSE)
 
 full_design_factor <- model.matrix(formula(~ expdesign$time))
 colnames(full_design_factor) <- c("CEday0", "CEday4", "CEday14")
+
+##########################
+###biomaRt stuff #########
+### get gene names etc ###
+
+# FIXME: build and release??
+# Get this from GFF?
+library(biomaRt)
+library(dplyr)
+mart <- biomaRt::useMart(biomart = "ENSEMBL_MART_ENSEMBL",
+	dataset = "mmusculus_gene_ensembl",
+	host = 'ensembl.org');
+t2g <- biomaRt::getBM(attributes = c("ensembl_transcript_id", "ensembl_gene_id", "external_gene_name"), mart = mart)
+t2g <- dplyr::rename(t2g, target_id = ensembl_transcript_id, ens_gene = ensembl_gene_id, ext_gene = external_gene_name)
+
+library(sleuth);
 so <- sleuth_prep(sample_to_covariates = expdesign, full_model=full_design_factor, target_mapping=t2g)
 so <- sleuth_fit(so)
+quit()
+
 
 ### CE Day 4 vs CE Day 0
 so2 <- sleuth_wt(so, "CEday4")
@@ -110,6 +120,7 @@ dir.create("Sleuth-Prelim")
 write.table(ce.14vs0, "Sleuth-Prelim/ce14vsce0.txt", row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
 write.table(ce.4vs0, "Sleuth-Prelim/ce4vsce0.txt", row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
 
+# Repeats for other sample groups below
 
 ## CE Day 14 vs CE Day 4
 library(sleuth)
@@ -247,6 +258,7 @@ sample_id <- as.character(sort(as.numeric(dir(file.path(base_dir))[1:18])))[10:1
 
 kal_dirs <- sapply(sample_id, function(id) file.path(base_dir, id))
 kal_dirs
+quit()
 
 expdesign <- data.frame(sample=sample_id,
 			time=factor(c("A", "B", "C", "A", "B", "C", "A", "B", "C")),
