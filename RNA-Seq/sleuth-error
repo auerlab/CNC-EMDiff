@@ -1,0 +1,9 @@
+normalizing tpm                                                                 
+merging in metadata                                                             
+summarizing bootstraps                                                          
+..................Error in order(indices) : unimplemented type 'list' in 'orderVector1'                                                                         
+Calls: sleuth_prep -> stopifnot -> order                                        
+In addition: Warning message:                                                   
+In parallel::mclapply(x, y, mc.cores = num_cores) :                             
+  scheduled core 1 did not deliver a result, all values of the job will be affected                                                                             
+Execution halted                                                                

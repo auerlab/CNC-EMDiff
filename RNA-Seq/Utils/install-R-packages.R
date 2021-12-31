@@ -12,11 +12,13 @@ install.packages("remotes")
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 
+# Sleuth has not been maintained since 2019.  Use DESeq2 instead.
 # Instructions at https://pachterlab.github.io/sleuth/download do not work
-#source("http://bioconductor.org/biocLite.R")
-#biocLite("rhdf5")
-#install.packages("devtools")
-#devtools::install_github("pachterlab/sleuth")
-
+# source("http://bioconductor.org/biocLite.R")
+# biocLite("rhdf5")
+# install.packages("devtools")
+# devtools::install_github("pachterlab/sleuth")
 # This seems to work
-BiocManager::install("pachterlab/sleuth")
+# BiocManager::install("pachterlab/sleuth")
+
+BiocManager::install("DESeq2")
