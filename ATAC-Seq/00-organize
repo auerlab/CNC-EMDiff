@@ -1,0 +1,12 @@
+#!/bin/sh -e
+
+mkdir -p 1-trim 2-qc 3-bwa-index 4-bwa-mem 5-qc-sam 6-remove-duplicates \
+    8-macs-peaks 7-merge-bams 9-process-peaks 10-diff-anal
+
+##############################################################################
+# ATAC-Seq: Was meant to use the same naming convention, but replicate and
+# time point got swapped by mistake.
+##############################################################################
+
+# FIXME: Duplicate RNA-Seq raw file links, but with fix for swapped
+# replicate and time point
