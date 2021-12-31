@@ -54,6 +54,9 @@
 # From several parameter variations early on:
 # base_dir <- "4-kallisto-quant-m30-u15/"
 
+print("Sleuth is dead.  Use DESeq2.");
+quit();
+
 # Extract numeric sample IDs from kallisto output directory names
 library(stringr)
 base_dir <- "Data/05-kallisto-quant";
