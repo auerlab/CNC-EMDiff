@@ -2,9 +2,11 @@
 
 if which cluster-run; then
     cluster_run=cluster-run
+    srun=srun
     node_spec=compute
 else
     cluster_run='sh -c'
+    srun=''
 fi
 
 case $(uname) in
@@ -25,18 +27,5 @@ FreeBSD)
 
 esac
 
-# Install R packages into a shared location
-# Use a compute node to install if on a cluster
-if which srun; then
-    srun='srun --mem=500'
-fi
-read -p 'R prefix? [/sharedapps/R] ' prefix
-if [ 0$prefix = 0 ]; then
-    prefix='/sharedapps/R'
-fi
-read -p 'CRAN URL? [https://mirror.las.iastate.edu/CRAN/]' url
-if [ 0$url = 0 ]; then
-    url='https://mirror.las.iastate.edu/CRAN/'
-fi
-mkdir -p $prefix
-$srun Utils/install-R-packages $prefix $url
+printf "\nInstalling R packages...\n"
+$srun Utils/install-R-packages.R
