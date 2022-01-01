@@ -59,7 +59,7 @@ quit();
 
 # Extract numeric sample IDs from kallisto output directory names
 library(stringr)
-base_dir <- "Data/07-kallisto-quant";
+base_dir <- "Data/09-kallisto-quant";
 sample_id <- str_extract(dir(base_dir),"[0-9]+");
 sample_id
 

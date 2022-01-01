@@ -2,7 +2,7 @@
 
 ##########################################################################
 #   Description:
-#       Build STAR aligner index for reference genome.
+#       Run STAR aligner on each RNA sample.
 #
 #       All necessary tools are assumed to be in PATH.  If this is not
 #       the case, add whatever code is needed here to gain access.
@@ -19,17 +19,22 @@
 #   https://hbctraining.github.io/Intro-to-rnaseq-hpc-O2/lessons/03_alignment.html
 ##########################################################################
 
-#SBATCH --cpus-per-task=6
+#SBATCH --array=1-18
+# 1 for STAR, 1 for each xzcat
+#SBATCH --cpus-per-task=3
 # Memory requirements can only be determined by trial and error.
 # Run a sample job and monitor closely in "top" or rununder a tool that
 # reports maximum memory use.
-#SBATCH --mem=60g
-#SBATCH --output=Logs/15-star-index/slurm-%A.out
-#SBATCH --error=Logs/15-star-index/slurm-%A.err
+#SBATCH --mem=24000
+#SBATCH --output=Logs/20-star-align/slurm-%A_%a.out
+#SBATCH --error=Logs/20-star-align/slurm-%A_%a.err
+
+##############################################################################
+# Align with star, which can handle splice junctions in RNA reads
 
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
-: ${SLURM_CPUS_PER_TASK:=6}
+: ${SLURM_CPUS_PER_TASK:=4}
 
 cat << EOM
 
@@ -51,16 +56,31 @@ uname -a
 STAR --version
 pwd
 
+build=$(../Common/genome-build.sh)
+release=$(../Common/genome-release.sh)
 genome=$(Reference/genome-filename.sh)
-gtf=$(Reference/gtf-filename.sh)
-printf "Using reference $genome, $gtf...\n"
 
-# Overhang should be read length - 1
-STAR --runThreadN $SLURM_CPUS_PER_TASK \
-    --runMode genomeGenerate \
-    --genomeDir Data/15-star-index \
-    --genomeFastaFiles Data/03-reference/$genome \
-    --sjdbGTFfile Data/03-reference/$gtf \
-    --sjdbOverhang 97
+xz1=$(echo Data/03-trim/*-sample${SLURM_ARRAY_TASK_ID}-*-R1.fastq.xz)
+xz2=$(echo Data/03-trim/*-sample${SLURM_ARRAY_TASK_ID}-*-R2.fastq.xz)
 
-ls Data/15-star-index
+xzb=$(basename $xz1)
+filename_prefix=${xzb%-R*}-
+bam=Data/20-star-align/${filename_prefix}Aligned.sortedByCoord.out.bam
+
+# Empty BAM files may be caused by failing --readFilesCommand
+# This didn't help.  2 issues on Github about empty BAM files, so
+# probably a bug.
+# test -e $unxz1 || xzcat $xz1 > $unxz1
+# test -e $unxz2 || xzcat $xz2 > $unxz2
+
+STAR \
+    --genomeDir Data/19-star-index \
+    --runThreadN 1 \
+    --readFilesIn $xz1 $xz2 \
+    --readFilesCommand xzcat \
+    --outFileNamePrefix Data/20-star-align/$filename_prefix \
+    --outSAMtype BAM Unsorted \
+    --outSAMunmapped Within \
+    --outSAMattributes Standard
+
+#samtools index $bam

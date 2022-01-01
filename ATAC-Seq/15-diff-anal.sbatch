@@ -50,4 +50,4 @@ if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
     R --version > 10-diff-anal/R-version.txt 2>&1
 fi
 
-./10-diff-anal.R $cell_type
+./diff-anal.R $cell_type

@@ -1,11 +1,29 @@
 #!/bin/sh -e
 
-c=15
-while [ $c -ge 8 ]; do
+usage()
+{
+    printf "Usage: $0 high low increment\n"
+    exit 1
+}
+
+
+##########################################################################
+#   Main
+##########################################################################
+
+if [ $# != 3 ]; then
+    usage
+fi
+high=$1
+low=$2
+inc=$3
+
+c=$high
+while [ $c -ge $low ]; do
     prefix=$(printf "%02d" $c)
     script=$(ls $prefix-*)
     base=${script%.*}
-    new_prefix=`printf "%02d" $((c + 1))`
+    new_prefix=`printf "%02d" $((c + inc))`
     new_script=$(echo $script | sed -e "s|$prefix|$new_prefix|")
     new_base=$(echo $base | sed -e "s|$prefix|$new_prefix|")
     printf "$base -> $new_base\n"
