@@ -7,18 +7,28 @@ else
     cluster_run='sh -c'
 fi
 
+py_prefix=py38
+progs="$py_prefix-cutadapt fastqc $py_prefix-multiqc samtools gffread bwa biolibc-tools kallisto R hisat2"
+
 case $(uname) in
 FreeBSD)
-    py_prefix=py38
     # Install ports on all compute nodes
     printf "Root "
-    su -m root -c "$cluster_run 'pkg install -y $py_prefix-cutadapt fastqc \
-	$py_prefix-multiqc samtools gffread bwa biolibc-tools \
-	kallisto R hisat2' $node_spec"
-	;;
+    su -m root -c "$cluster_run 'pkg install -y $progs' $node_spec"
+    ;;
 
 *)
-    printf "$0: $(uname) is not yet supported.\n"
+    cat << EOM
+
+$0: $(uname) is not yet supported.
+
+Please find another way to install
+
+$progs
+
+or consider updating $0 to support $(uname).
+
+EOM
     exit 1
     ;;
 

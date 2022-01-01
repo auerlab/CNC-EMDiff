@@ -9,19 +9,30 @@ else
     srun=''
 fi
 
+py_prefix=py38
+progs="$py_prefix-cutadapt fastqc $py_prefix-multiqc bwa samtools \
+	$py_prefix-macs2 bedtools R librsvg2 pkgconf"
+
 case $(uname) in
 FreeBSD)
-    py_prefix=py38
     # Install ports on all compute nodes
     # DiffBind deps: librsvg2 pkgconf
     printf "Root "
-    su -m root -c "$cluster_run 'pkg install -y $py_prefix-cutadapt fastqc \
-	$py_prefix-multiqc bwa samtools $py_prefix-macs2 bedtools R \
-	librsvg2 pkgconf' $node_spec"
+    su -m root -c "$cluster_run 'pkg install -y $progs' $node_spec"
     ;;
 
 *)
-    printf "$0: $(uname) is not yet supported.\n"
+    cat << EOM
+
+$0: $(uname) is not yet supported.
+
+Please find another way to install
+
+$progs
+
+or consider updating $0 to support $(uname).
+
+EOM
     exit 1
     ;;
 
