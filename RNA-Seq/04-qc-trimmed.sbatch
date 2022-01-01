@@ -18,15 +18,15 @@
 ##########################################################################
 
 # Each invocation of this script will run 4 fastqc processes, forward
-# and reverse raw and forward and reverse trimmed
+# and reverse
 #SBATCH --array=1-18
-#SBATCH --cpus-per-task=4
+#SBATCH --cpus-per-task=2
 # Memory requirements can only be determined by trial and error.
 # Run a sample job and monitor closely in "top" or rununder a tool that
 # reports maximum memory use.
 #SBATCH --mem=1g
-#SBATCH --output=Logs/02-qc/slurm-%A_%a.out
-#SBATCH --error=Logs/02-qc/slurm-%A_%a.err
+#SBATCH --output=Logs/04-qc/slurm-%A_%a.out
+#SBATCH --error=Logs/04-qc/slurm-%A_%a.err
 
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
@@ -36,24 +36,16 @@ uname -a
 fastqc --version
 pwd
 
-mkdir -p Data/02-qc/Raw Data/02-qc/Trimmed
-
-# Raw files from sequencing center
-raw1=$(ls Data/Raw-renamed/*-sample${SLURM_ARRAY_TASK_ID}-*R1*.fastq.xz)
-raw2=$(ls Data/Raw-renamed/*-sample${SLURM_ARRAY_TASK_ID}-*R2*.fastq.xz)
+mkdir -p Data/04-qc
 
 # Cutadapt output
-trimmed1=$(ls Data/01-trim/*-sample${SLURM_ARRAY_TASK_ID}-*R1*.fastq.xz)
-trimmed2=$(ls Data/01-trim/*-sample${SLURM_ARRAY_TASK_ID}-*R2*.fastq.xz)
+trimmed1=$(ls Data/03-trim/*-sample${SLURM_ARRAY_TASK_ID}-*R1*.fastq.xz)
+trimmed2=$(ls Data/03-trim/*-sample${SLURM_ARRAY_TASK_ID}-*R2*.fastq.xz)
 
 # Filename stems for fastqc output
-stem_raw1=$(basename ${raw1%.fastq.xz})
-stem_raw2=$(basename ${raw2%.fastq.xz})
 stem_trimmed1=$(basename ${trimmed1%.fastq.xz})
 stem_trimmed2=$(basename ${trimmed2%.fastq.xz})
 
 # Background the first three to run 4 jobs in parallel
-xzcat $raw1 | fastqc -o Data/02-qc/Raw stdin:$stem_raw1 &
-xzcat $raw2 | fastqc -o Data/02-qc/Raw stdin:$stem_raw2 &
-xzcat $trimmed1 | fastqc -o Data/02-qc/Trimmed stdin:$stem_trimmed1 &
-xzcat $trimmed2 | fastqc -o Data/02-qc/Trimmed stdin:$stem_trimmed2
+xzcat $trimmed1 | fastqc -o Data/04-qc stdin:$stem_trimmed1 &
+xzcat $trimmed2 | fastqc -o Data/04-qc stdin:$stem_trimmed2

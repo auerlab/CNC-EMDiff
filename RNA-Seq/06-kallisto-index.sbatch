@@ -19,8 +19,8 @@
 # Run a sample job and monitor closely in "top" or rununder a tool that
 # reports maximum memory use.
 #SBATCH --mem=4g
-#SBATCH --output=Logs/04-kallisto-index/slurm-%A.out
-#SBATCH --error=Logs/04-kallisto-index/slurm-%A.err
+#SBATCH --output=Logs/06-kallisto-index/slurm-%A.out
+#SBATCH --error=Logs/06-kallisto-index/slurm-%A.err
 
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
@@ -42,4 +42,4 @@ fi
 
 printf "Building kallisto index...\n"
 set -x
-kallisto index --index=Data/04-kallisto-index/all-but-xy.index $transcriptome
+kallisto index --index=Data/06-kallisto-index/all-but-xy.index $transcriptome
