@@ -12,7 +12,7 @@ gtf=$(Reference/gtf-filename.sh)
 # GTF
 # Can't guarantee this file or the chromosome files will always be available.
 # You may need to edit this.
-cd Data/03-reference
+cd Data/07-reference
 if [ ! -e $gtf.gz ]; then
     printf "Fetching $gtf.gz...\n"
     $fetch ftp://ftp.ensembl.org/pub/release-$release/gtf/mus_musculus/$gtf.gz

@@ -19,8 +19,8 @@
 # Run a sample job and monitor closely in "top" or rununder a tool that
 # reports maximum memory use.
 #SBATCH --mem=4g
-#SBATCH --output=Logs/03-reference/slurm-%A.out
-#SBATCH --error=Logs/03-reference/slurm-%A.err
+#SBATCH --output=Logs/07-reference/slurm-%A.out
+#SBATCH --error=Logs/07-reference/slurm-%A.err
 
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
@@ -55,7 +55,7 @@ pwd
 Reference/gtf2fasta.sh  # Construct genome minus XY using Ensembl GFF
 
 # Reference/create-chrom-sizes.sh
-chrom_sizes="Data/03-reference/chromosome-sizes.tsv"
+chrom_sizes="Data/07-reference/chromosome-sizes.tsv"
 printf "Generating $chrom_sizes...\n"
-blt chrom-lens < Data/03-reference/all-but-xy.fa > $chrom_sizes
+blt chrom-lens < Data/07-reference/$(Reference/genome-filename.sh) > $chrom_sizes
 cat $chrom_sizes

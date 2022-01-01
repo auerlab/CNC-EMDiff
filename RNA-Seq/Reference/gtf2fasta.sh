@@ -13,8 +13,9 @@ build=$(../Common/genome-build.sh)
 release=$(../Common/genome-release.sh)
 transcriptome=$(Reference/transcriptome-filename.sh)
 gtf=$(Reference/gtf-filename.sh)
+genome=$(Reference/genome-filename.sh)
 
-cd Data/03-reference
+cd Data/07-reference
 
 # Chromosome files
 chromosome=1
@@ -26,7 +27,6 @@ while [ $chromosome -le 19 ]; do
     chromosome=$((chromosome + 1))
 done
 
-genome='all-but-xy.fa'
 if [ ! -e $genome ]; then
     printf "Concatenating chromosome FASTAs...\n"
     for chrom in $(seq 1 19); do
