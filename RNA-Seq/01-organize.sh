@@ -36,10 +36,9 @@ if [ $# != 0 ]; then
 fi
 
 mkdir -p Data Logs
-for stage in 02-qc-raw 03-trim 04-qc-trimmed 05-reference \
-    08-kallisto-index 09-kallisto-quant 12-merge-kallisto-bams 13-sleuth-DE \
-    15-hisat2-index 16-hisat2-align 17-merge-hisat2-bams 18-hisat2-deseq2 \
-    19-star-index 20-star-align 14-star-deseq2; do
+scripts=$(ls 0[2-9]-* [1-9][0-9]-*)
+for script in $scripts; do
+    stage=${script%.*}
     mkdir -p Data/$stage Logs/$stage
 done
 

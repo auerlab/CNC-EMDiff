@@ -1,9 +1,9 @@
 #!/bin/sh -e
 
 mkdir -p Data Logs
-for stage in 02-qc-raw 04-trim 05-qc-trimmed 07-bwa-index 08-bwa-mem \
-    07-qc-sam 09-remove-duplicates 09-merge-bams 10-macs-peaks \
-    11-process-peaks 12-diff-anal; do
+scripts=$(ls 0[2-9]-* [1-9][0-9]-*)
+for script in $scripts; do
+    stage=${script%.*}
     mkdir -p Data/$stage Logs/$stage
 done
 
