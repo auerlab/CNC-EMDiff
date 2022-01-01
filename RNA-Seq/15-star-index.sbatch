@@ -24,8 +24,8 @@
 # Run a sample job and monitor closely in "top" or rununder a tool that
 # reports maximum memory use.
 #SBATCH --mem=60g
-#SBATCH --output=Logs/14-star-index/slurm-%A.out
-#SBATCH --error=Logs/14-star-index/slurm-%A.err
+#SBATCH --output=Logs/15-star-index/slurm-%A.out
+#SBATCH --error=Logs/15-star-index/slurm-%A.err
 
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
@@ -58,9 +58,9 @@ printf "Using reference $genome, $gtf...\n"
 # Overhang should be read length - 1
 STAR --runThreadN $SLURM_CPUS_PER_TASK \
     --runMode genomeGenerate \
-    --genomeDir Data/14-star-index \
+    --genomeDir Data/15-star-index \
     --genomeFastaFiles Data/03-reference/$genome \
     --sjdbGTFfile Data/03-reference/$gtf \
     --sjdbOverhang 97
 
-ls Data/14-star-index
+ls Data/15-star-index

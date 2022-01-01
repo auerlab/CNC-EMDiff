@@ -37,9 +37,9 @@ fi
 
 mkdir -p Data Logs
 for stage in 02-qc-raw 03-trim 04-qc-trimmed 05-reference \
-    06-kallisto-index 07-kallisto-quant 08-merge-kallisto-bams 09-sleuth-DE \
-    10-hisat2-index 11-hisat2-align 12-merge-hisat2-bams 13-hisat2-deseq2 \
-    14-star-index 15-star-align 14-star-deseq2; do
+    06-kallisto-index 07-kallisto-quant 09-merge-kallisto-bams 10-sleuth-DE \
+    11-hisat2-index 12-hisat2-align 13-merge-hisat2-bams 14-hisat2-deseq2 \
+    15-star-index 16-star-align 14-star-deseq2; do
     mkdir -p Data/$stage Logs/$stage
 done
 

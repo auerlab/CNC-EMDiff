@@ -26,8 +26,8 @@
 # Run a sample job and monitor closely in "top" or rununder a tool that
 # reports maximum memory use.
 #SBATCH --mem=24000
-#SBATCH --output=Logs/15-star-align/slurm-%A_%a.out
-#SBATCH --error=Logs/15-star-align/slurm-%A_%a.err
+#SBATCH --output=Logs/16-star-align/slurm-%A_%a.out
+#SBATCH --error=Logs/16-star-align/slurm-%A_%a.err
 
 ##############################################################################
 # Align with star, which can handle splice junctions in RNA reads
@@ -65,7 +65,7 @@ xz2=$(echo Data/03-trim/*-sample${SLURM_ARRAY_TASK_ID}-*-R2.fastq.xz)
 
 xzb=$(basename $xz1)
 filename_prefix=${xzb%-R*}-
-bam=Data/15-star-align/${filename_prefix}Aligned.sortedByCoord.out.bam
+bam=Data/16-star-align/${filename_prefix}Aligned.sortedByCoord.out.bam
 
 # Empty BAM files may be caused by failing --readFilesCommand
 # This didn't help.  2 issues on Github about empty BAM files, so
@@ -74,11 +74,11 @@ bam=Data/15-star-align/${filename_prefix}Aligned.sortedByCoord.out.bam
 # test -e $unxz2 || xzcat $xz2 > $unxz2
 
 STAR \
-    --genomeDir Data/14-star-index \
+    --genomeDir Data/15-star-index \
     --runThreadN 1 \
     --readFilesIn $xz1 $xz2 \
     --readFilesCommand xzcat \
-    --outFileNamePrefix Data/15-star-align/$filename_prefix \
+    --outFileNamePrefix Data/16-star-align/$filename_prefix \
     --outSAMtype BAM Unsorted \
     --outSAMunmapped Within \
     --outSAMattributes Standard

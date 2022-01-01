@@ -29,8 +29,8 @@
 # top showed a steady 25M virtual, 12 res with a spike to 42/30 at the
 # end (samtools index?) on FreeBSD 13
 #SBATCH --mem=50m
-#SBATCH --output=Logs/12-merge-hisat2-bams/slurm-%A_%a.out
-#SBATCH --error=Logs/12-merge-hisat2-bams/slurm-%A_%a.err
+#SBATCH --output=Logs/13-merge-hisat2-bams/slurm-%A_%a.out
+#SBATCH --error=Logs/13-merge-hisat2-bams/slurm-%A_%a.err
 
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
@@ -40,7 +40,7 @@ uname -a
 samtools --version
 pwd
 
-dir=Data/11-hisat2-align
+dir=Data/12-hisat2-align
 input_bam1=$(echo $dir/*-sample${SLURM_ARRAY_TASK_ID}-*.bam)
 input_bam2=$(echo $dir/*-sample$((SLURM_ARRAY_TASK_ID + 3))-*.bam)
 input_bam3=$(echo $dir/*-sample$((SLURM_ARRAY_TASK_ID + 6))-*.bam)
@@ -49,9 +49,9 @@ input_bam3=$(echo $dir/*-sample$((SLURM_ARRAY_TASK_ID + 6))-*.bam)
 first=$SLURM_ARRAY_TASK_ID
 last=$(($SLURM_ARRAY_TASK_ID + 2))
 if [ $SLURM_ARRAY_TASK_ID -le 3 ]; then
-    output_bam=Data/12-merge-hisat2-bams/chondro-$first-$last.bam
+    output_bam=Data/13-merge-hisat2-bams/chondro-$first-$last.bam
 else
-    output_bam=Data/12-merge-hisat2-bams/neuro-$first-$last.bam
+    output_bam=Data/13-merge-hisat2-bams/neuro-$first-$last.bam
 fi
 
 set -x

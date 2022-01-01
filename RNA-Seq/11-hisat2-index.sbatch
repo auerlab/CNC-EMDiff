@@ -16,8 +16,8 @@
 ##########################################################################
 
 #SBATCH --mem=1g
-#SBATCH --output=Logs/10-hisat2-index/slurm-%A.out
-#SBATCH --error=Logs/10-hisat2-index/slurm-%A.err
+#SBATCH --output=Logs/11-hisat2-index/slurm-%A.out
+#SBATCH --error=Logs/11-hisat2-index/slurm-%A.err
 
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
@@ -28,11 +28,11 @@ hisat2 --version
 samtools --version
 pwd
 
-# Run hisat2-build on a copy in 10-hisat2-index so it will put the .ht2
+# Run hisat2-build on a copy in 11-hisat2-index so it will put the .ht2
 # files there
 genome=$(Reference/genome-filename.sh)
-ln -f Data/03-reference/$genome Data/10-hisat2-index
-genome=Data/10-hisat2-index/$genome
+ln -f Data/03-reference/$genome Data/11-hisat2-index
+genome=Data/11-hisat2-index/$genome
 printf "Using reference $genome...\n"
 
 if [ ! -e $genome.8.ht2 ]; then
@@ -43,4 +43,4 @@ if [ ! -e $genome.fai ]; then
     printf "Building $genome.fai...\n"
     samtools faidx $genome
 fi
-ls Data/10-hisat2-index
+ls Data/11-hisat2-index

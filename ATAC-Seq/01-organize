@@ -1,9 +1,9 @@
 #!/bin/sh -e
 
 mkdir -p Data Logs
-for stage in 01-trim 02-qc 03-bwa-index 04-bwa-mem 05-qc-sam \
-    06-remove-duplicates 07-merge-bams 08-macs-peaks 09-process-peaks \
-    10-diff-anal; do
+for stage in 02-qc-raw 03-trim 04-qc-trimmed 05-bwa-index 06-bwa-mem \
+    07-qc-sam 08-remove-duplicates 09-merge-bams 10-macs-peaks \
+    11-process-peaks 12-diff-anal; do
     mkdir -p Data/$stage Logs/$stage
 done
 

@@ -29,8 +29,8 @@
 # top showed a steady 25M virtual, 12 res with a spike to 42/30 at the
 # end (samtools index?) on FreeBSD 13
 #SBATCH --mem=50m
-#SBATCH --output=Logs/08-merge-kallisto-bams/slurm-%A_%a.out
-#SBATCH --error=Logs/08-merge-kallisto-bams/slurm-%A_%a.err
+#SBATCH --output=Logs/09-merge-kallisto-bams/slurm-%A_%a.out
+#SBATCH --error=Logs/09-merge-kallisto-bams/slurm-%A_%a.err
 
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
@@ -49,9 +49,9 @@ input_bam3=$(echo $dir/*-sample$((SLURM_ARRAY_TASK_ID + 6))-*/pseudoalignments.b
 first=$SLURM_ARRAY_TASK_ID
 last=$(($SLURM_ARRAY_TASK_ID + 2))
 if [ $SLURM_ARRAY_TASK_ID -le 3 ]; then
-    output_bam=Data/08-merge-kallisto-bams/chondro-$first-$last.bam
+    output_bam=Data/09-merge-kallisto-bams/chondro-$first-$last.bam
 else
-    output_bam=Data/08-merge-kallisto-bams/neuro-$first-$last.bam
+    output_bam=Data/09-merge-kallisto-bams/neuro-$first-$last.bam
 fi
 
 set -x
