@@ -1,12 +1,14 @@
 #!/bin/sh -e
 
-if which srun; then
+if which srun > /dev/null; then
     srun=srun
 else
     srun=''
 fi
 
-$srun multiqc --version > 2-qc/multiqc-version.txt 2>&1
+# multiqc: LC_ALL and LANG must be set to a UTF-8 character set
+# in your environment in order for the click module to function.
+export LC_ALL=en_US.UTF-8
 
-(cd 2-qc/Raw && $srun multiqc .)
-(cd 2-qc/Trimmed && $srun multiqc .)
+$srun multiqc --version > Data/02-qc-raw/multiqc-version.txt 2>&1
+cd Data/02-qc-raw && $srun multiqc .
