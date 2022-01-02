@@ -25,8 +25,8 @@
 # Run a sample job and monitor closely in "top" or rununder a tool that
 # reports maximum memory use.
 #SBATCH --mem=1g
-#SBATCH --output=Logs/04-qc/slurm-%A_%a.out
-#SBATCH --error=Logs/04-qc/slurm-%A_%a.err
+#SBATCH --output=Logs/05-qc-trimmed/slurm-%A_%a.out
+#SBATCH --error=Logs/05-qc-trimmed/slurm-%A_%a.err
 
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
@@ -36,16 +36,17 @@ uname -a
 fastqc --version
 pwd
 
-mkdir -p Data/04-qc
-
 # Cutadapt output
-trimmed1=$(ls Data/03-trim/*-sample${SLURM_ARRAY_TASK_ID}-*R1*.fastq.xz)
-trimmed2=$(ls Data/03-trim/*-sample${SLURM_ARRAY_TASK_ID}-*R2*.fastq.xz)
+trimmed1=$(ls Data/04-trim/*-sample${SLURM_ARRAY_TASK_ID}-*R1*.fastq.xz)
+trimmed2=$(ls Data/04-trim/*-sample${SLURM_ARRAY_TASK_ID}-*R2*.fastq.xz)
 
 # Filename stems for fastqc output
 stem_trimmed1=$(basename ${trimmed1%.fastq.xz})
 stem_trimmed2=$(basename ${trimmed2%.fastq.xz})
 
 # Background the first three to run 4 jobs in parallel
-xzcat $trimmed1 | fastqc -o Data/04-qc stdin:$stem_trimmed1 &
-xzcat $trimmed2 | fastqc -o Data/04-qc stdin:$stem_trimmed2
+xzcat $trimmed1 | fastqc -o Data/05-qc-trimmed stdin:$stem_trimmed1 &
+xzcat $trimmed2 | fastqc -o Data/05-qc-trimmed stdin:$stem_trimmed2
+
+# Make sure backgrounded job completes before terminating script
+wait

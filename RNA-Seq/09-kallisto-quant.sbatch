@@ -58,8 +58,8 @@ gtf=$(Reference/gtf-filename.sh)
 # kallisto 0.46.1 can't handle xz and will simply seg fault rather than
 # issue an error message.
 # Convert xz to gz rather than raw to reduce NFS load from compute nodes
-xz1=$(echo Data/03-trim/*-sample${SLURM_ARRAY_TASK_ID}-*-R1.fastq.xz)
-xz2=$(echo Data/03-trim/*-sample${SLURM_ARRAY_TASK_ID}-*-R2.fastq.xz)
+xz1=$(echo Data/04-trim/*-sample${SLURM_ARRAY_TASK_ID}-*-R1.fastq.xz)
+xz2=$(echo Data/04-trim/*-sample${SLURM_ARRAY_TASK_ID}-*-R2.fastq.xz)
 gz1=${xz1%.xz}.gz
 gz2=${xz2%.xz}.gz
 test -e $gz1 || xzcat $xz1 | gzip --stdout > $gz1
@@ -74,8 +74,8 @@ mkdir -p $out_dir
 set -x
 kallisto quant \
     --genomebam \
-	--gtf=Data/03-reference/$gtf \
-	--chromosomes=Data/03-reference/chromosome-sizes.tsv \
+	--gtf=Data/07-reference/$gtf \
+	--chromosomes=Data/07-reference/chromosome-sizes.tsv \
     --bootstrap-samples=500 \
     --threads=2 \
     --index=Data/08-kallisto-index/all-but-xy.index \

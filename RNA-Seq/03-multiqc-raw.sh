@@ -10,5 +10,7 @@ fi
 # in your environment in order for the click module to function.
 export LC_ALL=en_US.UTF-8
 
-$srun multiqc --version > Data/02-qc-raw/multiqc-version.txt 2>&1
-cd Data/02-qc-raw && $srun multiqc .
+cd Data/03-multiqc-raw
+rm -rf *
+$srun multiqc --version > multiqc-version.txt 2>&1
+$srun multiqc ../02-qc-raw

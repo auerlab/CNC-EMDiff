@@ -31,7 +31,7 @@ kallisto version
 samtools --version
 pwd
 
-transcriptome=Data/03-reference/$(Reference/transcriptome-filename.sh)
+transcriptome=Data/07-reference/$(Reference/transcriptome-filename.sh)
 printf "Using reference $transcriptome...\n"
 
 # Needed for kallisto --genomebam

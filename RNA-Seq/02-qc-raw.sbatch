@@ -47,3 +47,6 @@ stem_raw2=$(basename ${raw2%.fastq.xz})
 # Background the first three to run 4 jobs in parallel
 xzcat $raw1 | fastqc -o Data/02-qc-raw stdin:$stem_raw1 &
 xzcat $raw2 | fastqc -o Data/02-qc-raw stdin:$stem_raw2
+
+# Make sure backgrounded job completes before terminating script
+wait
