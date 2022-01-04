@@ -37,16 +37,16 @@ fastqc --version
 pwd
 
 # Cutadapt output
-trimmed1=$(ls Data/04-trim/*-sample${SLURM_ARRAY_TASK_ID}-*R1*.fastq.xz)
-trimmed2=$(ls Data/04-trim/*-sample${SLURM_ARRAY_TASK_ID}-*R2*.fastq.xz)
+trimmed1=$(ls Data/04-trim/*-sample${SLURM_ARRAY_TASK_ID}-*R1*.fastq.gz)
+trimmed2=$(ls Data/04-trim/*-sample${SLURM_ARRAY_TASK_ID}-*R2*.fastq.gz)
 
 # Filename stems for fastqc output
-stem_trimmed1=$(basename ${trimmed1%.fastq.xz})
-stem_trimmed2=$(basename ${trimmed2%.fastq.xz})
+stem_trimmed1=$(basename ${trimmed1%.fastq.gz})
+stem_trimmed2=$(basename ${trimmed2%.fastq.gz})
 
 # Background the first three to run 4 jobs in parallel
-xzcat $trimmed1 | fastqc -o Data/05-qc-trimmed stdin:$stem_trimmed1 &
-xzcat $trimmed2 | fastqc -o Data/05-qc-trimmed stdin:$stem_trimmed2
+gzcat $trimmed1 | fastqc -o Data/05-qc-trimmed stdin:$stem_trimmed1 &
+gzcat $trimmed2 | fastqc -o Data/05-qc-trimmed stdin:$stem_trimmed2
 
 # Make sure backgrounded job completes before terminating script
 wait

@@ -20,7 +20,9 @@
 # Each job in the array will run a cutadapt (python) process and a
 # compression process for part of the time.  If you don't want to
 # oversubscribe compute nodes even for a little while, add --cpus-per-task=2
+# There may be 2 pigz processes per job, but --cpus-per-task=3 doesn't help
 #SBATCH --array=1-18
+#SBATCH --cpus-per-task=2
 # Memory requirements can only be determined by trial and error.
 # Run a sample job and monitor closely in "top" or rununder a tool that
 # reports maximum memory use.
@@ -61,11 +63,31 @@ stem=${base%%-R*.fastq.xz}
 # quality issue, so -u +15 -U +15 is probably not necessary
 # -u +15 -U +15 \
 
-cutadapt \
+# https://www.rootusers.com/gzip-vs-bzip2-vs-xz-performance-comparison/
+# xz offers the best compression by far, but is slow at mid (-5) to high (-9)
+# compression levels.  At -1, xz is faster than bzip2 while providing
+# comparable compression.  If you want even faster compression and are
+# willing to sacrifice compression ratio, use .gz or no compression for
+# outputs instead.  A ZFS filesystem with lz4 compression should provide
+# enough compression for intermediate files without gzip, bzip2, or xz.
+# However, this may cause a network bottleneck as all processes write
+# uncompressed FASTQ over NFS.  Using at least gzip -1 will transfer some
+# of the load to the compute node CPUs and reduce NFS traffic considerably.
+#
+# suffix=.xz
+suffix=.gz
+compression_flag=--compression-level=1
+
+# Experimental
+# Need to pair reads somehow?
+# fastq-trim --3p-adapter AGATCGGAAGAGCACAC --min-length 30 --min-qual 24 \
+#       $input1
+
+cutadapt $compression_flag \
     --quality-cutoff=24 \
     -u -3 -U -3 \
     -a AGATCGGAAGAGCACAC -A AGATCGGAAGAGCGTCG \
     --minimum-length=30 \
-    --output=Data/04-trim/${stem}-R1.fastq.xz \
-    --paired-output=Data/04-trim/${stem}-R2.fastq.xz \
+    --output=Data/04-trim/${stem}-R1.fastq$suffix \
+    --paired-output=Data/04-trim/${stem}-R2.fastq$suffix \
     $input1 $input2

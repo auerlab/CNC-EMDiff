@@ -56,14 +56,16 @@ gtf=$(Reference/gtf-filename.sh)
 # chondro-sample4-rep2-time1-R1.fastq.xz is sample 4
 
 # kallisto 0.46.1 can't handle xz and will simply seg fault rather than
-# issue an error message.
+# issue an error message.  If your trimmed fastq files are in xz format,
+# this will convert to gzip format.
 # Convert xz to gz rather than raw to reduce NFS load from compute nodes
 xz1=$(echo Data/04-trim/*-sample${SLURM_ARRAY_TASK_ID}-*-R1.fastq.xz)
 xz2=$(echo Data/04-trim/*-sample${SLURM_ARRAY_TASK_ID}-*-R2.fastq.xz)
-gz1=${xz1%.xz}.gz
-gz2=${xz2%.xz}.gz
 test -e $gz1 || xzcat $xz1 | gzip --stdout > $gz1
 test -e $gz2 || xzcat $xz2 | gzip --stdout > $gz2
+
+gz1=$(echo Data/04-trim/*-sample${SLURM_ARRAY_TASK_ID}-*-R1.fastq.gz)
+gz2=$(echo Data/04-trim/*-sample${SLURM_ARRAY_TASK_ID}-*-R2.fastq.gz)
 
 # Kallisto requires an output subdirectory for each sample
 stem=$(basename ${xz1%-R1*})
