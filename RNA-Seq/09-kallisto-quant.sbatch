@@ -68,7 +68,7 @@ gz1=$(echo Data/04-trim/*-sample${SLURM_ARRAY_TASK_ID}-*-R1.fastq.gz)
 gz2=$(echo Data/04-trim/*-sample${SLURM_ARRAY_TASK_ID}-*-R2.fastq.gz)
 
 # Kallisto requires an output subdirectory for each sample
-stem=$(basename ${xz1%-R1*})
+stem=$(basename ${gz1%-R1*})
 out_dir=Data/09-kallisto-quant/$stem
 mkdir -p $out_dir
 
@@ -83,5 +83,3 @@ kallisto quant \
     --index=Data/08-kallisto-index/all-but-xy.index \
     --output-dir=$out_dir $gz1 $gz2
 
-# Remove temporary .gz files, keep .xz which is ~40% smaller
-rm -f $gz1 $gz2

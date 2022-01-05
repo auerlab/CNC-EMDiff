@@ -25,26 +25,17 @@
 #SBATCH --array=1-18
 # FIXME: Check actual memory use
 #SBATCH --mem=1g
-#SBATCH --output=5-qc-sam/slurm-%A_%a.out
-#SBATCH --error=5-qc-sam/slurm-%A_%a.err
+#SBATCH --output=Logs/10-qc-sam/slurm-%A_%a.out
+#SBATCH --error=Logs/10-qc-sam/slurm-%A_%a.err
 
-printf "FIXME: Adapt from ATAC-Seq script.\n"
-exit
-
-if [ -z $SLURM_ARRAY_TASK_ID ]; then
-    printf "$0 must be run under sbatch or ../slurm-sim\n"
-    exit 1
-fi
+: ${SLURM_ARRAY_TASK_ID:=1}
 
 # Document software versions used for publication
-if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
-    uname -a > 5-qc-sam/os-version.txt 2>&1
-    fastqc --version > 5-qc-sam/fastqc-version.txt 2>&1
-fi
+uname -a
+fastqc --version
 
 # One iteration if running under SLURM, all iterations otherwise
 printf "Running task $SLURM_ARRAY_TASK_ID...\n"
 
-infile=4-bwa-mem/*_S${SLURM_ARRAY_TASK_ID}_L001.sam
-fastqc --version > 5-qc-sam/fastqc-version.txt 2>&1
-fastqc $infile -o 5-qc-sam
+infile=Data/09-kallisto-quant/*-sample$SLURM_ARRAY_TASK_ID*/pseudoalignments.bam
+fastqc $infile -o Data/10-qc-sam
