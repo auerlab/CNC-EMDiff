@@ -32,31 +32,35 @@
 
 # Document software versions used for publication
 uname -a
-hisat2 --version
+#hisat2 --version
 pwd
 
 build=$(../Common/genome-build.sh)
 release=$(../Common/genome-release.sh)
 genome=$(Reference/genome-filename.sh)
 
+# samtools sort dumps temp files in CWD
 cd Data/16-hisat2-align
 
 # hisat2 can't handle xz.
 # Convert xz to gz rather than raw to reduce NFS load from compute nodes
-xz1=$(echo ../03-trim/*-sample${SLURM_ARRAY_TASK_ID}-*-R1.fastq.xz)
-xz2=$(echo ../03-trim/*-sample${SLURM_ARRAY_TASK_ID}-*-R2.fastq.xz)
-gz1=${xz1%.xz}.gz
-gz2=${xz2%.xz}.gz
+xz1=$(echo ../04-trim/*-sample${SLURM_ARRAY_TASK_ID}-*-R1.fastq.xz)
+xz2=$(echo ../04-trim/*-sample${SLURM_ARRAY_TASK_ID}-*-R2.fastq.xz)
 test -e $gz1 || xzcat $xz1 | gzip --stdout > $gz1
 test -e $gz2 || xzcat $xz2 | gzip --stdout > $gz2
 
+gz1=$(echo ../04-trim/*-sample${SLURM_ARRAY_TASK_ID}-*-R1.fastq.gz)
+gz2=$(echo ../04-trim/*-sample${SLURM_ARRAY_TASK_ID}-*-R2.fastq.gz)
 gzb=$(basename $gz1)
 bam=${gzb%-R*}.bam
 
+#echo $gz1
+#echo $gz2
+#echo $bam
+#ls ../15-hisat2-index/$genome
+#exit
+
 set -x
-hisat2 --threads $SLURM_CPUS_PER_TASK -x ../../Data/15-hisat2-index/$genome \
+hisat2 --threads $SLURM_CPUS_PER_TASK -x ../15-hisat2-index/$genome \
     -1 $gz1 -2 $gz2 | samtools sort > $bam
 samtools index $bam
-
-# Remove temporary .gz files, keep .xz which is ~40% smaller
-# rm -f $gz1 $gz2

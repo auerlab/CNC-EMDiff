@@ -82,9 +82,8 @@ compression_flag=--compression-level=1
 output1=Data/97-fastq-trim/${stem}-R1.fastq$suffix
 output2=Data/97-fastq-trim/${stem}-R2.fastq$suffix
 
-# Experimental
-export GZIP=-1     # Maximum compression throughput so it's not a bottleneck
-time fastq-trim --adapter-smart-match --3p-adapter AGATCGGAAGAGCACAC \
-    --min-length 30 --min-qual 24 \
-    $input1 $output1 $input2 $output2
+# Maximize compression throughput so gzip is not a bottleneck
+export GZIP=-1
 
+# fastq-trim is currently experimental
+time fastq-trim --min-qual 24 $input1 $output1 $input2 $output2

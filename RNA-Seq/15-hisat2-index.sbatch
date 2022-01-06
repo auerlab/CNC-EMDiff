@@ -31,7 +31,7 @@ pwd
 # Run hisat2-build on a copy in 15-hisat2-index so it will put the .ht2
 # files there
 genome=$(Reference/genome-filename.sh)
-ln -f Data/03-reference/$genome Data/15-hisat2-index
+ln -f Data/07-reference/$genome Data/15-hisat2-index
 genome=Data/15-hisat2-index/$genome
 printf "Using reference $genome...\n"
 
