@@ -82,8 +82,12 @@ compression_flag=--compression-level=1
 output1=Data/97-fastq-trim/${stem}-R1.fastq$suffix
 output2=Data/97-fastq-trim/${stem}-R2.fastq$suffix
 
-# Maximize compression throughput so gzip is not a bottleneck
-export GZIP=-1
+# Maximize compression throughput so gzip is not a bottleneck.
+# Don't use -1 if job is I/O bound.  Use the idle CPU to get better compression
+# and reduce I/O.  The goal is to maximum CPU utilization of the fastq-trim
+# process, as shown by job-top.  -4 seems to work best on albacore with its
+# gigabit network.  Lower values are probably better with a high-speed network.
+export GZIP=-4
 
 # fastq-trim is currently experimental
 time fastq-trim --min-qual 24 $input1 $output1 $input2 $output2
