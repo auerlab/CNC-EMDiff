@@ -21,7 +21,11 @@
 # compression process for part of the time.  If you don't want to
 # oversubscribe compute nodes even for a little while, add --cpus-per-task=2
 # There may be 2 pigz processes per job, but --cpus-per-task=3 doesn't help
-#SBATCH --array=1-18
+# Limit concurrent jobs to avoid becoming I/O-bound.  Fastq-trim is so fast
+# it ends up using only about 40% CPU while waiting for NFS on albacore.
+# We'll finish the job array just as fast running only 9 at a time and
+# getting 80% CPU utilization.
+#SBATCH --array=1-18%9
 # 2 xzcat, 2 gzip, and 1 fastq-trim, but xzcat and gzip only use about 50%
 #SBATCH --cpus-per-task=3
 # Memory requirements can only be determined by trial and error.
