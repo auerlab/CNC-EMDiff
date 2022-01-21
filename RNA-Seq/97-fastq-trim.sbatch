@@ -81,8 +81,6 @@ stem=${base%%-R*.fastq.xz}
 #
 # suffix=.xz
 suffix=.gz
-compression_flag=--compression-level=1
-
 output1=Data/97-fastq-trim/${stem}-R1.fastq$suffix
 output2=Data/97-fastq-trim/${stem}-R2.fastq$suffix
 

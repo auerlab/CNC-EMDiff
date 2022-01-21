@@ -21,7 +21,12 @@
 # compression process for part of the time.  If you don't want to
 # oversubscribe compute nodes even for a little while, add --cpus-per-task=2
 # There may be 2 pigz processes per job, but --cpus-per-task=3 doesn't help
-#SBATCH --array=1-18
+# Limit concurrent jobs to avoid becoming I/O-bound.  Fastq-trim is so fast
+# it ends up using only about 40% CPU while waiting for NFS on albacore.
+# We'll finish the job array just as fast running only 9 at a time and
+# getting 80% CPU utilization.
+#SBATCH --array=1-18%9
+# 2 xzcat, 2 gzip, and 1 fastq-trim, but xzcat and gzip only use about 50%
 #SBATCH --cpus-per-task=2
 # Memory requirements can only be determined by trial and error.
 # Run a sample job and monitor closely in "top" or rununder a tool that
@@ -76,13 +81,27 @@ stem=${base%%-R*.fastq.xz}
 #
 # suffix=.xz
 suffix=.gz
-compression_flag=--compression-level=1
+output1=Data/04-trim/${stem}-R1.fastq$suffix
+output2=Data/04-trim/${stem}-R2.fastq$suffix
 
-cutadapt $compression_flag \
-    --quality-cutoff=24 \
-    -u -3 -U -3 \
-    -a AGATCGGAAGAGCACAC -A AGATCGGAAGAGCGTCG \
-    --minimum-length=30 \
-    --output=Data/04-trim/${stem}-R1.fastq$suffix \
-    --paired-output=Data/04-trim/${stem}-R2.fastq$suffix \
-    $input1 $input2
+# Maximize compression throughput so gzip is not a bottleneck.
+# Don't use -1 if job is I/O bound.  Use the idle CPU to get better compression
+# and reduce I/O.  The goal is to maximum CPU utilization of the fastq-trim
+# process, as shown by job-top.  -4 seems to work best on albacore with its
+# gigabit network.  Lower values are probably better with a high-speed network.
+export GZIP=-4
+
+# fastq-trim is 2.5x faster with 1 core than cutadapt with 2 cores
+# Our reads use the default AGATCGGAAGAG
+time fastq-trim --3p-adapter1 AGATCGGAAGAG --3p-adapter2 AGATCGGAAGAG \
+    --min-qual 24 $input1 $output1 $input2 $output2
+
+#compression_flag=--compression-level=1
+#cutadapt $compression_flag \
+#    --quality-cutoff=24 \
+#    -u -3 -U -3 \
+#    -a AGATCGGAAGAGCACAC -A AGATCGGAAGAGCGTCG \
+#    --minimum-length=30 \
+#    --output=Data/04-trim/${stem}-R1.fastq$suffix \
+#    --paired-output=Data/04-trim/${stem}-R2.fastq$suffix \
+#    $input1 $input2
