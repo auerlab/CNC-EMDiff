@@ -25,11 +25,6 @@ if [ $# != 1 ]; then
 fi
 script=$1
 
-if ! echo $script | grep -q "\.sbatch$"; then
-    printf "$0 is only for .sbatch scripts.\n"
-    usage
-fi
-
 base=${script%.sbatch}
 printf "Remove results from Data/$base? y/[n] "
 read sure
@@ -43,4 +38,8 @@ if [ 0"$sure" = 0y ]; then
     rm -rf Logs/$base/*
 fi
 
-sbatch $script
+if [ ${script##*.} = sbatch ]; then
+    sbatch $script
+else
+    ./$script
+fi

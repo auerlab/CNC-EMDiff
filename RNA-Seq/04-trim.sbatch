@@ -92,12 +92,13 @@ output2=Data/04-trim/${stem}-R2.fastq$suffix
 export GZIP=-4
 
 # fastq-trim is 2.5x faster with 1 core than cutadapt with 2 cores
-# Our reads use the default AGATCGGAAGAG
+# Our reads use the default Illumina universal adatper,
+# but we'll state it explicitly anyway
 time fastq-trim --3p-adapter1 AGATCGGAAGAG --3p-adapter2 AGATCGGAAGAG \
     --min-qual 24 $input1 $output1 $input2 $output2
 
-#compression_flag=--compression-level=1
-#cutadapt $compression_flag \
+# To use cutadapt instead, comment out the above and uncomment this:
+#cutadapt --compression-level=1
 #    --quality-cutoff=24 \
 #    -u -3 -U -3 \
 #    -a AGATCGGAAGAGCACAC -A AGATCGGAAGAGCGTCG \
