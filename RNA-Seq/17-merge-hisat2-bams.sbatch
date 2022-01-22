@@ -2,17 +2,7 @@
 
 #############################################################################
 #   Description:
-#       Merge BAM files for the same cell line and time point, e.g.
-#
-#       This means every third sample, e.g.
-#           chondro-sample1-*-time1-*
-#           chondro-sample4-*-time1-*
-#           chondro-sample7-*-time1-*
-#
-#       ls Data/03-trim
-#
-#       One job to merge each group of 3 input bams
-#       so one job for samples 1,4,7, another for 2,5,8, etc.
+#       Merge BAM files for the same cell line and time point
 #
 #       All necessary tools are assumed to be in PATH.  If this is not
 #       the case, add whatever code is needed here to gain access.
@@ -21,8 +11,8 @@
 #       every program with one environment.)
 #############################################################################
 
-# Each task will merge 3 BAMs from samples n, n+3, and n+6
-#SBATCH --array=1-3,10-12
+# 3 time points, chondro and neuro for each
+#SBATCH --array=1-6
 # Memory requirements can only be determined by trial and error.
 # Run a sample job and monitor closely in "top" or rununder a tool that
 # reports maximum memory use.
@@ -33,27 +23,33 @@
 #SBATCH --error=Logs/17-merge-hisat2-bams/slurm-%A_%a.err
 
 # Set a default value for testing outside the SLURM environment
-: ${SLURM_ARRAY_TASK_ID:=1}
+: ${SLURM_ARRAY_TASK_ID:=4}
 
 # Document software versions used for publication
 uname -a
 samtools --version
 pwd
 
-dir=Data/16-hisat2-align
-input_bam1=$(echo $dir/*-sample${SLURM_ARRAY_TASK_ID}-*.bam)
-input_bam2=$(echo $dir/*-sample$((SLURM_ARRAY_TASK_ID + 3))-*.bam)
-input_bam3=$(echo $dir/*-sample$((SLURM_ARRAY_TASK_ID + 6))-*.bam)
-
-# Task ID is either 1-3 (chondro) or 10-12 (neuro)
-first=$SLURM_ARRAY_TASK_ID
-last=$(($SLURM_ARRAY_TASK_ID + 2))
+input_dir=Data/16-hisat2-align
+output_dir=Data/17-merge-hisat2-bams
 if [ $SLURM_ARRAY_TASK_ID -le 3 ]; then
-    output_bam=Data/17-merge-hisat2-bams/chondro-$first-$last.bam
+    cell_type=chondro
+    time=$SLURM_ARRAY_TASK_ID
 else
-    output_bam=Data/17-merge-hisat2-bams/neuro-$first-$last.bam
+    cell_type=neuro
+    time=$(($SLURM_ARRAY_TASK_ID - 3))
+fi
+
+input1=$(echo $input_dir/$cell_type-sample*-rep1-time$time.bam)
+input2=$(echo $input_dir/$cell_type-sample*-rep2-time$time.bam)
+input3=$(echo $input_dir/$cell_type-sample*-rep3-time$time.bam)
+
+if [ $SLURM_ARRAY_TASK_ID -le 3 ]; then
+    output=$output_dir/chondro-time$time.bam
+else
+    output=$output_dir/neuro-time$time.bam
 fi
 
 set -x
-samtools merge -o $output_bam $input_bam1 $input_bam2 $input_bam3
-samtools index $output_bam
+samtools merge -o $output $input1 $input2 $input3
+samtools index $output
