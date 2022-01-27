@@ -6,10 +6,7 @@
 #
 #   Usage:
 #       SLURM cluster:
-#           sbatch 4-bwa-mem.sbatch
-#       No cluster:
-#           [env SLURM_CPUS_PER_TASK=n] \
-#               ../slurm-sim 4-bwa-mem.sbatch |& tee 4.log
+#           sbatch 08-bwa-mem.sbatch
 #
 #   History:
 #       Based on the work of Dr. Andrea Rau:
@@ -31,31 +28,28 @@
 # Based on 2 threads on Albacore cluster
 # 12 threads on Peregrine used close to 6g
 #SBATCH --mem=5g
-#SBATCH --output=4-bwa-mem/bwa-mem-%A_%a.out
-#SBATCH --error=4-bwa-mem/bwa-mem-%A_%a.err
-
-if [ -z $SLURM_ARRAY_TASK_ID ]; then
-    printf "$0 must be run under sbatch or ../slurm-sim\n"
-    exit 1
-fi
+#SBATCH --output=Logs/08-bwa-mem/bwa-mem-%A_%a.out
+#SBATCH --error=Logs/08-bwa-mem/bwa-mem-%A_%a.err
 
 # Defaults if not set by SLURM or user
+: ${SLURM_ARRAY_TASK_ID:=1}
 : ${SLURM_CPUS_PER_TASK:=4}
 
 # Document software versions used for publication
 if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
-    uname -a > 4-bwa-mem/os-version.txt 2>&1
-    bwa 2>&1 | fgrep Version > 4-bwa-mem/bwa-version.txt || true
+    uname -a
+    bwa || true
 fi
 
+ref_file=$(../RNA-Seq/Reference/genome-filename.sh)
+
 # One iteration if running under SLURM, all iterations otherwise
-cd 4-bwa-mem
+cd Data/08-bwa-mem
 printf "Running task $SLURM_ARRAY_TASK_ID...\n"
-
-infile1=../1-trim/*_S${SLURM_ARRAY_TASK_ID}_L001-R1.fastq.xz
-infile2=../1-trim/*_S${SLURM_ARRAY_TASK_ID}_L001-R2.fastq.xz
+infile1=$(ls ../04-trim/*-sample$SLURM_ARRAY_TASK_ID-*-R1.fastq.gz)
+infile2=$(ls ../04-trim/*-sample$SLURM_ARRAY_TASK_ID-*-R2.fastq.gz)
 outfile=$(echo $infile1 | cut -d / -f 3 | sed -e 's|-R1.fastq.xz|.sam|')
-ref_file=$(../Aux/ref-file-name.sh)
 
-srun bwa mem -M -t $SLURM_CPUS_PER_TASK \
-    ../3-bwa-index/$ref_file $infile1 $infile2 > $outfile
+set -x
+bwa mem -M -t $SLURM_CPUS_PER_TASK \
+    ../07-bwa-index/$ref_file $infile1 $infile2 > $outfile
