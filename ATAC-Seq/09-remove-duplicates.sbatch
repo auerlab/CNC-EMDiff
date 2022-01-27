@@ -8,12 +8,6 @@
 #
 #       FIXME: Explore using Picard MarkDuplicates for this instead
 #
-#   Usage:
-#       SLURM Cluster:
-#           sbatch 6-remove-duplicates.sbatch
-#       No cluster:
-#           ../slurm-sim 6-remove-duplicates.sbatch |& tee 6.log
-#
 #   History:
 #       Based on the work of Dr. Andrea Rau:
 #       https://github.com/andreamrau/OpticRegen_2019
@@ -28,30 +22,27 @@
 # SLURM parameters
 #SBATCH --array=1-18%6
 #SBATCH --mem=2g
-#SBATCH --output=6-remove-duplicates/slurm-%A_%a.out
-#SBATCH --error=6-remove-duplicates/slurm-%A_%a.out
+#SBATCH --output=Logs/09-remove-duplicates/slurm-%A_%a.out
+#SBATCH --error=Logs/09-remove-duplicates/slurm-%A_%a.err
 
-if [ -z $SLURM_ARRAY_TASK_ID ]; then
-    printf "$0 must be run under sbatch or ../slurm-sim\n"
-    exit 1
-fi
+: ${SLURM_ARRAY_TASK_ID:=1}
 
 # Document software versions used for publication
 if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
-    uname -a > 6-remove-duplicates/os-version.txt 2>&1
-    samtools --version > 6-remove-duplicates/samtools-version.txt 2>&1
+    uname -a
+    samtools --version
 fi
 
 # FIXME: Remove duplicate reads before alignment to cut down on redundant
 # alignments.  Still need to run this step since we cannot identify all
 # duplicate alignments before alignment.
 
-cd 6-remove-duplicates
+cd Data/09-remove-duplicates
 
 # This should match only 1 file.  '*' used only to match irrelevant variations.
 # The integer following 'S' in the filename should be unique (1 - 18)
 # Variable assignments don't expand globbing patterns, so insert an ls command
-saminput=$(ls ../4-bwa-mem/*_S${SLURM_ARRAY_TASK_ID}_L001.sam)
+saminput=$(ls ../08-bwa-mem/*-sample$SLURM_ARRAY_TASK_ID-*.sam)
 sambase=$(basename $saminput)
 sorted=${sambase%.sam}-sorted.bam
 nodup=${sambase%.sam}-nodup.bam

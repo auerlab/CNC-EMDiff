@@ -48,7 +48,7 @@ cd Data/08-bwa-mem
 printf "Running task $SLURM_ARRAY_TASK_ID...\n"
 infile1=$(ls ../04-trim/*-sample$SLURM_ARRAY_TASK_ID-*-R1.fastq.gz)
 infile2=$(ls ../04-trim/*-sample$SLURM_ARRAY_TASK_ID-*-R2.fastq.gz)
-outfile=$(echo $infile1 | cut -d / -f 3 | sed -e 's|-R1.fastq.xz|.sam|')
+outfile=${infile1%-R1.fastq.gz}.sam
 
 set -x
 bwa mem -M -t $SLURM_CPUS_PER_TASK \
