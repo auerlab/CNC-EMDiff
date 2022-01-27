@@ -40,7 +40,8 @@
 
 # Document software versions used for publication
 uname -a
-cutadapt --version
+# cutadapt --version
+# fastq-trim --version
 pwd
 
 input1=$(ls Data/Raw-renamed/*-sample${SLURM_ARRAY_TASK_ID}-*R1*)
@@ -91,17 +92,24 @@ output2=Data/04-trim/${stem}-R2.fastq$suffix
 # gigabit network.  Lower values are probably better with a high-speed network.
 export GZIP=-4
 
+if pwd | fgrep -q RNA-Seq; then
+    adapter=AGATCGGAAGAG
+else
+    adapter=CTGTCTCTTATACACATCT
+fi
+
 # fastq-trim is 2.5x faster with 1 core than cutadapt with 2 cores
 # Our reads use the default Illumina universal adatper,
 # but we'll state it explicitly anyway
-time fastq-trim --3p-adapter1 AGATCGGAAGAG --3p-adapter2 AGATCGGAAGAG \
+set -x
+time fastq-trim --3p-adapter1 $adapter --3p-adapter2 $adapter \
     --min-qual 24 $input1 $output1 $input2 $output2
 
 # To use cutadapt instead, comment out the above and uncomment this:
 #cutadapt --compression-level=1
 #    --quality-cutoff=24 \
 #    -u -3 -U -3 \
-#    -a AGATCGGAAGAGCACAC -A AGATCGGAAGAGCGTCG \
+#    -a $adapter -A $adapter \
 #    --minimum-length=30 \
 #    --output=Data/04-trim/${stem}-R1.fastq$suffix \
 #    --paired-output=Data/04-trim/${stem}-R2.fastq$suffix \

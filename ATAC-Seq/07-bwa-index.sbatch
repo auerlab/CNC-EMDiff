@@ -5,8 +5,8 @@
 #       Generate index for BWA aligner
 #
 #   Usage:
-#       sbatch 3-bwa-index.sbatch
-#       ./3-bwa-index.sbatch |& tee 3.log
+#       sbatch 07-bwa-index.sbatch
+#       ./07-bwa-index.sbatch |& tee 3.log
 #
 #   History:
 #       Based on the work of Dr. Andrea Rau:
@@ -21,17 +21,23 @@
 
 # SLURM parameters
 #SBATCH --mem=3g
-#SBATCH --output=3-bwa-index/slurm-%A_%a.out
-#SBATCH --error=3-bwa-index/slurm-%A_%a.err
+#SBATCH --output=Logs/07-bwa-index/slurm-%A_%a.out
+#SBATCH --error=Logs/07-bwa-index/slurm-%A_%a.err
 
 # Document software versions used for publication
-uname -a > 3-bwa-index/os-version.txt 2>&1
-bwa 2>&1 | fgrep Version > 3-bwa-index/bwa-version.txt || true
+uname -a
+bwa || true
 
-cd 3-bwa-index
-ref_file=$(../Aux/ref-file-name.sh)
-if [ ! -e $ref_file ]; then
-    ../Aux/fetch-ref.sh
-    ../Aux/concat-ref.sh
-    bwa index $ref_file
+genome_file=$(../RNA-Seq/Reference/genome-filename.sh)
+
+genome_dir=../RNA-Seq/Data/07-reference
+if [ ! -e $genome_dir/$genome_file ]; then
+    save_cwd=$(pwd)
+    cd ../RNA-Seq
+    Reference/build-genome.sh
+    cd $save_cwd
 fi
+
+cd Data/07-bwa-index
+ln -s ../../$genome_dir/$genome_file
+bwa index $genome_file
