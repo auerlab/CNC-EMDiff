@@ -27,6 +27,7 @@
 # Document software versions used for publication
 uname -a
 bwa || true
+pwd
 
 genome_file=$(../RNA-Seq/Reference/genome-filename.sh)
 

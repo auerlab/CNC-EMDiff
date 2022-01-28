@@ -33,6 +33,7 @@
 # Document software versions used for publication
 uname -a
 fastqc --version
+pwd
 
 # One iteration if running under SLURM, all iterations otherwise
 printf "Running task $SLURM_ARRAY_TASK_ID...\n"

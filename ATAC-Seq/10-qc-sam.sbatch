@@ -28,16 +28,11 @@
 #SBATCH --output=5-qc-sam/slurm-%A_%a.out
 #SBATCH --error=5-qc-sam/slurm-%A_%a.err
 
-if [ -z $SLURM_ARRAY_TASK_ID ]; then
-    printf "$0 must be run under sbatch or ../slurm-sim\n"
-    exit 1
-fi
+: ${SLURM_ARRAY_TASK_ID:=1}
 
-# Document software versions used for publication
-if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
-    uname -a > 5-qc-sam/os-version.txt 2>&1
-    fastqc --version > 5-qc-sam/fastqc-version.txt 2>&1
-fi
+uname -a
+fastqc --version
+pwd
 
 # One iteration if running under SLURM, all iterations otherwise
 printf "Running task $SLURM_ARRAY_TASK_ID...\n"

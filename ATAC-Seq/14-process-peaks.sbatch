@@ -39,11 +39,9 @@ fi
 #   Some MEME tools require all peaklets to be the same size (Ava)
 ##########################################################################
 
-# Document software versions used for publication
-if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
-    uname -a > 9-process-peaks/os-version.txt 2>&1
-    bedtools --version > 9-process-peaks/bedtools-version.txt 2>&1
-fi
+uname -a
+bedtools --version
+pwd
 
 # One iteration if running under SLURM, all iterations otherwise
 printf "Processing task $SLURM_ARRAY_TASK_ID...\n"

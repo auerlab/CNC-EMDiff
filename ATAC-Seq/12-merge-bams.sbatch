@@ -31,16 +31,11 @@
 
 # : ${SLURM_ARRAY_TASK_ID:=6}
 
-if [ -z $SLURM_ARRAY_TASK_ID ]; then
-    printf "$0 must be run under sbatch or ../slurm-sim\n"
-    exit 1
-fi
+${SLURM_ARRAY_TASK_ID:=1}
 
-# Document software versions used for publication
-if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
-    uname -a > 7-merge-bams/os-version.txt 2>&1
-    samtools --version > 7-merge-bams/samtools-version.txt 2>&1
-fi
+uname -a
+samtools --version
+pwd
 
 # Samples 1-9 are Chondrocyte and 10-18 are Neural
 # How things are supposed to be:

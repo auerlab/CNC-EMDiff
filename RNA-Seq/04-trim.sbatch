@@ -41,7 +41,7 @@
 # Document software versions used for publication
 uname -a
 # cutadapt --version
-# fastq-trim --version
+fastq-trim --version
 pwd
 
 input1=$(ls Data/Raw-renamed/*-sample${SLURM_ARRAY_TASK_ID}-*R1*)

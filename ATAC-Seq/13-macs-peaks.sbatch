@@ -32,11 +32,9 @@ if [ -z $SLURM_ARRAY_TASK_ID ]; then
     exit 1
 fi
 
-# Document software versions used for publication
-if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
-    uname -a > 8-macs-peaks/os-version.txt 2>&1
-    macs2 --version > 8-macs-peaks/macs2-version.txt 2>&1
-fi
+uname -a
+macs2 --version
+pwd
 
 case $SLURM_ARRAY_TASK_ID in
 1)

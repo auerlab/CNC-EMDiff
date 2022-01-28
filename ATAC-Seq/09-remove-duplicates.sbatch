@@ -27,11 +27,9 @@
 
 : ${SLURM_ARRAY_TASK_ID:=1}
 
-# Document software versions used for publication
-if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
-    uname -a
-    samtools --version
-fi
+uname -a
+samtools --version
+pwd
 
 # FIXME: Remove duplicate reads before alignment to cut down on redundant
 # alignments.  Still need to run this step since we cannot identify all

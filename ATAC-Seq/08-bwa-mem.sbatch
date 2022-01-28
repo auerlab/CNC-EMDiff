@@ -27,7 +27,7 @@
 #SBATCH --array=1-18 --cpus-per-task=4
 # Based on 2 threads on Albacore cluster
 # 12 threads on Peregrine used close to 6g
-#SBATCH --mem=5g
+#SBATCH --mem=6g
 #SBATCH --output=Logs/08-bwa-mem/bwa-mem-%A_%a.out
 #SBATCH --error=Logs/08-bwa-mem/bwa-mem-%A_%a.err
 
@@ -36,10 +36,9 @@
 : ${SLURM_CPUS_PER_TASK:=4}
 
 # Document software versions used for publication
-if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
-    uname -a
-    bwa || true
-fi
+uname -a
+bwa || true
+pwd
 
 ref_file=$(../RNA-Seq/Reference/genome-filename.sh)
 

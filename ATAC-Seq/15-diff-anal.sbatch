@@ -30,10 +30,7 @@
 # Non-portable UWM flags
 #SBATCH --nodelist=danio
 
-if [ -z $SLURM_ARRAY_TASK_ID ]; then
-    printf "$0 must be run under sbatch or ../slurm-sim\n"
-    exit 1
-fi
+: ${SLURM_ARRAY_TASK_ID:=1}
 
 case $SLURM_ARRAY_TASK_ID in
 1)
@@ -43,6 +40,10 @@ case $SLURM_ARRAY_TASK_ID in
     cell_type=NCA
     ;;
 esac
+
+uname -a
+printf "Processing $cell_type...\n"
+pwd
 
 # Document software versions used for publication
 if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
