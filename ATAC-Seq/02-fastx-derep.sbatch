@@ -5,7 +5,12 @@
 #   amount of data processed by all subsequent steps and thus speed up
 #   the analysis.
 #
-#   FIXME: Should this functionality be part of fastq-trim?
+#   Note sure if there are any drawbacks to doing dereplication before
+#   alignment, but I suspect the reads removed here are a subset of those
+#   identified by samtools markdup.
+#
+#   FIXME: This needs to have a paired-end mode, so that the R1 and R2 files
+#   are kept in sync, as adapter/quality trimming does.
 #
 #   History:
 #   Date        Name        Modification
