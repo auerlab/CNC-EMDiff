@@ -17,17 +17,26 @@
 #   2019-09-11  Jason Bacon Begin
 ##########################################################################
 
+##########################################################################
+# Cutadapt:
 # Each job in the array will run a cutadapt (python) process and a
 # compression process for part of the time.  If you don't want to
 # oversubscribe compute nodes even for a little while, add --cpus-per-task=2
 # There may be 2 pigz processes per job, but --cpus-per-task=3 doesn't help
-# Limit concurrent jobs to avoid becoming I/O-bound.  Fastq-trim is so fast
-# it ends up using only about 40% CPU while waiting for NFS on albacore.
+
+##########################################################################
+# Fastq-trim:
+# Limit concurrent jobs using 1-18%9 to avoid becoming I/O-bound.
+# Fastq-trim is so fast it ends up using only about 40% CPU while waiting
+# for NFS on albacore (only gigabit Ethernet).  Clusters with higher
+# speed networks and file servers can handle more jobs.
 # We'll finish the job array just as fast running only 9 at a time and
 # getting 80% CPU utilization.
+# 2 xzcat, 2 gzip, and 1 fastq-trim, but xzcat and gzip use less than
+# half a core each
+ 
 #SBATCH --array=1-18%9
-# 2 xzcat, 2 gzip, and 1 fastq-trim, but xzcat and gzip only use about 50%
-#SBATCH --cpus-per-task=2
+#SBATCH --cpus-per-task=3
 # Memory requirements can only be determined by trial and error.
 # Run a sample job and monitor closely in "top" or rununder a tool that
 # reports maximum memory use.
@@ -85,12 +94,13 @@ suffix=.gz
 output1=Data/04-trim/${stem}-R1.fastq$suffix
 output2=Data/04-trim/${stem}-R2.fastq$suffix
 
-# Maximize compression throughput so gzip is not a bottleneck.
+# Maximize compression throughput so gzip is not a bottleneck.  Can determine
+# performance from fastq-trim CPU % in job-top.
 # Don't use -1 if job is I/O bound.  Use the idle CPU to get better compression
 # and reduce I/O.  The goal is to maximum CPU utilization of the fastq-trim
 # process, as shown by job-top.  -4 seems to work best on albacore with its
 # gigabit network.  Lower values are probably better with a high-speed network.
-export GZIP=-4
+export GZIP=-1
 
 if pwd | fgrep -q RNA-Seq; then
     adapter=AGATCGGAAGAG
