@@ -19,9 +19,8 @@
 #   Main
 ##########################################################################
 
-# SLURM parameters
 #SBATCH --array=1-18%6
-#SBATCH --mem=2g
+#SBATCH --mem=3g
 #SBATCH --output=Logs/09-remove-duplicates/slurm-%A_%a.out
 #SBATCH --error=Logs/09-remove-duplicates/slurm-%A_%a.err
 

@@ -6,9 +6,7 @@
 #
 #   Usage:
 #       SLURM cluster:
-#           sbatch 5-qc.sbatch
-#       No cluster:
-#           ../slurm-sim 5-qc.sbatch |& tee 5.log
+#           sbatch 10-qc.sbatch
 #
 #   History:
 #       Based on the work of Dr. Andrea Rau:
@@ -21,12 +19,11 @@
 #   Main
 ##########################################################################
 
-# SLURM parameters
 #SBATCH --array=1-18
 # FIXME: Check actual memory use
 #SBATCH --mem=1g
-#SBATCH --output=5-qc-sam/slurm-%A_%a.out
-#SBATCH --error=5-qc-sam/slurm-%A_%a.err
+#SBATCH --output=10-qc-sam/slurm-%A_%a.out
+#SBATCH --error=10-qc-sam/slurm-%A_%a.err
 
 : ${SLURM_ARRAY_TASK_ID:=1}
 
@@ -34,9 +31,11 @@ uname -a
 fastqc --version
 pwd
 
-# One iteration if running under SLURM, all iterations otherwise
-printf "Running task $SLURM_ARRAY_TASK_ID...\n"
+infile=Data/08-bwa-mem/*-sample${SLURM_ARRAY_TASK_ID}-*.sam
+printf "Processing $infile...\n"
+fastqc $infile -o Data/10-qc-sam
 
-infile=4-bwa-mem/*_S${SLURM_ARRAY_TASK_ID}_L001.sam
-fastqc --version > 5-qc-sam/fastqc-version.txt 2>&1
-fastqc $infile -o 5-qc-sam
+infile=Data/09-remove-duplicates/*-sample${SLURM_ARRAY_TASK_ID}-*-mapq1.bam
+printf "Processing $infile...\n"
+fastqc $infile -o Data/10-qc-sam
+
