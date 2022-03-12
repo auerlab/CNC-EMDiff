@@ -4,12 +4,6 @@
 #   Script description:
 #       Convert MACS2 peaks to fixed-size peaklets
 #
-#   Usage:
-#       SLURM Cluster:
-#           sbatch 9-process-peaks.sbatch
-#       No cluster:
-#           ../slurm-sim 9-process-peaks.sbatch |& tee 1.log
-#
 #   History:
 #       Based on the work of Dr. Andrea Rau:
 #       https://github.com/andreamrau/OpticRegen_2019
@@ -21,16 +15,12 @@
 #   Main
 ##########################################################################
 
-# SLURM parameters
 #SBATCH --array=1-2
 #SBATCH --mem=100
-#SBATCH --output=9-process-peaks/slurm-%A_%a.out
-#SBATCH --error=9-process-peaks/slurm-%A_%a.err
+#SBATCH --output=Logs/14-process-peaks/slurm-%A_%a.out
+#SBATCH --error=Logs/14-process-peaks/slurm-%A_%a.err
 
-if [ -z $SLURM_ARRAY_TASK_ID ]; then
-    printf "$0 must be run under sbatch or ../slurm-sim\n"
-    exit 1
-fi
+: ${SLURM_ARRAY_TASK_ID:=1}
 
 ##########################################################################
 #   In MACS2 peak call output, filter for high-confidence peaks,
@@ -47,11 +37,11 @@ pwd
 printf "Processing task $SLURM_ARRAY_TASK_ID...\n"
 case $SLURM_ARRAY_TASK_ID in
 1)
-    cell_type=CCA
+    cell_type=chondro
     ;;
 
 2)
-    cell_type=NCA
+    cell_type=neuro
     ;;
 
 *)
@@ -60,8 +50,8 @@ case $SLURM_ARRAY_TASK_ID in
 
 esac
 
-cd 9-process-peaks
-macs_dir=../8-macs-peaks
+cd Data/14-process-peaks
+macs_dir=../13-macs-peaks
 
 ##########################################################################
 #   Filter for high-confidence peaks: p-value < 1e-10
@@ -82,7 +72,7 @@ awk -v p_value=$p_value '$8 >= p_value { print $0 }' \
 # Output format matches summits file: chr start end peak-id LFC
 # LFC is always 0 here.  These peaks will be merged with DESeq2 output
 # later to fill in LFC values for DA peaks.
-awk -f ../Aux/filter.awk \
+awk -f ../../Aux/filter.awk \
     -v file_to_filter=$macs_dir/ATAC-${cell_type}_summits.bed \
     p$p_value-$cell_type-narrow.bed \
     > p$p_value-$cell_type-summits.bed
@@ -100,7 +90,7 @@ awk -f ../Aux/filter.awk \
 
 bed_sort="sort -k1,1 -k2,2n"
 bedtools slop -b 250 -i p$p_value-$cell_type-summits.bed \
-    -g ../../RNA-Seq/Reference/chromosome-sizes.tsv \
+    -g ../../../RNA-Seq/Data/07-reference/chromosome-sizes.tsv \
     | $bed_sort > p$p_value-$cell_type-501.bed
 
 head -4 p$p_value-$cell_type-summits.bed \
