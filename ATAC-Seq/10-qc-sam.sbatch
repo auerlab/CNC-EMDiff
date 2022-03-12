@@ -22,8 +22,8 @@
 #SBATCH --array=1-18
 # FIXME: Check actual memory use
 #SBATCH --mem=1g
-#SBATCH --output=10-qc-sam/slurm-%A_%a.out
-#SBATCH --error=10-qc-sam/slurm-%A_%a.err
+#SBATCH --output=Logs/10-qc-sam/slurm-%A_%a.out
+#SBATCH --error=Logs/10-qc-sam/slurm-%A_%a.err
 
 : ${SLURM_ARRAY_TASK_ID:=1}
 
@@ -31,11 +31,13 @@ uname -a
 fastqc --version
 pwd
 
+qc_dir=Data/10-qc-sam
+mkdir -p $qc_dir/Raw
 infile=Data/08-bwa-mem/*-sample${SLURM_ARRAY_TASK_ID}-*.sam
 printf "Processing $infile...\n"
-fastqc $infile -o Data/10-qc-sam
+fastqc $infile -o $qc_dir/Raw
 
+mkdir -p $qc_dir/Rmdup
 infile=Data/09-remove-duplicates/*-sample${SLURM_ARRAY_TASK_ID}-*-mapq1.bam
 printf "Processing $infile...\n"
-fastqc $infile -o Data/10-qc-sam
-
+fastqc $infile -o $qc_dir/Rmdup
