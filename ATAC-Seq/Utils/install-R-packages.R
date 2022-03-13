@@ -1,5 +1,13 @@
 #!/usr/bin/env Rscript
 
+## Default repo
+local({r <- getOption("repos")
+       r["CRAN"] <- "https://mirror.las.iastate.edu/CRAN/"
+       options(repos=r)
+})
+
+# R_LIBS_USER should be set to ~/R/library in ~/.Renviron.
+
 if(!require(dplyr, quietly = TRUE))
     install.packages("dplyr")
 

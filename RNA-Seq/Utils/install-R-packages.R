@@ -6,7 +6,7 @@ local({r <- getOption("repos")
        options(repos=r)
 })
 
-# R_LIBS_USER should be set in ~/.Renviron.
+# R_LIBS_USER should be set to ~/R/library in ~/.Renviron.
 
 install.packages("remotes")
 if (!requireNamespace("BiocManager", quietly = TRUE))

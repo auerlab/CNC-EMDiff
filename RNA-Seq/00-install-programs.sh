@@ -34,6 +34,15 @@ EOM
 
 esac
 
-# R-cran-sleuth R-cran-deseq2
+install_dir=~/R/library
+mkdir -p $install_dir
+
+if ! grep '^R_LIBS_USER' ~/.Renviron; then
+    cat << EOM >> ~/.Renviron
+R_LIBS_USER=$install_dir
+# R_LIBS=~/R/library
+EOM
+fi
+
 printf "\nInstalling R packages...\n"
 srun --ntasks=1 --mem=1g Utils/install-R-packages.R

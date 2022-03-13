@@ -10,17 +10,13 @@
 #   Thanks to Paul Auer for extensive guidance
 ############################################################################
 
-# Choose CCA for chondro or NCA for neuro
 args <- commandArgs(trailingOnly=TRUE)
-if ( (length(args) != 1) || ((args[1] != "CCA") && (args[1] != "NCA")) )
+if ( (length(args) != 1) || ((args[1] != "chondro") && (args[1] != "neuro")) )
 {
-    print("Usage: RScript diff-anal.R CCA|NCA")
+    print("Usage: RScript diff-anal.R chondro|neuro")
     stop()
 }
 cell_type <- args[1]
-
-# Compensate for misnamed sequence files.
-swap_replicate_and_condition <- TRUE
 
 # Use DiffBind summits option to recenter and trim peaks?
 diffbind_summits<-FALSE
@@ -47,13 +43,12 @@ options(max.print=60)
 # Make all output group-writable
 Sys.umask(mode = 007)
 
-setwd("10-diff-anal")
+setwd("Data/15-diff-anal")
 
-Peaks <- paste0("../9-process-peaks/p10-",
-		cell_type, "-501-merged.bed")
+Peaks <- paste0("../14-process-peaks/p10-", cell_type, "-501-merged.bed")
 if ( ! file.exists(Peaks) ) {
     print(paste0("Error: File ", Peaks))
-    print("does not exist.  Run 9-process-peaks.sbatch first.")
+    print("does not exist.  Run 14-process-peaks.sbatch first.")
     stop()
 }
 
@@ -66,48 +61,71 @@ print(Peaks)
 # "1A": 1 = replicate, A = time point
 # Due to data mislabling, 1 = time point (condition) and A is replicate
 # SampleID <- strsplit(dir("ALIGNED_TRANS/"), split=".", fixed=TRUE) %>%
-# Could this just as well use the merged BAMs in 8-?
-# Was using 4-bwa-mem.  Because deduped BAMs were previously stored there?
-SampleID <- strsplit(dir("../6-remove-duplicates/",
-    pattern=paste0(cell_type, ".*-nodup-uniq.bam")),
-    split="-", fixed=TRUE) %>% lapply(., function(x) x[1]) %>%
-    unlist() %>% unique()
+# Could this just as well use the merged BAMs in 12-merged-bams?
+# Was using 09-remove-duplicates.  Because deduped BAMs were previously stored there?
+# neuro-sample14-rep2-time2-nodup-mapq1.bam
+#
+# Correct from old filenames:
+# [1] "SampleID"
+# [1] "CCA1A_S1_L001" "CCA1B_S2_L001" "CCA1C_S3_L001" "CCA2A_S4_L001"
+# [5] "CCA2B_S5_L001" "CCA2C_S6_L001" "CCA3A_S7_L001" "CCA3B_S8_L001"
+# [9] "CCA3C_S9_L001"
+# [1] "Condition"
+# [1] "1" "1" "1" "2" "2" "2" "3" "3" "3"
+# [1] "Replicate"
+# [1] "A" "B" "C" "A" "B" "C" "A" "B" "C"
+# [1] "bamReads"
+# [1] "../4-bwa-mem/"
 
+# dir uses regular expressions, not globbing patterns
+files=dir("../09-remove-duplicates/",
+	  pattern=paste0(cell_type, "-.*-nodup-mapq1.bam$"))
+#print("files")
+#print(files)
+
+# Extract rep and time portions of filename
+split_files <- strsplit(files, split="-", fixed=TRUE)
+#print(split_files)
+
+rep <- lapply(split_files, function(x) x[3]) %>% unlist() #%>% unique()
+#print("rep")
+#print(rep)
+
+time <- lapply(split_files, function(x) x[4]) %>% unlist() #%>% unique()
+#print("time")
+#print(time)
+
+SampleID <- lapply(split_files, function(x) paste0(x[1], '-', x[2])) %>% unlist() #%>% unique()
 print("SampleID")
 print(SampleID)
 
-if ( ! exists("SampleID") ) {
-    print("Error: Could not generate SampleID from ../4-bwa-mem/*.bam")
+if ( ! exists("time") ) {
+    print("Error: Could not generate reps and times from ../09-remove-duplicates/*.bam")
     stop()
 }
 
-if ( swap_replicate_and_condition )
-{
-    Condition <- substr(SampleID, 4, 4) %>% unlist()    # Flip condition/replicate
-} else {
-    Condition <- substr(SampleID, 5, 5) %>% unlist()
-}
+# Condition is just the numeric part of time
+Condition <- substr(time, 5, 5) %>% unlist()
 
 print("Condition")
 print(Condition)
 
-if ( swap_replicate_and_condition )
-{
-    Replicate <- substr(SampleID, 5, 5)%>% unlist()     # Flip condition/replicate
-} else {
-    Replicate <- substr(SampleID, 4, 4)%>% unlist()
-}
+# Replicate is just the numeric part of rep
+Replicate <- substr(rep, 4, 4) %>% unlist()
 
 print("Replicate")
 print(Replicate)
 pause()
 
 # Select only .bam files
-bamReads <- paste0("../4-bwa-mem/",
-		   dir("../4-bwa-mem/", pattern=paste0(cell_type, ".*.bam$")))
+# chondro-sample1-rep1-time1.sam
+bamReads <- paste0("../09-remove-duplicates/",
+		   dir("../09-remove-duplicates/",
+		   pattern=paste0(cell_type, ".*-mapq1.bam$")))
 
 print("bamReads")
 print(bamReads)
+pause()
 
 # rep = repeat
 PeakCaller <- rep("narrow", length(SampleID))
@@ -248,21 +266,12 @@ print(dds_pvalsort)
 pause()
 
 # Generate data for Excel file
-
-# According to file naming conventions.  Does not work: Almost no differential
-# peaks.  Are we comparing replicates rather than time points due to a sample
-# mixup?
-if ( swap_replicate_and_condition )
-{
-    # Flip condition/replicate
-    res_pvalsort_T1vsT0 <- results(dds_pvalsort, contrast = c("time_factor", "2", "1"))
-    res_pvalsort_T2vsT0 <- results(dds_pvalsort, contrast = c("time_factor", "3", "1"))
-    res_pvalsort_T2vsT1 <- results(dds_pvalsort, contrast = c("time_factor", "3", "2"))
-} else {
-    res_pvalsort_T1vsT0 <- results(dds_pvalsort, contrast = c("time_factor", "B", "A"))
-    res_pvalsort_T2vsT0 <- results(dds_pvalsort, contrast = c("time_factor", "C", "A"))
-    res_pvalsort_T2vsT1 <- results(dds_pvalsort, contrast = c("time_factor", "C", "B"))
-}
+res_pvalsort_T1vsT0 <-
+    results(dds_pvalsort, contrast = c("time_factor", "2", "1"))
+res_pvalsort_T2vsT0 <-
+    results(dds_pvalsort, contrast = c("time_factor", "3", "1"))
+res_pvalsort_T2vsT1 <-
+    results(dds_pvalsort, contrast = c("time_factor", "3", "2"))
 
 print(paste0(cell_type, " T1 vs T0"))
 summary(res_pvalsort_T1vsT0, alpha=0.05) ## Previously 104

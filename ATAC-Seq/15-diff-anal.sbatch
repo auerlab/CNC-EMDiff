@@ -4,12 +4,6 @@
 #   Script description:
 #       Find differential accessibility across time points
 #
-#   Usage:
-#       SLURM Cluster:
-#           sbatch 10-diff-anal.sbatch
-#       No cluster:
-#           ../slurm-sim 10-diff-anal.sbatch |& tee 1.log
-#
 #   History:
 #       Based on the work of Dr. Andrea Rau:
 #       https://github.com/andreamrau/OpticRegen_2019
@@ -21,23 +15,19 @@
 #   Main
 ##########################################################################
 
-# SLURM parameters
 #SBATCH --array=1-2
 #SBATCH --mem=3g
-#SBATCH --output=10-diff-anal/slurm-%A_%a.out
-#SBATCH --error=10-diff-anal/slurm-%A_%a.err
-
-# Non-portable UWM flags
-#SBATCH --nodelist=danio
+#SBATCH --output=Logs/15-diff-anal/slurm-%A_%a.out
+#SBATCH --error=Logs/15-diff-anal/slurm-%A_%a.err
 
 : ${SLURM_ARRAY_TASK_ID:=1}
 
 case $SLURM_ARRAY_TASK_ID in
 1)
-    cell_type=CCA
+    cell_type=chondro
     ;;
 2)
-    cell_type=NCA
+    cell_type=neuro
     ;;
 esac
 
@@ -45,10 +35,8 @@ uname -a
 printf "Processing $cell_type...\n"
 pwd
 
-# Document software versions used for publication
-if [ $SLURM_ARRAY_TASK_ID = 1 ]; then
-    uname -a > 10-diff-anal/os-version.txt 2>&1
-    R --version > 10-diff-anal/R-version.txt 2>&1
-fi
+uname -a
+R --version
+pwd
 
 ./diff-anal.R $cell_type

@@ -9,14 +9,13 @@ else
     srun=''
 fi
 
-py_prefix=py38
-progs="$py_prefix-cutadapt fastqc $py_prefix-multiqc bwa samtools \
-	$py_prefix-macs2 bedtools R librsvg2 pkgconf"
-
 case $(uname) in
 FreeBSD)
     # Install ports on all compute nodes
     # DiffBind deps: librsvg2 pkgconf
+    py_prefix=py38
+    progs="$py_prefix-cutadapt fastqc $py_prefix-multiqc bwa samtools \
+	    $py_prefix-macs2 bedtools R librsvg2 pkgconf"
     printf "Root "
     su -m root -c "$cluster_run 'pkg install -y $progs' $node_spec"
     ;;
@@ -37,6 +36,16 @@ EOM
     ;;
 
 esac
+
+install_dir=~/R/library
+mkdir -p $install_dir
+
+if ! grep '^R_LIBS_USER' ~/.Renviron; then
+    cat << EOM >> ~/.Renviron
+R_LIBS_USER=$install_dir
+# R_LIBS=~/R/library
+EOM
+fi
 
 printf "\nInstalling R packages...\n"
 $srun Utils/install-R-packages.R
