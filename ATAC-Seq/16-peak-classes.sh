@@ -1,9 +1,17 @@
 #!/bin/sh -e
 
 # Record OS and software versions
+uname -a > Logs/16-peak-classes/uname.txt
 
 build=$(../Common/genome-build.sh)
 release=$(../Common/genome-release.sh)
+
+cat << EOM
+
+build = $build
+release = $release
+
+EOM
 
 # FIXME: Why was 100 used?
 # gff=Mus_musculus.GRCm$build.100.gff3.gz
@@ -33,7 +41,7 @@ which peak-classifier
 #   All peaks
 ##########################################################################
 
-for peaks_file in 9-process-peaks/p10-*CA-501-merged.bed; do
+for peaks_file in Data/14-process-peaks/p10-*-501-merged.bed; do
     printf "\n===\nMACS2 output:   $peaks_file\n"
     
     overlaps_file=$output_dir/$(basename ${peaks_file%.bed}-overlaps.tsv)
@@ -51,7 +59,7 @@ done
 ##########################################################################
 
 pval=0.05
-for file in 10-diff-anal/*CA-T*.tsv; do
+for file in Data/15-diff-anal/*-T*.tsv; do
     printf "\n===\nDESeq2 output:     $file\n"
     peaks_file=$output_dir/$(basename ${file%.tsv}-p$pval.bed)
     printf "Converting to bed: $peaks_file\n"

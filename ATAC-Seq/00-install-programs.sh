@@ -13,9 +13,12 @@ case $(uname) in
 FreeBSD)
     # Install ports on all compute nodes
     # DiffBind deps: librsvg2 pkgconf
+    # coreutils: gsort is much faster than native sort and peak-classifier
+    # will use it if available.
     py_prefix=py38
     progs="$py_prefix-cutadapt fastqc $py_prefix-multiqc bwa samtools \
-	    $py_prefix-macs2 bedtools R librsvg2 pkgconf"
+	    $py_prefix-macs2 bedtools R librsvg2 pkgconf biolibc-tools \
+	    peak-classifier coreutils"
     printf "Root "
     su -m root -c "$cluster_run 'pkg install -y $progs' $node_spec"
     ;;
