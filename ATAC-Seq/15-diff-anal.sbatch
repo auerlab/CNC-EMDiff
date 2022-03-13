@@ -20,7 +20,13 @@
 #SBATCH --output=Logs/15-diff-anal/slurm-%A_%a.out
 #SBATCH --error=Logs/15-diff-anal/slurm-%A_%a.err
 
+# Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
+
+# Document software versions used for publication
+uname -a
+R --version
+pwd
 
 case $SLURM_ARRAY_TASK_ID in
 1)
@@ -31,12 +37,5 @@ case $SLURM_ARRAY_TASK_ID in
     ;;
 esac
 
-uname -a
 printf "Processing $cell_type...\n"
-pwd
-
-uname -a
-R --version
-pwd
-
 ./diff-anal.R $cell_type

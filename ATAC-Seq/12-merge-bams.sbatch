@@ -23,8 +23,10 @@
 #SBATCH --output=Logs/12-merge-bams/slurm-%A_%a.out
 #SBATCH --error=Logs/12-merge-bams/slurm-%A_%a.err
 
+# Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
 
+# Document software versions used for publication
 uname -a
 samtools --version
 pwd

@@ -27,8 +27,10 @@
 #SBATCH --output=Logs/02-fastx-derep/slurm-%A_%a.out
 #SBATCH --error=Logs/02-fastx-derep/slurm-%A_%a.err
 
+# Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
 
+# Document software versions used for publication
 uname -a
 blt --version
 pwd

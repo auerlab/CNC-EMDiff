@@ -19,10 +19,12 @@
 #   Main
 ##########################################################################
 
-# SLURM parameters
 #SBATCH --mem=3g
 #SBATCH --output=Logs/07-bwa-index/slurm-%A_%a.out
 #SBATCH --error=Logs/07-bwa-index/slurm-%A_%a.err
+
+# Set a default value for testing outside the SLURM environment
+: ${SLURM_ARRAY_TASK_ID:=1}
 
 # Document software versions used for publication
 uname -a

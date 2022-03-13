@@ -3,6 +3,10 @@
 ##########################################################################
 #   Script description:
 #       Convert MACS2 peaks to fixed-size peaklets
+#       In MACS2 peak call output, filter for high-confidence peaks,
+#       generate peaklets around summits, and merge overlapping peaklets.
+#       Centrino? requires that summits be in the middle of peaklets (Ava)
+#       Some MEME tools require all peaklets to be the same size (Ava)
 #
 #   History:
 #       Based on the work of Dr. Andrea Rau:
@@ -20,15 +24,10 @@
 #SBATCH --output=Logs/14-process-peaks/slurm-%A_%a.out
 #SBATCH --error=Logs/14-process-peaks/slurm-%A_%a.err
 
+# Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
 
-##########################################################################
-#   In MACS2 peak call output, filter for high-confidence peaks,
-#   generate peaklets around summits, and merge overlapping peaklets.
-#   Centrino? requires that summits be in the middle of peaklets (Ava)
-#   Some MEME tools require all peaklets to be the same size (Ava)
-##########################################################################
-
+# Document software versions used for publication
 uname -a
 bedtools --version
 pwd

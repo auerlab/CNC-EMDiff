@@ -31,7 +31,7 @@
 #SBATCH --output=Logs/08-bwa-mem/bwa-mem-%A_%a.out
 #SBATCH --error=Logs/08-bwa-mem/bwa-mem-%A_%a.err
 
-# Defaults if not set by SLURM or user
+# Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
 : ${SLURM_CPUS_PER_TASK:=4}
 
