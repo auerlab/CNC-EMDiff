@@ -32,7 +32,7 @@ if [ ! -e $gff ]; then
     fi
     $fetch ftp://ftp.ensembl.org/pub/release-$release/gff3/mus_musculus/$gff
 fi
-output_dir=12-peak-classes
+output_dir=Data/16-peak-classes
 mkdir -p $output_dir
 
 which peak-classifier
