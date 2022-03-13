@@ -1,4 +1,0 @@
-BWA runs all done on Epyc 32-core processors, mostly loaded to 100% regardless
-of BWA threads.  ( One 32-core job, two 16-core, four 8-core )
-
-Job 9321 was run with srun to enable task affinity, while the earlier jobs were not.
