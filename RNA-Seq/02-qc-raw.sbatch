@@ -37,8 +37,8 @@ fastqc --version
 pwd
 
 # Raw files from sequencing center
-raw1=$(ls Data/Raw-renamed/*-sample${SLURM_ARRAY_TASK_ID}-*R1*.fastq.xz)
-raw2=$(ls Data/Raw-renamed/*-sample${SLURM_ARRAY_TASK_ID}-*R2*.fastq.xz)
+raw1=$(ls Data/Raw-renamed/*sample${SLURM_ARRAY_TASK_ID}-*R1*.fastq.xz)
+raw2=$(ls Data/Raw-renamed/*sample${SLURM_ARRAY_TASK_ID}-*R2*.fastq.xz)
 
 # Filename stems for fastqc output
 stem_raw1=$(basename ${raw1%.fastq.xz})

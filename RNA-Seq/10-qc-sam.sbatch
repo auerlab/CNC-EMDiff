@@ -38,5 +38,5 @@ pwd
 # One iteration if running under SLURM, all iterations otherwise
 printf "Running task $SLURM_ARRAY_TASK_ID...\n"
 
-infile=Data/09-kallisto-quant/*-sample$SLURM_ARRAY_TASK_ID*/pseudoalignments.bam
+infile=Data/09-kallisto-quant/*sample$SLURM_ARRAY_TASK_ID*/pseudoalignments.bam
 fastqc $infile -o Data/10-qc-sam

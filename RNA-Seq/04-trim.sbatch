@@ -53,8 +53,8 @@ uname -a
 fastq-trim --version
 pwd
 
-input1=$(ls Data/Raw-renamed/*-sample${SLURM_ARRAY_TASK_ID}-*R1*)
-input2=$(ls Data/Raw-renamed/*-sample${SLURM_ARRAY_TASK_ID}-*R2*)
+input1=$(ls Data/Raw-renamed/*sample${SLURM_ARRAY_TASK_ID}-*R1*)
+input2=$(ls Data/Raw-renamed/*sample${SLURM_ARRAY_TASK_ID}-*R2*)
 base=$(basename $input1)
 stem=${base%%-R*.fastq.xz}
 

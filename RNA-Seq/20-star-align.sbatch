@@ -60,8 +60,8 @@ build=$(../Common/genome-build.sh)
 release=$(../Common/genome-release.sh)
 genome=$(Reference/genome-filename.sh)
 
-xz1=$(echo Data/03-trim/*-sample${SLURM_ARRAY_TASK_ID}-*-R1.fastq.xz)
-xz2=$(echo Data/03-trim/*-sample${SLURM_ARRAY_TASK_ID}-*-R2.fastq.xz)
+xz1=$(echo Data/03-trim/*sample${SLURM_ARRAY_TASK_ID}-*-R1.fastq.xz)
+xz2=$(echo Data/03-trim/*sample${SLURM_ARRAY_TASK_ID}-*-R2.fastq.xz)
 
 xzb=$(basename $xz1)
 filename_prefix=${xzb%-R*}-

@@ -15,7 +15,7 @@
 #   2019-11-??  Jason Bacon Begin
 ##########################################################################
 
-#SBATCH --array=1-18
+#SBATCH --array=1-15
 #SBATCH --cpus-per-task=2
 # Memory requirements can only be determined by trial and error.
 # Run a sample job and monitor closely in "top" or rununder a tool that
@@ -59,13 +59,12 @@ gtf=$(Reference/gtf-filename.sh)
 # issue an error message.  If your trimmed fastq files are in xz format,
 # this will convert to gzip format.
 # Convert xz to gz rather than raw to reduce NFS load from compute nodes
-xz1=$(echo Data/04-trim/*-sample${SLURM_ARRAY_TASK_ID}-*-R1.fastq.xz)
-xz2=$(echo Data/04-trim/*-sample${SLURM_ARRAY_TASK_ID}-*-R2.fastq.xz)
+xz1=$(echo Data/04-trim/*sample${SLURM_ARRAY_TASK_ID}-*-R1.fastq.xz)
+xz2=$(echo Data/04-trim/*sample${SLURM_ARRAY_TASK_ID}-*-R2.fastq.xz)
+gz1=$(echo Data/04-trim/*sample${SLURM_ARRAY_TASK_ID}-*-R1.fastq.gz)
+gz2=$(echo Data/04-trim/*sample${SLURM_ARRAY_TASK_ID}-*-R2.fastq.gz)
 test -e $gz1 || xzcat $xz1 | gzip --stdout > $gz1
 test -e $gz2 || xzcat $xz2 | gzip --stdout > $gz2
-
-gz1=$(echo Data/04-trim/*-sample${SLURM_ARRAY_TASK_ID}-*-R1.fastq.gz)
-gz2=$(echo Data/04-trim/*-sample${SLURM_ARRAY_TASK_ID}-*-R2.fastq.gz)
 
 # Kallisto requires an output subdirectory for each sample
 stem=$(basename ${gz1%-R1*})
