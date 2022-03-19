@@ -19,6 +19,7 @@ https://github.com/andreamrau/OpticRegen_2019
 
 This pipeline was developed and run on a FreeBSD cluster, with some testing
 also performed on a CentOS 7 cluster, both running the SLURM batch system.
+It is designed to be highly portable and easily adaptable to new data sets.
 
 The entire pipeline can be completed in a day or two using ~64 cores.
 
