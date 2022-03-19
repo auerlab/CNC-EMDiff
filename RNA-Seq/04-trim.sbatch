@@ -26,7 +26,7 @@
 
 ##########################################################################
 # Fastq-trim:
-# Limit concurrent jobs using 1-18%9 to avoid becoming I/O-bound.
+# Limit concurrent jobs to 9 to avoid becoming I/O-bound.
 # Fastq-trim is so fast it ends up using only about 40% CPU while waiting
 # for NFS on albacore (only gigabit Ethernet).  Clusters with higher
 # speed networks and file servers can handle more jobs.
@@ -35,6 +35,7 @@
 # 2 xzcat, 2 gzip, and 1 fastq-trim, but xzcat and gzip use less than
 # half a core each
  
+# Set job array to number of samples.
 #SBATCH --array=1-18%9
 #SBATCH --cpus-per-task=3
 # Memory requirements can only be determined by trial and error.

@@ -21,7 +21,7 @@
 #   Main
 ##########################################################################
 
-# SLURM parameters
+# Set job array to number of samples.
 #SBATCH --array=1-18
 # FIXME: Check actual memory use
 #SBATCH --mem=1g

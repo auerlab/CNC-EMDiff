@@ -17,8 +17,9 @@
 #   2019-09-13  Jason Bacon Begin
 ##########################################################################
 
+# Set job array to number of samples.
 # Each invocation of this script will run 2 fastqc processes, forward
-# and reverse
+# and reverse.
 #SBATCH --array=1-18
 #SBATCH --cpus-per-task=2
 # Memory requirements can only be determined by trial and error.

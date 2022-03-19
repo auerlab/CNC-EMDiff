@@ -19,6 +19,7 @@
 #   https://hbctraining.github.io/Intro-to-rnaseq-hpc-O2/lessons/03_alignment.html
 ##########################################################################
 
+# Set job array to number of samples.
 #SBATCH --array=1-18
 # 1 for STAR, 1 for each xzcat
 #SBATCH --cpus-per-task=3

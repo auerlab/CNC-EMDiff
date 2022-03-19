@@ -15,7 +15,8 @@
 #   2019-11-??  Jason Bacon Begin
 ##########################################################################
 
-#SBATCH --array=1-15
+# Set job array to number of samples.
+#SBATCH --array=1-18
 #SBATCH --cpus-per-task=2
 # Memory requirements can only be determined by trial and error.
 # Run a sample job and monitor closely in "top" or rununder a tool that

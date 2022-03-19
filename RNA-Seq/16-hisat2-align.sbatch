@@ -15,6 +15,7 @@
 #   2021-11-24  Jason Bacon Begin
 ##########################################################################
 
+# Set job array to number of samples.
 #SBATCH --array=1-18
 #SBATCH --cpus-per-task=2
 # Memory requirements can only be determined by trial and error.
@@ -32,7 +33,7 @@
 
 # Document software versions used for publication
 uname -a
-#hisat2 --version
+hisat2 --version
 pwd
 
 build=$(../Common/genome-build.sh)

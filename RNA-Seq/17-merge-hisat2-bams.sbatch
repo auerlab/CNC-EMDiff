@@ -11,6 +11,7 @@
 #       every program with one environment.)
 #############################################################################
 
+# Set job array to number of samples / number of time points.
 # 3 time points, chondro and neuro for each
 #SBATCH --array=1-6
 # Memory requirements can only be determined by trial and error.
