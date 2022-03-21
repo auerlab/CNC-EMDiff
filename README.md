@@ -17,6 +17,11 @@ Much of this analysis is modeled on the work of Dr. Andrea Rau:
 
 https://github.com/andreamrau/OpticRegen_2019
 
+It was originally developed in fall 2019 and spring 2020, but has since been
+overhauled to simplify the scripts, make them more readable, and make them
+easily adaptable to other data sets.  Adapting the scripts for a reanalysis
+of the Optic Regen data with the latest tools has proven to be quite simple.
+
 This pipeline was developed and run on a FreeBSD cluster, with some testing
 also performed on a CentOS 7 cluster, both running the SLURM batch system.
 It is designed to be highly portable and easily adaptable to new data sets.
@@ -29,7 +34,7 @@ that they can be tested on a single sample outside the SLURM environment.
 Programs used in the scripts are assumed to be in the user's PATH.  If not,
 add appropriate steps to the sbatch scripts.  ( Altering PATH, activating
 environments or containers, etc. in .bashrc or other startup scripts is not
-recommended, as attemping to support various programs within a single
+recommended, as attempting to support various programs within a single
 environment is complicated and prone to cause problems. )
 
 The install-programs scripts will install all necessary software on a FreeBSD
