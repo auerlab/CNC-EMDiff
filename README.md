@@ -1,5 +1,5 @@
 # CNC-EMDiff
-Mus musculus cranial neural crest differentiation analysis
+Cranial Neural Crest Ectodermal Mesenchymal Differentiation
 
 This analysis pipeline was created for the PhD thesis of Dr. Maria Replogl
 in the lab of Dr. Ava Udvadia at the University of Wisconsin -- Milwaukee.
@@ -7,11 +7,11 @@ in the lab of Dr. Ava Udvadia at the University of Wisconsin -- Milwaukee.
 Authors: Jason W. Bacon, Dr. Paul W. L. Auer (Sleuth analysis script)
 
 The analysis compares gene expression data from RNA-Seq and chromatin
-accessibility data from ATAC-Seq at three time points in recently
-differentiated neural and chondrocyte cells in culture.  In includes
-standard differential expression and differential accessibility analyses
-as well as custom scripts and newly developed C code (peak-classifier)
-to aid in correlating gene expression and chromatin accessibility.
+accessibility data from ATAC-Seq at three time points in differentiating
+Mus Musculus neural and chondrocyte cells in culture.  It includes standard
+differential expression and differential accessibility analyses as well as
+custom scripts and newly developed C code (peak-classifier) to aid in
+correlating gene expression and chromatin accessibility.
 
 Much of this analysis is modeled on the work of Dr. Andrea Rau:
 
