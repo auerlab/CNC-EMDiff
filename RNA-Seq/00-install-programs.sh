@@ -1,14 +1,17 @@
 #!/bin/sh -e
 
-if which cluster-run; then
+if which lcluster-run; then
     cluster_run=cluster-run
+    srun="srun --ntasks=1 --mem=1g"
     node_spec=compute
 else
     cluster_run='sh -c'
+    srun=''
 fi
 
+# libgit2 is a dep for R devtools
 py_prefix=py38
-progs="$py_prefix-cutadapt fastqc $py_prefix-multiqc samtools gffread bwa biolibc-tools kallisto R hisat2"
+progs="$py_prefix-cutadapt fastqc $py_prefix-multiqc samtools gffread bwa biolibc-tools kallisto R hisat2 libgit2"
 
 case $(uname) in
 FreeBSD)
@@ -45,4 +48,4 @@ EOM
 fi
 
 printf "\nInstalling R packages...\n"
-srun --ntasks=1 --mem=1g Utils/install-R-packages.R
+$srun Utils/install-R-packages.R

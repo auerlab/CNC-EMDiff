@@ -8,17 +8,27 @@ local({r <- getOption("repos")
 
 # R_LIBS_USER should be set to ~/R/library in ~/.Renviron.
 
+# This works, but dir is not accessible by this process
+# Run the script again without removing the dir and it can install packages
+# dir.create("~/R/library", recursive=TRUE)
+
 install.packages("remotes")
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 
+# Pause this thought...
+# Some bugs fixed and a promise of more maintenance to come, Mar 2022.
 # Sleuth has not been maintained since 2019.  Use DESeq2 instead.
+# BiocManager::install("DESeq2")
+
 # Instructions at https://pachterlab.github.io/sleuth/download do not work
-# source("http://bioconductor.org/biocLite.R")
-# biocLite("rhdf5")
 # install.packages("devtools")
 # devtools::install_github("pachterlab/sleuth")
-# This seems to work
-# BiocManager::install("pachterlab/sleuth")
+# https://github.com/pachterlab/sleuth/issues/259
+# remotes::install_github("pachterlab/sleuth#260")
 
-BiocManager::install("DESeq2")
+# This seems to work
+# source("http://bioconductor.org/biocLite.R")
+BiocManager::install("rhdf5")
+BiocManager::install("pachterlab/sleuth")
+

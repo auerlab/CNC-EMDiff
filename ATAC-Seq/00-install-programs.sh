@@ -51,4 +51,4 @@ EOM
 fi
 
 printf "\nInstalling R packages...\n"
-$srun Utils/install-R-packages.R
+$srun Utils/install-R-packages.sh
