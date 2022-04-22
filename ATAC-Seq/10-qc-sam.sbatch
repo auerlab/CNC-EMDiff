@@ -35,11 +35,11 @@ pwd
 
 qc_dir=Data/10-qc-sam
 mkdir -p $qc_dir/Raw
-infile=Data/08-bwa-mem/*-sample${SLURM_ARRAY_TASK_ID}-*.sam
+infile=Data/08-bwa-mem/*sample${SLURM_ARRAY_TASK_ID}-*.sam
 printf "Processing $infile...\n"
 fastqc $infile -o $qc_dir/Raw
 
 mkdir -p $qc_dir/Rmdup
-infile=Data/09-remove-duplicates/*-sample${SLURM_ARRAY_TASK_ID}-*-mapq1.bam
+infile=Data/09-remove-duplicates/*sample${SLURM_ARRAY_TASK_ID}-*-mapq1.bam
 printf "Processing $infile...\n"
 fastqc $infile -o $qc_dir/Rmdup
