@@ -41,7 +41,7 @@ cd Data/09-remove-duplicates
 # This should match only 1 file.  '*' used only to match irrelevant variations.
 # The integer following 'S' in the filename should be unique (1 - 18)
 # Variable assignments don't expand globbing patterns, so insert an ls command
-saminput=$(ls ../08-bwa-mem/*-sample$SLURM_ARRAY_TASK_ID-*.sam)
+saminput=$(ls ../08-bwa-mem/*sample$SLURM_ARRAY_TASK_ID-*.sam)
 sambase=$(basename $saminput)
 sorted=${sambase%.sam}-sorted.bam
 nodup=${sambase%.sam}-nodup.bam

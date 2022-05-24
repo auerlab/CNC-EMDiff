@@ -30,6 +30,8 @@ if [ ! -e $transcriptome ]; then
     # Warning: couldn't find fasta record for 'MT'!
     # Error: no genomic sequence available (check -g option!).
     # Abort trap (core dumped)
+    
+    # Generate FASTA containing spliced exons for each transcript from GTF
     printf "Converting $gtf to $transcriptome...\n"
     gffread -w $transcriptome -g $genome $gtf
 else
