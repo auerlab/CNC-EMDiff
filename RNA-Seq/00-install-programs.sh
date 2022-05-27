@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-if which lcluster-run; then
+if which cluster-run; then
     cluster_run=cluster-run
     srun="srun --ntasks=1 --mem=1g"
     node_spec=compute
