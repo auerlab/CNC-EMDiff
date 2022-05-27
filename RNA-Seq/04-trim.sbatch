@@ -114,7 +114,7 @@ fi
 # but we'll state it explicitly anyway
 set -x
 time fastq-trim --3p-adapter1 $adapter --3p-adapter2 $adapter \
-    --min-qual 24 $input1 $output1 $input2 $output2
+    --min-qual 24 --polya-min-length 4 $input1 $output1 $input2 $output2
 
 # To use cutadapt instead, comment out the above and uncomment this:
 #cutadapt --compression-level=1
