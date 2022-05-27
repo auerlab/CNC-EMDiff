@@ -1,5 +1,10 @@
 #!/bin/sh -e
 
+if [ $(whoami) == root ]; then
+    printf "$0 should not be run as root.  It installs CRAN packages in $HOME.\n"
+    exit 1
+fi
+
 if which cluster-run; then
     cluster_run=cluster-run
     srun=srun

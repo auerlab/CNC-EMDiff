@@ -1,5 +1,10 @@
 #!/bin/sh -e
 
+if [ $(whoami) == root ]; then
+    printf "$0 should not be run as root.  It installs CRAN packages in $HOME.\n"
+    exit 1
+fi
+
 if which cluster-run; then
     cluster_run=cluster-run
     srun="srun --ntasks=1 --mem=1g"
@@ -11,7 +16,7 @@ fi
 
 # libgit2 is a dep for R devtools
 py_prefix=py38
-progs="$py_prefix-cutadapt fastqc $py_prefix-multiqc samtools gffread bwa biolibc-tools kallisto R hisat2 libgit2"
+progs="$py_prefix-cutadapt fastq-trim fastqc $py_prefix-multiqc samtools gffread bwa biolibc-tools kallisto R hisat2 libgit2"
 
 case $(uname) in
 FreeBSD)
