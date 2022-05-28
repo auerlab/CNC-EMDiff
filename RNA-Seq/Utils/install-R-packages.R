@@ -19,16 +19,16 @@ if (!requireNamespace("BiocManager", quietly = TRUE))
 # Pause this thought...
 # Some bugs fixed and a promise of more maintenance to come, Mar 2022.
 # Sleuth has not been maintained since 2019.  Use DESeq2 instead.
-# BiocManager::install("DESeq2")
-
 # Instructions at https://pachterlab.github.io/sleuth/download do not work
 # install.packages("devtools")
 # devtools::install_github("pachterlab/sleuth")
 # https://github.com/pachterlab/sleuth/issues/259
 # remotes::install_github("pachterlab/sleuth#260")
-
 # This seems to work
 # source("http://bioconductor.org/biocLite.R")
 BiocManager::install("rhdf5")
 BiocManager::install("pachterlab/sleuth")
+BiocManager::install("biomaRt")
 
+# Alternative for comparison
+BiocManager::install("DESeq2")

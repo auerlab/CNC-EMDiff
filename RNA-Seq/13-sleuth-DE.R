@@ -54,9 +54,6 @@
 # From several parameter variations early on:
 # base_dir <- "4-kallisto-quant-m30-u15/"
 
-print("Sleuth is dead.  Use DESeq2.");
-quit();
-
 # Extract numeric sample IDs from kallisto output directory names
 library(stringr)
 base_dir <- "Data/09-kallisto-quant";
@@ -71,35 +68,52 @@ expdesign <- data.frame(sample=sample_id,
 			replicate=c(1,1,1,2,2,2,3,3,3),
 			path=kal_dirs,
 			stringsAsFactors=FALSE)
+print(expdesign)
 
 full_design_factor <- model.matrix(formula(~ expdesign$time))
+
+print(full_design_factor)
+quit()
+
 colnames(full_design_factor) <- c("CEday0", "CEday4", "CEday14")
 
 ##########################
-###biomaRt stuff #########
+### biomaRt stuff #########
 ### get gene names etc ###
 
 # FIXME: build and release??
 # Get this from GFF?
 library(biomaRt)
 library(dplyr)
+print("Fetching mus_musculus...");
+
+# FIXME: Complains that host should have https://, but fails if it does
 mart <- biomaRt::useMart(biomart = "ENSEMBL_MART_ENSEMBL",
 	dataset = "mmusculus_gene_ensembl",
 	host = 'ensembl.org');
-t2g <- biomaRt::getBM(attributes = c("ensembl_transcript_id", "ensembl_gene_id", "external_gene_name"), mart = mart)
-t2g <- dplyr::rename(t2g, target_id = ensembl_transcript_id, ens_gene = ensembl_gene_id, ext_gene = external_gene_name)
+
+t2g <- biomaRt::getBM(attributes = c("ensembl_transcript_id",
+		      "ensembl_gene_id", "external_gene_name"), mart = mart)
+# print(t2g)
+
+t2g <- dplyr::rename(t2g, target_id = ensembl_transcript_id,
+		     ens_gene = ensembl_gene_id, ext_gene = external_gene_name)
 
 library(sleuth);
+print("Running sleuth_prep...")
 so <- sleuth_prep(sample_to_covariates = expdesign, full_model=full_design_factor, target_mapping=t2g)
-so <- sleuth_fit(so)
-quit()
 
+print("Running sleuth_fit...")
+so <- sleuth_fit(so)
 
 ### CE Day 4 vs CE Day 0
 so2 <- sleuth_wt(so, "CEday4")
 res <- sleuth_results(so2, "CEday4", test_type="wt")
 keep <- res[which(res$qval < 0.05),]
 ce.4vs0 <- keep
+
+# FIXME: Debug exit
+quit()
 
 ### CE Day 14 vs CE Day 0
 so2 <- sleuth_wt(so, "CEday14")
