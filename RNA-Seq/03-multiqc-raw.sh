@@ -12,5 +12,5 @@ export LC_ALL=en_US.UTF-8
 
 cd Data/03-multiqc-raw
 rm -rf *
-$srun multiqc --version > multiqc-version.txt 2>&1
-$srun multiqc ../02-qc-raw
+$srun multiqc --version > ../../Logs/03-multiqc-raw/multiqc-version.txt 2>&1
+$srun multiqc ../02-qc-raw 2>&1 | tee ../../Logs/03-multiqc-raw/multiqc.out
