@@ -10,6 +10,11 @@
 #   2020-06-15  Jason Bacon Integrate into latest RNA-Seq pipeline
 ##########################################################################
 
+library(stringr)
+library(biomaRt)
+library(dplyr)
+library(sleuth);
+
 ############################
 #############################
 
@@ -55,13 +60,15 @@
 # base_dir <- "4-kallisto-quant-m30-u15/"
 
 # Extract numeric sample IDs from kallisto output directory names
-library(stringr)
+
 base_dir <- "Data/09-kallisto-quant";
 sample_id <- str_extract(dir(base_dir),"[0-9]+");
-sample_id
+print("sample_id:")
+print(sample_id)
 
 kal_dirs <- file.path(base_dir,dir(base_dir))
-kal_dirs
+print("kal_dirs:")
+print(kal_dirs)
 
 expdesign <- data.frame(sample=sample_id,
 			time=factor(c("T1", "T2", "T3",
@@ -70,41 +77,37 @@ expdesign <- data.frame(sample=sample_id,
 			replicate=c(1,1,1,2,2,2,3,3,3),
 			path=kal_dirs,
 			stringsAsFactors=FALSE)
+print("exp_design:")
 print(expdesign)
 
 full_design_factor <- model.matrix(formula(~ expdesign$time))
+print("full_design_factor:")
 print(full_design_factor)
 
 colnames(full_design_factor) <- c("CH-T1", "CH-T2", "CH-T3")
+print("colnames[full_design_factor]:")
 print(colnames(full_design_factor))
 
 ##########################
 ### biomaRt stuff #########
 ### get gene names etc ###
 
-# FIXME: build and release??
-# Get this from GFF?
-library(biomaRt)
-library(dplyr)
-print("Fetching mus_musculus...");
-
+# FIXME: build and release??  Get this from GFF instead?
 # FIXME: Complains that host should have https://, but fails if it does
+print("Fetching mus_musculus...");
 mart <- biomaRt::useMart(biomart = "ENSEMBL_MART_ENSEMBL",
 	dataset = "mmusculus_gene_ensembl",
 	host = 'ensembl.org');
 
 t2g <- biomaRt::getBM(attributes = c("ensembl_transcript_id",
 		      "ensembl_gene_id", "external_gene_name"), mart = mart)
-# print(t2g)
-
 t2g <- dplyr::rename(t2g, target_id = ensembl_transcript_id,
 		     ens_gene = ensembl_gene_id, ext_gene = external_gene_name)
 
-library(sleuth);
 so_filename <- "so.RData"
 if ( file.exists(so_filename) ) {
     print(paste("Reusing ", so_filename))
-    load(so_filename)
+    so <- sleuth_load(so_filename)
 } else {
     print("Running sleuth_prep...")
     so <- sleuth_prep(sample_to_covariates = expdesign,
@@ -114,7 +117,7 @@ if ( file.exists(so_filename) ) {
     so <- sleuth_fit(so)
 
     # FIXME: Doesn't work.  Find out how to save sleuth data.
-    # save(list=so, file=so_filename)
+    sleuth_save(so, so_filename)
 }
 
 ### CE Day 4 vs CE Day 0
@@ -122,9 +125,6 @@ so2 <- sleuth_wt(so, "CH-T2")
 res <- sleuth_results(so2, "CH-T2", test_type="wt")
 keep <- res[which(res$qval < 0.05),]
 ce.4vs0 <- keep
-
-# FIXME: Debug exit
-quit()
 
 ### CE Day 14 vs CE Day 0
 so2 <- sleuth_wt(so, "CH-T3")
@@ -152,26 +152,18 @@ write.table(ce.4vs0, "Sleuth-Prelim/ce4vsce0.txt", row.names=FALSE, col.names=TR
 
 # Repeats for other sample groups below
 
-## CE Day 14 vs CE Day 4
-library(sleuth)
-library(biomaRt)
-library(dplyr)
-
-##########################
-###biomaRt stuff #########
-### get gene names etc ###
-mart <- biomaRt::useMart(biomart = "ENSEMBL_MART_ENSEMBL",
-  dataset = "mmusculus_gene_ensembl",
-  host = 'ensembl.org')
-t2g <- biomaRt::getBM(attributes = c("ensembl_transcript_id", "ensembl_gene_id", "external_gene_name"), mart = mart)
-t2g <- dplyr::rename(t2g, target_id = ensembl_transcript_id, ens_gene = ensembl_gene_id, ext_gene = external_gene_name)
 ############################
 
-# base_dir <- "~/Data/CNC-EMDiff/RNASeq/4-kallisto-quant-m30-u15/"
 sample_id <- as.character(sort(as.numeric(dir(file.path(base_dir))[1:18])))[1:9]
+print("sample_id:")
+print(sample_id)
 
 kal_dirs <- sapply(sample_id, function(id) file.path(base_dir, id))
-kal_dirs
+print("kal_dirs:")
+print(kal_dirs)
+
+# FIXME: Debug exit
+quit()
 
 expdesign <- data.frame(sample=sample_id,
 			time=factor(c("A", "B", "C", "A", "B", "C", "A", "B", "C")),
@@ -207,9 +199,6 @@ write.table(ce.14vs4, "Sleuth-Prelim/ce14vsce4.txt", row.names=FALSE, col.names=
 
 
 ### Within Nuero treat as a single experiment
-library(sleuth)
-library(biomaRt)
-library(dplyr)
 
 ##########################
 ###biomaRt stuff #########
@@ -224,7 +213,6 @@ t2g <- dplyr::rename(t2g, target_id = ensembl_transcript_id, ens_gene = ensembl_
 
 
 ## NE Day 2 vs NE Day 0
-# base_dir <- "~/Data/CNC-EMDiff/RNASeq/4-kallisto-quant-m30-u15/"
 sample_id <- as.character(sort(as.numeric(dir(file.path(base_dir))[1:18])))[10:18]
 
 kal_dirs <- sapply(sample_id, function(id) file.path(base_dir, id))
@@ -271,9 +259,6 @@ write.table(ne.2vs0, "Sleuth-Prelim/ne2vsne0.txt", row.names=FALSE, col.names=TR
 
 
 ### NE Day 6 vs NE Day 2
-library(sleuth)
-library(biomaRt)
-library(dplyr)
 
 ##########################
 ###biomaRt stuff #########
@@ -286,7 +271,6 @@ t2g <- dplyr::rename(t2g, target_id = ensembl_transcript_id, ens_gene = ensembl_
 ############################
 #############################
 
-# base_dir <- "~/Data/CNC-EMDiff/RNASeq/4-kallisto-quant-m30-u15/"
 sample_id <- as.character(sort(as.numeric(dir(file.path(base_dir))[1:18])))[10:18]
 
 kal_dirs <- sapply(sample_id, function(id) file.path(base_dir, id))
@@ -323,9 +307,6 @@ write.table(ne.6vs2, "Sleuth-Prelim/ne6vsne2.txt", row.names=FALSE, col.names=TR
 
 
 ### For Chondro - Neuro comparisons read in the whole datasets
-library(sleuth)
-library(biomaRt)
-library(dplyr)
 
 ##########################
 ###biomaRt stuff #########
@@ -338,7 +319,6 @@ t2g <- dplyr::rename(t2g, target_id = ensembl_transcript_id, ens_gene = ensembl_
 ############################
 #############################
 
-# base_dir <- "~/Data/CNC-EMDiff/RNASeq/4-kallisto-quant-m30-u15/"
 sample_id <- as.character(sort(as.numeric(dir(file.path(base_dir))[1:18])))
 
 kal_dirs <- sapply(sample_id, function(id) file.path(base_dir, id))
@@ -380,9 +360,6 @@ write.table(ne0.vs.ce0, "Sleuth-Prelim/ne0vsce0.txt", row.names=FALSE, col.names
 
 ##################################################################3
 ##### CE Day 4 vs NE Day 2
-library(sleuth)
-library(biomaRt)
-library(dplyr)
 
 ##########################
 ###biomaRt stuff #########
@@ -395,7 +372,6 @@ t2g <- dplyr::rename(t2g, target_id = ensembl_transcript_id, ens_gene = ensembl_
 ############################
 #############################
 
-# base_dir <- "~/Data/CNC-EMDiff/RNASeq/4-kallisto-quant-m30-u15/"
 sample_id <- as.character(sort(as.numeric(dir(file.path(base_dir))[1:18])))
 
 kal_dirs <- sapply(sample_id, function(id) file.path(base_dir, id))
@@ -445,9 +421,6 @@ write.table(ne2.vs.ce4, "Sleuth-Prelim/ne2vsce4.txt", row.names=FALSE, col.names
 
 ## NE Day 6 vs CE Day 14
 ##### Start new R-session for every new reference group below
-library(sleuth)
-library(biomaRt)
-library(dplyr)
 
 ##########################
 ###biomaRt stuff #########
@@ -460,7 +433,6 @@ t2g <- dplyr::rename(t2g, target_id = ensembl_transcript_id, ens_gene = ensembl_
 ############################
 #############################
 
-# base_dir <- "~/Data/CNC-EMDiff/RNASeq/4-kallisto-quant-m30-u15/"
 sample_id <- as.character(sort(as.numeric(dir(file.path(base_dir))[1:18])))
 
 kal_dirs <- sapply(sample_id, function(id) file.path(base_dir, id))
