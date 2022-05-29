@@ -54,6 +54,8 @@ library(sleuth);
 #17 - NE3B - Nd2r3
 #18 - NE3C - Nd6r3
 
+# Limit debug output
+options(max.print=60)
 
 #### Within Chondro treat as a single experiment
 # Read in data
@@ -63,15 +65,26 @@ library(sleuth);
 # Extract numeric sample IDs from kallisto output directory names
 
 kallisto_dir <- "Data/09-kallisto-quant";
+
 sleuth_dir <- "Data/13-sleuth-DE"
+# mkdir() is in the R docs, but does not exist
+dir.create(sleuth_dir)
+
+# Extract first integer from each kallisto dirname (should be sample ID 1-18)
+# dir name example: chondro-sample1-rep1-time1
 sample_id <- str_extract(dir(kallisto_dir),"[0-9]+");
 print("sample_id:")
 print(sample_id)
 
+# Concatenate each kallisto subdir to kallisto_dir
+# Similar to paste(kallisto_dir, dir(kallisto_dir), sep='/')
 kal_dirs <- file.path(kallisto_dir,dir(kallisto_dir))
 print("kal_dirs:")
 print(kal_dirs)
 
+# 1       1   T1         1 Data/09-kallisto-quant/chondro-sample1-rep1-time1
+# ...
+# 18     18   T3         3  Data/09-kallisto-quant/neuro-sample18-rep3-time3
 expdesign <- data.frame(sample=sample_id,
 			time=factor(c("T1", "T2", "T3",
 				      "T1", "T2", "T3",
@@ -82,10 +95,12 @@ expdesign <- data.frame(sample=sample_id,
 print("exp_design:")
 print(expdesign)
 
+# Not sure about this one yet
 full_design_factor <- model.matrix(formula(~ expdesign$time))
 print("full_design_factor:")
 print(full_design_factor)
 
+# "CH-T1" "CH-T2" "CH-T3"
 colnames(full_design_factor) <- c("CH-T1", "CH-T2", "CH-T3")
 print("colnames[full_design_factor]:")
 print(colnames(full_design_factor))
@@ -94,21 +109,26 @@ print(colnames(full_design_factor))
 ### biomaRt stuff #########
 ### get gene names etc ###
 
-# FIXME: build and release??  Get this from GFF instead?
+# FIXME: build and release??  Extract from local GFF/FASTA instead?
 # FIXME: Complains that host should have https://, but fails if it does
 print("Fetching mus_musculus...");
 mart <- biomaRt::useMart(biomart = "ENSEMBL_MART_ENSEMBL",
 	dataset = "mmusculus_gene_ensembl",
 	host = 'ensembl.org');
 
+# Example: ENSMUST00000094665 ENSMUSG00000070719       Pla2g4d
 t2g <- biomaRt::getBM(attributes = c("ensembl_transcript_id",
 		      "ensembl_gene_id", "external_gene_name"), mart = mart)
 t2g <- dplyr::rename(t2g, target_id = ensembl_transcript_id,
 		     ens_gene = ensembl_gene_id, ext_gene = external_gene_name)
+print("t2g:")
+print(t2g)
 
+# sleuth_prep() and sleuth_fit() take a long time, so reuse results if possible
 so_filename <- "so.RData"
 if ( file.exists(so_filename) ) {
     print(paste("Reusing ", so_filename))
+    print("Remove and run again to force running sleuth_prep() and sleuth_fit().")
     so <- sleuth_load(so_filename)
 } else {
     print("Running sleuth_prep...")
@@ -129,6 +149,7 @@ keep <- res[which(res$qval < 0.05),]
 ce.t2_vs_t1 <- keep
 print("ce.t2_vs_t1:")
 print(ce.t2_vs_t1)
+quit()
 
 ### CE Day 14 vs CE Day 0
 so2 <- sleuth_wt(so, "CH-T3")
@@ -142,6 +163,8 @@ colnames(sleuth_matrix) <- c("CH-R1-T1", "CH-R1-T2", "CH-R1-T3",
 			     "CH-R2-T1", "CH-R2-T2", "CH-R2-T3",
 			     "CH-R3-T1", "CH-R3-T2", "CH-R3-T3")
 sleuth_matrix$target_id <- rownames(sleuth_matrix)
+print(rownames(sleuth_matrix))
+quit()
 
 ce.t2_vs_t1 <- merge(ce.t2_vs_t1, sleuth_matrix)
 ce.t2_vs_t1 <- ce.t2_vs_t1[, c(1,2,3,5,6, 14:22)]
@@ -149,10 +172,10 @@ ce.t2_vs_t1 <- ce.t2_vs_t1[, c(1,2,3,5,6, 14:22)]
 ce.t3_vs_t1 <- merge(ce.t3_vs_t1, sleuth_matrix)
 ce.t3_vs_t1 <- ce.t3_vs_t1[, c(1,2,3,5,6, 14:22)]
 
-# mkdir() is in the R docs, but does not exist
-dir.create(sleuth_dir)
-write.table(ce.t3_vs_t1, paste(sleuth_dir, "ch-t3-vs-t1.txt", sep='/'), row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
-write.table(ce.t2_vs_t1, paste(sleuth_dir, "ch-t2-vs-t1.txt", sep='/'), row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
+write.table(ce.t3_vs_t1, paste(sleuth_dir, "ch-t3-vs-t1.txt", sep='/'),
+	    row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
+write.table(ce.t2_vs_t1, paste(sleuth_dir, "ch-t2-vs-t1.txt", sep='/'),
+	    row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
 
 # Repeats for other sample groups below
 
