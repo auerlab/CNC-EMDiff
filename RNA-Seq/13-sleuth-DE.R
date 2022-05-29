@@ -145,11 +145,11 @@ if ( file.exists(so_filename) ) {
 ### CE Day 4 vs CE Day 0
 so2 <- sleuth_wt(so, "CH-T2")
 res <- sleuth_results(so2, "CH-T2", test_type="wt")
+
 keep <- res[which(res$qval < 0.05),]
 ce.t2_vs_t1 <- keep
 print("ce.t2_vs_t1:")
 print(ce.t2_vs_t1)
-quit()
 
 ### CE Day 14 vs CE Day 0
 so2 <- sleuth_wt(so, "CH-T3")
@@ -163,11 +163,21 @@ colnames(sleuth_matrix) <- c("CH-R1-T1", "CH-R1-T2", "CH-R1-T3",
 			     "CH-R2-T1", "CH-R2-T2", "CH-R2-T3",
 			     "CH-R3-T1", "CH-R3-T2", "CH-R3-T3")
 sleuth_matrix$target_id <- rownames(sleuth_matrix)
-print(rownames(sleuth_matrix))
-quit()
+#print("rownames(sleuth_matrix):")
+#print(rownames(sleuth_matrix))
+
+print("sleuth_matrix:")
+print(sleuth_matrix)
 
 ce.t2_vs_t1 <- merge(ce.t2_vs_t1, sleuth_matrix)
+print("Merged ce.t2_vs_t1 + sleuth_matrix:")
+print(ce.t2_vs_t1)
+# 1) target_id 2) ens_gene 3) ext_gene 5) qval 6) b
+# 14-22: Sample data (counts?) for all reps and time points
+# FIXME: Are the T3 values being used?
 ce.t2_vs_t1 <- ce.t2_vs_t1[, c(1,2,3,5,6, 14:22)]
+print("Filtered ce.t2_vs_t1:")
+print(ce.t2_vs_t1)
 
 ce.t3_vs_t1 <- merge(ce.t3_vs_t1, sleuth_matrix)
 ce.t3_vs_t1 <- ce.t3_vs_t1[, c(1,2,3,5,6, 14:22)]
@@ -176,6 +186,7 @@ write.table(ce.t3_vs_t1, paste(sleuth_dir, "ch-t3-vs-t1.txt", sep='/'),
 	    row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
 write.table(ce.t2_vs_t1, paste(sleuth_dir, "ch-t2-vs-t1.txt", sep='/'),
 	    row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
+quit()
 
 # Repeats for other sample groups below
 
