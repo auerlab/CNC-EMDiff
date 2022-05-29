@@ -3,6 +3,7 @@
 ##########################################################################
 #   Script description:
 #       Sleuth analysis for CNC-EMDiff
+#       https://pachterlab.github.io/sleuth/
 #       
 #   History:
 #   Date        Name        Modification
@@ -57,16 +58,17 @@ library(sleuth);
 #### Within Chondro treat as a single experiment
 # Read in data
 # From several parameter variations early on:
-# base_dir <- "4-kallisto-quant-m30-u15/"
+# kallisto_dir <- "4-kallisto-quant-m30-u15/"
 
 # Extract numeric sample IDs from kallisto output directory names
 
-base_dir <- "Data/09-kallisto-quant";
-sample_id <- str_extract(dir(base_dir),"[0-9]+");
+kallisto_dir <- "Data/09-kallisto-quant";
+sleuth_dir <- "Data/13-sleuth-DE"
+sample_id <- str_extract(dir(kallisto_dir),"[0-9]+");
 print("sample_id:")
 print(sample_id)
 
-kal_dirs <- file.path(base_dir,dir(base_dir))
+kal_dirs <- file.path(kallisto_dir,dir(kallisto_dir))
 print("kal_dirs:")
 print(kal_dirs)
 
@@ -124,13 +126,15 @@ if ( file.exists(so_filename) ) {
 so2 <- sleuth_wt(so, "CH-T2")
 res <- sleuth_results(so2, "CH-T2", test_type="wt")
 keep <- res[which(res$qval < 0.05),]
-ce.4vs0 <- keep
+ce.t2_vs_t1 <- keep
+print("ce.t2_vs_t1:")
+print(ce.t2_vs_t1)
 
 ### CE Day 14 vs CE Day 0
 so2 <- sleuth_wt(so, "CH-T3")
 res <- sleuth_results(so2, "CH-T3", test_type="wt")
 keep <- res[which(res$qval < 0.05),]
-ce.14vs0 <- keep
+ce.t3_vs_t1 <- keep
 
 #### Get TPMs for each gene-transcript. Merge into results
 sleuth_matrix <- data.frame(sleuth_to_matrix(so, 'obs_norm', 'tpm'))
@@ -139,26 +143,26 @@ colnames(sleuth_matrix) <- c("CH-R1-T1", "CH-R1-T2", "CH-R1-T3",
 			     "CH-R3-T1", "CH-R3-T2", "CH-R3-T3")
 sleuth_matrix$target_id <- rownames(sleuth_matrix)
 
-ce.4vs0 <- merge(ce.4vs0, sleuth_matrix)
-ce.4vs0 <- ce.4vs0[, c(1,2,3,5,6, 14:22)]
+ce.t2_vs_t1 <- merge(ce.t2_vs_t1, sleuth_matrix)
+ce.t2_vs_t1 <- ce.t2_vs_t1[, c(1,2,3,5,6, 14:22)]
 
-ce.14vs0 <- merge(ce.14vs0, sleuth_matrix)
-ce.14vs0 <- ce.14vs0[, c(1,2,3,5,6, 14:22)]
+ce.t3_vs_t1 <- merge(ce.t3_vs_t1, sleuth_matrix)
+ce.t3_vs_t1 <- ce.t3_vs_t1[, c(1,2,3,5,6, 14:22)]
 
 # mkdir() is in the R docs, but does not exist
-dir.create("Sleuth-Prelim")
-write.table(ce.14vs0, "Sleuth-Prelim/ce14vsce0.txt", row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
-write.table(ce.4vs0, "Sleuth-Prelim/ce4vsce0.txt", row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
+dir.create(sleuth_dir)
+write.table(ce.t3_vs_t1, paste(sleuth_dir, "ch-t3-vs-t1.txt", sep='/'), row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
+write.table(ce.t2_vs_t1, paste(sleuth_dir, "ch-t2-vs-t1.txt", sep='/'), row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
 
 # Repeats for other sample groups below
 
 ############################
 
-sample_id <- as.character(sort(as.numeric(dir(file.path(base_dir))[1:18])))[1:9]
+sample_id <- as.character(sort(as.numeric(dir(file.path(kallisto_dir))[1:18])))[1:9]
 print("sample_id:")
 print(sample_id)
 
-kal_dirs <- sapply(sample_id, function(id) file.path(base_dir, id))
+kal_dirs <- sapply(sample_id, function(id) file.path(kallisto_dir, id))
 print("kal_dirs:")
 print(kal_dirs)
 
@@ -181,7 +185,7 @@ so <- sleuth_fit(so)
 so2 <- sleuth_wt(so, "CH-T3")
 res <- sleuth_results(so2, "CH-T3", test_type="wt")
 keep <- res[which(res$qval < 0.05),]
-ce.14vs4 <- keep
+ce.t3_vs_t2 <- keep
 
 #### Get TPMs for each gene-transcript. Merge into results
 sleuth_matrix <- data.frame(sleuth_to_matrix(so, 'obs_norm', 'tpm'))
@@ -190,10 +194,10 @@ colnames(sleuth_matrix) <- c("CH-R1-T1", "CH-R1-T2", "CH-R1-T3",
 			     "CH-R3-T1", "CH-R3-T2", "CH-R3-T3")
 sleuth_matrix$target_id <- rownames(sleuth_matrix)
 
-ce.14vs4 <- merge(ce.14vs4, sleuth_matrix)
-ce.14vs4 <- ce.14vs4[, c(1,2,3,5,6, 14:22)]
+ce.t3_vs_t2 <- merge(ce.t3_vs_t2, sleuth_matrix)
+ce.t3_vs_t2 <- ce.t3_vs_t2[, c(1,2,3,5,6, 14:22)]
 
-write.table(ce.14vs4, "Sleuth-Prelim/ce14vsce4.txt", row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
+write.table(ce.t3_vs_t2, paste(sleuth_dir, "ce14vsce4.txt", sep='/'), row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
 
 
 
@@ -213,9 +217,9 @@ t2g <- dplyr::rename(t2g, target_id = ensembl_transcript_id, ens_gene = ensembl_
 
 
 ## NE Day 2 vs NE Day 0
-sample_id <- as.character(sort(as.numeric(dir(file.path(base_dir))[1:18])))[10:18]
+sample_id <- as.character(sort(as.numeric(dir(file.path(kallisto_dir))[1:18])))[10:18]
 
-kal_dirs <- sapply(sample_id, function(id) file.path(base_dir, id))
+kal_dirs <- sapply(sample_id, function(id) file.path(kallisto_dir, id))
 kal_dirs
 
 expdesign <- data.frame(sample=sample_id,
@@ -234,27 +238,27 @@ so <- sleuth_fit(so)
 so2 <- sleuth_wt(so, "NE-T2")
 res <- sleuth_results(so2, "NE-T2", test_type="wt")
 keep <- res[which(res$qval < 0.05),]
-ne.2vs0 <- keep
+ne.t2_vs_t1 <- keep
 
 ## NE Day 6 vs NE Day 0
 so2 <- sleuth_wt(so, "NE-T3")
 res <- sleuth_results(so2, "NE-T3", test_type="wt")
 keep <- res[which(res$qval < 0.05),]
-ne.6vs0 <- keep
+ne.t3_vs_t1 <- keep
 
 #### Get TPMs for each gene-transcript. Merge into results
 sleuth_matrix <- data.frame(sleuth_to_matrix(so, 'obs_norm', 'tpm'))
 colnames(sleuth_matrix) <- c("NE1A", "NE1B", "NE1C", "NE2A", "NE2B", "NE2C", "NE3A", "NE3B", "NE3C")
 sleuth_matrix$target_id <- rownames(sleuth_matrix)
 
-ne.2vs0 <- merge(ne.2vs0, sleuth_matrix)
-ne.2vs0 <- ne.2vs0[, c(1,2,3,5,6, 14:22)]
+ne.t2_vs_t1 <- merge(ne.t2_vs_t1, sleuth_matrix)
+ne.t2_vs_t1 <- ne.t2_vs_t1[, c(1,2,3,5,6, 14:22)]
 
-ne.6vs0 <- merge(ne.6vs0, sleuth_matrix)
-ne.6vs0 <- ne.6vs0[, c(1,2,3,5,6, 14:22)]
+ne.t3_vs_t1 <- merge(ne.t3_vs_t1, sleuth_matrix)
+ne.t3_vs_t1 <- ne.t3_vs_t1[, c(1,2,3,5,6, 14:22)]
 
-write.table(ne.6vs0, "Sleuth-Prelim/ne6vsne0.txt", row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
-write.table(ne.2vs0, "Sleuth-Prelim/ne2vsne0.txt", row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
+write.table(ne.t3_vs_t1, paste(sleuth_dir, "ne6vsne0.txt", sep='/'), row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
+write.table(ne.t2_vs_t1, paste(sleuth_dir, "ne2vsne0.txt", sep='/'), row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
 
 
 
@@ -271,9 +275,9 @@ t2g <- dplyr::rename(t2g, target_id = ensembl_transcript_id, ens_gene = ensembl_
 ############################
 #############################
 
-sample_id <- as.character(sort(as.numeric(dir(file.path(base_dir))[1:18])))[10:18]
+sample_id <- as.character(sort(as.numeric(dir(file.path(kallisto_dir))[1:18])))[10:18]
 
-kal_dirs <- sapply(sample_id, function(id) file.path(base_dir, id))
+kal_dirs <- sapply(sample_id, function(id) file.path(kallisto_dir, id))
 kal_dirs
 quit()
 
@@ -292,17 +296,17 @@ so <- sleuth_fit(so)
 so2 <- sleuth_wt(so, "NE-T3")
 res <- sleuth_results(so2, "NE-T3", test_type="wt")
 keep <- res[which(res$qval < 0.05),]
-ne.6vs2 <- keep
+ne.t3_vs_t2 <- keep
 
 #### Get TPMs for each gene-transcript. Merge into results
 sleuth_matrix <- data.frame(sleuth_to_matrix(so, 'obs_norm', 'tpm'))
 colnames(sleuth_matrix) <- c("NE1A", "NE1B", "NE1C", "NE2A", "NE2B", "NE2C", "NE3A", "NE3B", "NE3C")
 sleuth_matrix$target_id <- rownames(sleuth_matrix)
 
-ne.6vs2 <- merge(ne.6vs2, sleuth_matrix)
-ne.6vs2 <- ne.6vs2[, c(1,2,3,5,6, 14:22)]
+ne.t3_vs_t2 <- merge(ne.t3_vs_t2, sleuth_matrix)
+ne.t3_vs_t2 <- ne.t3_vs_t2[, c(1,2,3,5,6, 14:22)]
 
-write.table(ne.6vs2, "Sleuth-Prelim/ne6vsne2.txt", row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
+write.table(ne.t3_vs_t2, paste(sleuth_dir, "ne6vsne2.txt", sep='/'), row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
 
 
 
@@ -319,9 +323,9 @@ t2g <- dplyr::rename(t2g, target_id = ensembl_transcript_id, ens_gene = ensembl_
 ############################
 #############################
 
-sample_id <- as.character(sort(as.numeric(dir(file.path(base_dir))[1:18])))
+sample_id <- as.character(sort(as.numeric(dir(file.path(kallisto_dir))[1:18])))
 
-kal_dirs <- sapply(sample_id, function(id) file.path(base_dir, id))
+kal_dirs <- sapply(sample_id, function(id) file.path(kallisto_dir, id))
 kal_dirs
 
 expdesign <- data.frame(sample=sample_id,
@@ -341,7 +345,7 @@ so <- sleuth_fit(so)
 so2 <- sleuth_wt(so, "NE-T1")
 res <- sleuth_results(so2, "NE-T1", test_type="wt")
 keep <- res[which(res$qval < 0.05),]
-ne0.vs.ce0 <- keep
+ne_t1.vs.ch_t1 <- keep
 
 #### Get TPMs for each gene-transcript. Merge into results
 sleuth_matrix <- data.frame(sleuth_to_matrix(so, 'obs_norm', 'tpm'))
@@ -352,11 +356,11 @@ colnames(sleuth_matrix) <- c("CH-R1-T1", "CH-R1-T2", "CH-R1-T3",
 "NE1A", "NE1B", "NE1C", "NE2A", "NE2B", "NE2C", "NE3A", "NE3B", "NE3C")
 sleuth_matrix$target_id <- rownames(sleuth_matrix)
 
-ne0.vs.ce0 <- merge(ne0.vs.ce0, sleuth_matrix)
-ne0.vs.ce0 <- ne0.vs.ce0[, c(1,2,3,5,6, 14:31)]
+ne_t1.vs.ch_t1 <- merge(ne_t1.vs.ch_t1, sleuth_matrix)
+ne_t1.vs.ch_t1 <- ne_t1.vs.ch_t1[, c(1,2,3,5,6, 14:31)]
 
 #### Write out results
-write.table(ne0.vs.ce0, "Sleuth-Prelim/ne0vsce0.txt", row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
+write.table(ne_t1.vs.ch_t1, paste(sleuth_dir, "ne0vsce0.txt", sep='/'), row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
 
 ##################################################################3
 ##### CE Day 4 vs NE Day 2
@@ -372,9 +376,9 @@ t2g <- dplyr::rename(t2g, target_id = ensembl_transcript_id, ens_gene = ensembl_
 ############################
 #############################
 
-sample_id <- as.character(sort(as.numeric(dir(file.path(base_dir))[1:18])))
+sample_id <- as.character(sort(as.numeric(dir(file.path(kallisto_dir))[1:18])))
 
-kal_dirs <- sapply(sample_id, function(id) file.path(base_dir, id))
+kal_dirs <- sapply(sample_id, function(id) file.path(kallisto_dir, id))
 kal_dirs
 
 expdesign <- data.frame(sample=sample_id,
@@ -409,7 +413,7 @@ ne2.vs.ce4 <- merge(ne2.vs.ce4, sleuth_matrix)
 ne2.vs.ce4 <- ne2.vs.ce4[, c(1,2,3,5,6, 14:31)]
 
 #### Write out resultsv
-write.table(ne2.vs.ce4, "Sleuth-Prelim/ne2vsce4.txt", row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
+write.table(ne2.vs.ce4, paste(sleuth_dir, "ne2vsce4.txt", sep='/'), row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
 
 
 
@@ -433,9 +437,9 @@ t2g <- dplyr::rename(t2g, target_id = ensembl_transcript_id, ens_gene = ensembl_
 ############################
 #############################
 
-sample_id <- as.character(sort(as.numeric(dir(file.path(base_dir))[1:18])))
+sample_id <- as.character(sort(as.numeric(dir(file.path(kallisto_dir))[1:18])))
 
-kal_dirs <- sapply(sample_id, function(id) file.path(base_dir, id))
+kal_dirs <- sapply(sample_id, function(id) file.path(kallisto_dir, id))
 kal_dirs
 
 expdesign <- data.frame(sample=sample_id,
@@ -468,17 +472,17 @@ sleuth_matrix$target_id <- rownames(sleuth_matrix)
 ne6.vs.ce14 <- merge(ne6.vs.ce14, sleuth_matrix)
 ne6.vs.ce14 <- ne6.vs.ce14[, c(1,2,3,5,6, 14:31)]
 
-write.table(ne6.vs.ce14, "Sleuth-Prelim/ne6vsce14.txt", row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
+write.table(ne6.vs.ce14, paste(sleuth_dir, "ne6vsce14.txt", sep='/'), row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
 
 
 ####### Read in the ce0vsne0, ce4vsne2, and ce14vsne6. Remove genes in ce0vsne0, and report the non-overlap for ce4vsne2 and ce14vsne6.
-ce0vsne0 <- read.table("Sleuth-Prelim/ne0vsce0.txt", header=TRUE, sep="\t")
-ne2vsce4 <- read.table("Sleuth-Prelim/ne2vsce4.txt", header=TRUE, sep="\t")
-ne6vsce14 <- read.table("Sleuth-Prelim/ne6vsce14.txt", header=TRUE, sep="\t")
+ce0vsne0 <- read.table(paste(sleuth_dir, "ne0vsce0.txt", sep='/'), header=TRUE, sep="\t")
+ne2vsce4 <- read.table(paste(sleuth_dir, "ne2vsce4.txt", sep='/'), header=TRUE, sep="\t")
+ne6vsce14 <- read.table(paste(sleuth_dir, "ne6vsce14.txt", sep='/'), header=TRUE, sep="\t")
 
 ne6vsce14.v2 <- subset(ne6vsce14, !ext_gene %in% ce0vsne0$ext_gene)
 ne2vsce4.v2 <- subset(ne2vsce4, !ext_gene %in% ce0vsne0$ext_gene)
 
-write.table(ne6vsce14.v2, "Sleuth-Prelim/ne6vsce14_v2.txt", col.names=TRUE, row.names=FALSE, quote=FALSE, sep="\t")
-write.table(ne2vsce4.v2, "Sleuth-Prelim/ne2vsce4_v2.txt", col.names=TRUE, row.names=FALSE, quote=FALSE, sep="\t")
+write.table(ne6vsce14.v2, paste(sleuth_dir, "ne6vsce14_v2.txt", sep='/'), col.names=TRUE, row.names=FALSE, quote=FALSE, sep="\t")
+write.table(ne2vsce4.v2, paste(sleuth_dir, "ne2vsce4_v2.txt", sep='/'), col.names=TRUE, row.names=FALSE, quote=FALSE, sep="\t")
 
