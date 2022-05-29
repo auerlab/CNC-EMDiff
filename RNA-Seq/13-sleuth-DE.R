@@ -64,18 +64,19 @@ kal_dirs <- file.path(base_dir,dir(base_dir))
 kal_dirs
 
 expdesign <- data.frame(sample=sample_id,
-			time=factor(c("T1", "T2", "T3", "T1", "T2", "T3", "T1", "T2", "T3")),
+			time=factor(c("T1", "T2", "T3",
+				      "T1", "T2", "T3",
+				      "T1", "T2", "T3")),
 			replicate=c(1,1,1,2,2,2,3,3,3),
 			path=kal_dirs,
 			stringsAsFactors=FALSE)
 print(expdesign)
 
 full_design_factor <- model.matrix(formula(~ expdesign$time))
-
 print(full_design_factor)
-quit()
 
-colnames(full_design_factor) <- c("CEday0", "CEday4", "CEday14")
+colnames(full_design_factor) <- c("CH-T1", "CH-T2", "CH-T3")
+print(colnames(full_design_factor))
 
 ##########################
 ### biomaRt stuff #########
@@ -100,15 +101,25 @@ t2g <- dplyr::rename(t2g, target_id = ensembl_transcript_id,
 		     ens_gene = ensembl_gene_id, ext_gene = external_gene_name)
 
 library(sleuth);
-print("Running sleuth_prep...")
-so <- sleuth_prep(sample_to_covariates = expdesign, full_model=full_design_factor, target_mapping=t2g)
+so_filename <- "so.RData"
+if ( file.exists(so_filename) ) {
+    print(paste("Reusing ", so_filename))
+    load(so_filename)
+} else {
+    print("Running sleuth_prep...")
+    so <- sleuth_prep(sample_to_covariates = expdesign,
+		      full_model=full_design_factor, target_mapping=t2g)
+    
+    print("Running sleuth_fit...")
+    so <- sleuth_fit(so)
 
-print("Running sleuth_fit...")
-so <- sleuth_fit(so)
+    # FIXME: Doesn't work.  Find out how to save sleuth data.
+    # save(list=so, file=so_filename)
+}
 
 ### CE Day 4 vs CE Day 0
-so2 <- sleuth_wt(so, "CEday4")
-res <- sleuth_results(so2, "CEday4", test_type="wt")
+so2 <- sleuth_wt(so, "CH-T2")
+res <- sleuth_results(so2, "CH-T2", test_type="wt")
 keep <- res[which(res$qval < 0.05),]
 ce.4vs0 <- keep
 
@@ -116,14 +127,16 @@ ce.4vs0 <- keep
 quit()
 
 ### CE Day 14 vs CE Day 0
-so2 <- sleuth_wt(so, "CEday14")
-res <- sleuth_results(so2, "CEday14", test_type="wt")
+so2 <- sleuth_wt(so, "CH-T3")
+res <- sleuth_results(so2, "CH-T3", test_type="wt")
 keep <- res[which(res$qval < 0.05),]
 ce.14vs0 <- keep
 
 #### Get TPMs for each gene-transcript. Merge into results
 sleuth_matrix <- data.frame(sleuth_to_matrix(so, 'obs_norm', 'tpm'))
-colnames(sleuth_matrix) <- c("CE1A", "CE1B", "CE1C", "CE2A", "CE2B", "CE2C", "CE3A", "CE3B", "CE3C")
+colnames(sleuth_matrix) <- c("CH-R1-T1", "CH-R1-T2", "CH-R1-T3",
+			     "CH-R2-T1", "CH-R2-T2", "CH-R2-T3",
+			     "CH-R3-T1", "CH-R3-T2", "CH-R3-T3")
 sleuth_matrix$target_id <- rownames(sleuth_matrix)
 
 ce.4vs0 <- merge(ce.4vs0, sleuth_matrix)
@@ -168,18 +181,21 @@ expdesign <- data.frame(sample=sample_id,
 
 expdesign$time <- relevel(expdesign$time, ref="B")
 full_design_factor <- model.matrix(formula(~ expdesign$time))
-colnames(full_design_factor) <- c("CEday4", "CEday0", "CEday14")
+colnames(full_design_factor) <- c("CH-T2", "CH-T1", "CH-T3")
 
-so <- sleuth_prep(sample_to_covariates = expdesign, full_model=full_design_factor, target_mapping=t2g)
+so <- sleuth_prep(sample_to_covariates = expdesign,
+		  full_model=full_design_factor, target_mapping=t2g)
 so <- sleuth_fit(so)
-so2 <- sleuth_wt(so, "CEday14")
-res <- sleuth_results(so2, "CEday14", test_type="wt")
+so2 <- sleuth_wt(so, "CH-T3")
+res <- sleuth_results(so2, "CH-T3", test_type="wt")
 keep <- res[which(res$qval < 0.05),]
 ce.14vs4 <- keep
 
 #### Get TPMs for each gene-transcript. Merge into results
 sleuth_matrix <- data.frame(sleuth_to_matrix(so, 'obs_norm', 'tpm'))
-colnames(sleuth_matrix) <- c("CE1A", "CE1B", "CE1C", "CE2A", "CE2B", "CE2C", "CE3A", "CE3B", "CE3C")
+colnames(sleuth_matrix) <- c("CH-R1-T1", "CH-R1-T2", "CH-R1-T3",
+			     "CH-R2-T1", "CH-R2-T2", "CH-R2-T3",
+			     "CH-R3-T1", "CH-R3-T2", "CH-R3-T3")
 sleuth_matrix$target_id <- rownames(sleuth_matrix)
 
 ce.14vs4 <- merge(ce.14vs4, sleuth_matrix)
@@ -222,19 +238,19 @@ expdesign <- data.frame(sample=sample_id,
 
 expdesign$time <- relevel(expdesign$time, ref="A")
 full_design_factor <- model.matrix(formula(~ expdesign$time))
-colnames(full_design_factor) <- c("NEday0", "NEday2", "NEday6")
+colnames(full_design_factor) <- c("NE-T1", "NE-T2", "NE-T3")
 
 
 so <- sleuth_prep(sample_to_covariates = expdesign, full_model=full_design_factor, target_mapping=t2g)
 so <- sleuth_fit(so)
-so2 <- sleuth_wt(so, "NEday2")
-res <- sleuth_results(so2, "NEday2", test_type="wt")
+so2 <- sleuth_wt(so, "NE-T2")
+res <- sleuth_results(so2, "NE-T2", test_type="wt")
 keep <- res[which(res$qval < 0.05),]
 ne.2vs0 <- keep
 
 ## NE Day 6 vs NE Day 0
-so2 <- sleuth_wt(so, "NEday6")
-res <- sleuth_results(so2, "NEday6", test_type="wt")
+so2 <- sleuth_wt(so, "NE-T3")
+res <- sleuth_results(so2, "NE-T3", test_type="wt")
 keep <- res[which(res$qval < 0.05),]
 ne.6vs0 <- keep
 
@@ -285,12 +301,12 @@ expdesign <- data.frame(sample=sample_id,
 
 expdesign$time <- relevel(expdesign$time, ref="B")
 full_design_factor <- model.matrix(formula(~ expdesign$time))
-colnames(full_design_factor) <- c("NEday2", "NEday0", "NEday6")
+colnames(full_design_factor) <- c("NE-T2", "NE-T1", "NE-T3")
 
 so <- sleuth_prep(sample_to_covariates = expdesign, full_model=full_design_factor, target_mapping=t2g)
 so <- sleuth_fit(so)
-so2 <- sleuth_wt(so, "NEday6")
-res <- sleuth_results(so2, "NEday6", test_type="wt")
+so2 <- sleuth_wt(so, "NE-T3")
+res <- sleuth_results(so2, "NE-T3", test_type="wt")
 keep <- res[which(res$qval < 0.05),]
 ne.6vs2 <- keep
 
@@ -336,20 +352,23 @@ expdesign <- data.frame(sample=sample_id,
 
 expdesign$time <- relevel(expdesign$time, ref="A")
 full_design_factor <- model.matrix(formula(~ expdesign$time))
-colnames(full_design_factor) <- c("CEday0", "CEday4", "CEday14", "NEday0", "NEday2", "NEday6")
+colnames(full_design_factor) <- c("CH-T1", "CH-T2", "CH-T3", "NE-T1",
+				  "NE-T2", "NE-T3")
 
 ### NE Day 0 vs CE Day 0
 so <- sleuth_prep(sample_to_covariates = expdesign, full_model=full_design_factor, target_mapping=t2g)
 so <- sleuth_fit(so)
-so2 <- sleuth_wt(so, "NEday0")
-res <- sleuth_results(so2, "NEday0", test_type="wt")
+so2 <- sleuth_wt(so, "NE-T1")
+res <- sleuth_results(so2, "NE-T1", test_type="wt")
 keep <- res[which(res$qval < 0.05),]
 ne0.vs.ce0 <- keep
 
 #### Get TPMs for each gene-transcript. Merge into results
 sleuth_matrix <- data.frame(sleuth_to_matrix(so, 'obs_norm', 'tpm'))
 
-colnames(sleuth_matrix) <- c("CE1A", "CE1B", "CE1C", "CE2A", "CE2B", "CE2C", "CE3A", "CE3B", "CE3C",
+colnames(sleuth_matrix) <- c("CH-R1-T1", "CH-R1-T2", "CH-R1-T3",
+			     "CH-R2-T1", "CH-R2-T2", "CH-R2-T3",
+			     "CH-R3-T1", "CH-R3-T2", "CH-R3-T3",
 "NE1A", "NE1B", "NE1C", "NE2A", "NE2B", "NE2C", "NE3A", "NE3B", "NE3C")
 sleuth_matrix$target_id <- rownames(sleuth_matrix)
 
@@ -358,8 +377,6 @@ ne0.vs.ce0 <- ne0.vs.ce0[, c(1,2,3,5,6, 14:31)]
 
 #### Write out results
 write.table(ne0.vs.ce0, "Sleuth-Prelim/ne0vsce0.txt", row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
-
-
 
 ##################################################################3
 ##### CE Day 4 vs NE Day 2
@@ -392,20 +409,24 @@ expdesign <- data.frame(sample=sample_id,
 
 expdesign$time <- relevel(expdesign$time, ref="B")
 full_design_factor <- model.matrix(formula(~ expdesign$time))
-colnames(full_design_factor) <- c("CEday4", "CEday0", "CEday14", "NEday0", "NEday2", "NEday6")
+colnames(full_design_factor) <- c("CH-T2", "CH-T1", "CH-T3",
+				  "NE-T1", "NE-T2", "NE-T3")
 
 so <- sleuth_prep(sample_to_covariates = expdesign, full_model=full_design_factor, target_mapping=t2g)
 so <- sleuth_fit(so)
-so2 <- sleuth_wt(so, "NEday2")
-res <- sleuth_results(so2, "NEday2", test_type="wt")
+so2 <- sleuth_wt(so, "NE-T2")
+res <- sleuth_results(so2, "NE-T2", test_type="wt")
 keep <- res[which(res$qval < 0.05),]
 ne2.vs.ce4 <- keep
 
 #### Get TPMs for each gene-transcript. Merge into results
 sleuth_matrix <- data.frame(sleuth_to_matrix(so, 'obs_norm', 'tpm'))
 
-colnames(sleuth_matrix) <- c("CE1A", "CE1B", "CE1C", "CE2A", "CE2B", "CE2C", "CE3A", "CE3B", "CE3C",
-"NE1A", "NE1B", "NE1C", "NE2A", "NE2B", "NE2C", "NE3A", "NE3B", "NE3C")
+colnames(sleuth_matrix) <-
+    c("CH-R1-T1", "CH-R1-T2", "CH-R1-T3",
+      "CH-R2-T1", "CH-R2-T2", "CH-R2-T3",
+      "CH-R3-T1", "CH-R3-T2", "CH-R3-T3",
+      "NE1A", "NE1B", "NE1C", "NE2A", "NE2B", "NE2C", "NE3A", "NE3B", "NE3C")
 sleuth_matrix$target_id <- rownames(sleuth_matrix)
 
 ne2.vs.ce4 <- merge(ne2.vs.ce4, sleuth_matrix)
@@ -453,19 +474,22 @@ expdesign <- data.frame(sample=sample_id,
 
 expdesign$time <- relevel(expdesign$time, ref="C")
 full_design_factor <- model.matrix(formula(~ expdesign$time))
-colnames(full_design_factor) <- c("CEday14", "CEday0", "CEday4", "NEday0", "NEday2", "NEday6")
+colnames(full_design_factor) <- c("CH-T3", "CH-T1", "CH-T2",
+				  "NE-T1", "NE-T2", "NE-T3")
 
 so <- sleuth_prep(sample_to_covariates = expdesign, full_model=full_design_factor, target_mapping=t2g)
 so <- sleuth_fit(so)
-so2 <- sleuth_wt(so, "NEday6")
-res <- sleuth_results(so2, "NEday6", test_type="wt")
+so2 <- sleuth_wt(so, "NE-T3")
+res <- sleuth_results(so2, "NE-T3", test_type="wt")
 keep <- res[which(res$qval < 0.05),]
 ne6.vs.ce14 <- keep
 
 #### Get TPMs for each gene-transcript. Merge into results
 sleuth_matrix <- data.frame(sleuth_to_matrix(so, 'obs_norm', 'tpm'))
 
-colnames(sleuth_matrix) <- c("CE1A", "CE1B", "CE1C", "CE2A", "CE2B", "CE2C", "CE3A", "CE3B", "CE3C",
+colnames(sleuth_matrix) <- c("CH-R1-T1", "CH-R1-T2", "CH-R1-T3",
+			     "CH-R2-T1", "CH-R2-T2", "CH-R2-T3",
+			     "CH-R3-T1", "CH-R3-T2", "CH-R3-T3",
 "NE1A", "NE1B", "NE1C", "NE2A", "NE2B", "NE2C", "NE3A", "NE3B", "NE3C")
 sleuth_matrix$target_id <- rownames(sleuth_matrix)
 
