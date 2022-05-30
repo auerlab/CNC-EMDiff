@@ -138,7 +138,6 @@ if ( file.exists(so_filename) ) {
     print("Running sleuth_fit...")
     so <- sleuth_fit(so)
 
-    # FIXME: Doesn't work.  Find out how to save sleuth data.
     sleuth_save(so, so_filename)
 }
 
@@ -174,7 +173,8 @@ print("Merged ce.t2_vs_t1 + sleuth_matrix:")
 print(ce.t2_vs_t1)
 # 1) target_id 2) ens_gene 3) ext_gene 5) qval 6) b
 # 14-22: Sample data (counts?) for all reps and time points
-# FIXME: Are the T3 values being used?
+# FIXME: Are the T3 values being used?  Are they included just for kmeans
+# in plot_results.R?
 ce.t2_vs_t1 <- ce.t2_vs_t1[, c(1,2,3,5,6, 14:22)]
 print("Filtered ce.t2_vs_t1:")
 print(ce.t2_vs_t1)
