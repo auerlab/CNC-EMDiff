@@ -1,0 +1,10 @@
+
+From brainstroming session with Paul:
+
+load("chondro-readcounts_pvalsort.RData")
+class(readcounts_pvalsort)
+dim(readcounts_pvalsort)
+names(readcounts_pvalsort)
+head(readcounts_pvalsort[[8]])  # Producing bind values for all conditions
+Dump this and filter for pvalues < 0.05
+

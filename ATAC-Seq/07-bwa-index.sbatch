@@ -42,5 +42,5 @@ if [ ! -e $genome_dir/$genome_file ]; then
 fi
 
 cd Data/07-bwa-index
-ln -s ../../$genome_dir/$genome_file
+ln -sf ../../$genome_dir/$genome_file
 bwa index $genome_file
