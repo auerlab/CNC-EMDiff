@@ -212,7 +212,7 @@ typeof(readcounts_pvalsort$binding)
 class(readcounts_pvalsort$binding)
 length(readcounts_pvalsort$binding)
 write.table(readcounts_pvalsort$binding,
-	    file=paste0(cell_type, "-counts.tsv"), sep="\t")
+	    file=paste0(cell_type, "-counts.tsv"), sep="\t", row.names=FALSE)
 
 # Does not work: "Cannot coerc" error
 # write.table(readcounts_pvalsort, file="readcounts_pvalsort.table",
