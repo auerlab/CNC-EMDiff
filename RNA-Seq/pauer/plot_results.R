@@ -1,17 +1,19 @@
+#!/usr/bin/env Rscript
+
 library(ComplexHeatmap)
 
 ####### Read in results
 
-ne2vsce4 <- read.table("~/Data/CNC-EMDiff-Sleuth-Prelim/ne2vsce4_v2.txt", header=TRUE, sep="\t")
-ne6vsce14 <- read.table("~/Data/CNC-EMDiff-Sleuth-Prelim/ne6vsce14_v2.txt", header=TRUE, sep="\t")
+ne2vsce4 <- read.table("Sleuth-Prelim/ne2vsce4_v2.txt", header=TRUE, sep="\t")
+ne6vsce14 <- read.table("Sleuth-Prelim/ne6vsce14_v2.txt", header=TRUE, sep="\t")
 
-ce14vsce0 <- read.table("~/Data/CNC-EMDiff-Sleuth-Prelim/ce14vsce0.txt", header=TRUE, sep="\t")
-ce4vsce0 <- read.table("~/Data/CNC-EMDiff-Sleuth-Prelim/ce4vsce0.txt", header=TRUE, sep="\t")
-ce14vsce4 <- read.table("~/Data/CNC-EMDiff-Sleuth-Prelim/ce14vsce4.txt", header=TRUE, sep="\t")
+ce14vsce0 <- read.table("Sleuth-Prelim/ce14vsce0.txt", header=TRUE, sep="\t")
+ce4vsce0 <- read.table("Sleuth-Prelim/ce4vsce0.txt", header=TRUE, sep="\t")
+ce14vsce4 <- read.table("Sleuth-Prelim/ce14vsce4.txt", header=TRUE, sep="\t")
 
-ne2vsne0 <- read.table("~/Data/CNC-EMDiff-Sleuth-Prelim/ne2vsne0.txt", header=TRUE, sep="\t")
-ne6vsne0 <- read.table("~/Data/CNC-EMDiff-Sleuth-Prelim/ne6vsne0.txt", header=TRUE, sep="\t")
-ne6vsne2 <- read.table("~/Data/CNC-EMDiff-Sleuth-Prelim/ne6vsne2.txt", header=TRUE, sep="\t")
+ne2vsne0 <- read.table("Sleuth-Prelim/ne2vsne0.txt", header=TRUE, sep="\t")
+ne6vsne0 <- read.table("Sleuth-Prelim/ne6vsne0.txt", header=TRUE, sep="\t")
+ne6vsne2 <- read.table("Sleuth-Prelim/ne6vsne2.txt", header=TRUE, sep="\t")
 
 ### Start with Chondro plots
 
