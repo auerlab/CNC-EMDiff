@@ -1,3 +1,5 @@
+#!/usr/bin/env Rscript
+
 library(sleuth)
 library(biomaRt)
 library(dplyr)
@@ -51,17 +53,19 @@ t2g <- dplyr::rename(t2g, target_id = ensembl_transcript_id, ens_gene = ensembl_
 
 #### Within Chondro treat as a single experiment
 # Read in data
-base_dir <- "~/Data/CNC-EMDiff/RNASeq/4-kallisto-quant-m30-u15/"
+base_dir <- "4-kallisto-quant-0.46.1"
 sample_id <- as.character(sort(as.numeric(dir(file.path(base_dir))[1:18])))[1:9]
+print(sample_id)
 
 kal_dirs <- sapply(sample_id, function(id) file.path(base_dir, id))
-kal_dirs
+print(kal_dirs)
+quit()
 
 expdesign <- data.frame(sample=sample_id,
-                        time=factor(c("A", "B", "C", "A", "B", "C", "A", "B", "C")),
-                        replicate=c(1,1,1,2,2,2,3,3,3),
-                        path=kal_dirs,
-                        stringsAsFactors=FALSE)
+			time=factor(c("A", "B", "C", "A", "B", "C", "A", "B", "C")),
+			replicate=c(1,1,1,2,2,2,3,3,3),
+			path=kal_dirs,
+			stringsAsFactors=FALSE)
 
 full_design_factor <- model.matrix(formula(~ expdesign$time))
 colnames(full_design_factor) <- c("CEday0", "CEday4", "CEday14")
@@ -81,7 +85,7 @@ res <- sleuth_results(so2, "CEday14", test_type="wt")
 keep <- res[which(res$qval < 0.05),]
 ce.14vs0 <- keep
 
-#### Get TPMs for each gene-transcript.	Merge into results
+#### Get TPMs for each gene-transcript. Merge into results
 
 
 sleuth_matrix <- data.frame(sleuth_to_matrix(so, 'obs_norm', 'tpm'))
@@ -122,10 +126,10 @@ kal_dirs <- sapply(sample_id, function(id) file.path(base_dir, id))
 kal_dirs
 
 expdesign <- data.frame(sample=sample_id,
-                        time=factor(c("A", "B", "C", "A", "B", "C", "A", "B", "C")),
-                        replicate=c(1,1,1,2,2,2,3,3,3),
-                        path=kal_dirs,
-                        stringsAsFactors=FALSE)
+			time=factor(c("A", "B", "C", "A", "B", "C", "A", "B", "C")),
+			replicate=c(1,1,1,2,2,2,3,3,3),
+			path=kal_dirs,
+			stringsAsFactors=FALSE)
 
 expdesign$time <- relevel(expdesign$time, ref="B")
 full_design_factor <- model.matrix(formula(~ expdesign$time))
@@ -176,10 +180,10 @@ kal_dirs <- sapply(sample_id, function(id) file.path(base_dir, id))
 kal_dirs
 
 expdesign <- data.frame(sample=sample_id,
-                        time=factor(c("A", "B", "C", "A", "B", "C", "A", "B", "C")),
-                        replicate=c(1,1,1,2,2,2,3,3,3),
-                        path=kal_dirs,
-                        stringsAsFactors=FALSE)
+			time=factor(c("A", "B", "C", "A", "B", "C", "A", "B", "C")),
+			replicate=c(1,1,1,2,2,2,3,3,3),
+			path=kal_dirs,
+			stringsAsFactors=FALSE)
 
 expdesign$time <- relevel(expdesign$time, ref="A")
 full_design_factor <- model.matrix(formula(~ expdesign$time))
@@ -243,10 +247,10 @@ kal_dirs <- sapply(sample_id, function(id) file.path(base_dir, id))
 kal_dirs
 
 expdesign <- data.frame(sample=sample_id,
-                        time=factor(c("A", "B", "C", "A", "B", "C", "A", "B", "C")),
-                        replicate=c(1,1,1,2,2,2,3,3,3),
-                        path=kal_dirs,
-                        stringsAsFactors=FALSE)
+			time=factor(c("A", "B", "C", "A", "B", "C", "A", "B", "C")),
+			replicate=c(1,1,1,2,2,2,3,3,3),
+			path=kal_dirs,
+			stringsAsFactors=FALSE)
 
 expdesign$time <- relevel(expdesign$time, ref="B")
 full_design_factor <- model.matrix(formula(~ expdesign$time))
@@ -294,10 +298,10 @@ kal_dirs <- sapply(sample_id, function(id) file.path(base_dir, id))
 kal_dirs
 
 expdesign <- data.frame(sample=sample_id,
-                        time=factor(c("A", "B", "C", "A", "B", "C", "A", "B", "C", "D", "E", "F", "D", "E", "F", "D", "E", "F")),
-                        replicate=c(1,1,1,2,2,2,3,3,3,1,1,1,2,2,2,3,3,3),
-                        path=kal_dirs,
-                        stringsAsFactors=FALSE)
+			time=factor(c("A", "B", "C", "A", "B", "C", "A", "B", "C", "D", "E", "F", "D", "E", "F", "D", "E", "F")),
+			replicate=c(1,1,1,2,2,2,3,3,3,1,1,1,2,2,2,3,3,3),
+			path=kal_dirs,
+			stringsAsFactors=FALSE)
 
 expdesign$time <- relevel(expdesign$time, ref="A")
 full_design_factor <- model.matrix(formula(~ expdesign$time))
@@ -350,10 +354,10 @@ kal_dirs <- sapply(sample_id, function(id) file.path(base_dir, id))
 kal_dirs
 
 expdesign <- data.frame(sample=sample_id,
-                        time=factor(c("A", "B", "C", "A", "B", "C", "A", "B", "C", "D", "E", "F", "D", "E", "F", "D", "E", "F")),
-                        replicate=c(1,1,1,2,2,2,3,3,3,1,1,1,2,2,2,3,3,3),
-                        path=kal_dirs,
-                        stringsAsFactors=FALSE)
+			time=factor(c("A", "B", "C", "A", "B", "C", "A", "B", "C", "D", "E", "F", "D", "E", "F", "D", "E", "F")),
+			replicate=c(1,1,1,2,2,2,3,3,3,1,1,1,2,2,2,3,3,3),
+			path=kal_dirs,
+			stringsAsFactors=FALSE)
 
 expdesign$time <- relevel(expdesign$time, ref="B")
 full_design_factor <- model.matrix(formula(~ expdesign$time))
@@ -411,10 +415,10 @@ kal_dirs <- sapply(sample_id, function(id) file.path(base_dir, id))
 kal_dirs
 
 expdesign <- data.frame(sample=sample_id,
-                        time=factor(c("A", "B", "C", "A", "B", "C", "A", "B", "C", "D", "E", "F", "D", "E", "F", "D", "E", "F")),
-                        replicate=c(1,1,1,2,2,2,3,3,3,1,1,1,2,2,2,3,3,3),
-                        path=kal_dirs,
-                        stringsAsFactors=FALSE)
+			time=factor(c("A", "B", "C", "A", "B", "C", "A", "B", "C", "D", "E", "F", "D", "E", "F", "D", "E", "F")),
+			replicate=c(1,1,1,2,2,2,3,3,3,1,1,1,2,2,2,3,3,3),
+			path=kal_dirs,
+			stringsAsFactors=FALSE)
 
 expdesign$time <- relevel(expdesign$time, ref="C")
 full_design_factor <- model.matrix(formula(~ expdesign$time))

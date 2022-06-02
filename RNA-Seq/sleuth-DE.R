@@ -70,15 +70,34 @@ sleuth_dir <- "Data/13-sleuth-DE"
 # mkdir() is in the R docs, but does not exist
 dir.create(sleuth_dir)
 
+##########################
+### biomaRt stuff #########
+### get gene names etc ###
+
+# FIXME: build and release??  Extract from local GFF/FASTA instead?
+# FIXME: Complains that host should have https://, but fails if it does
+print("Fetching mus_musculus...");
+mart <- biomaRt::useMart(biomart = "ENSEMBL_MART_ENSEMBL",
+	dataset = "mmusculus_gene_ensembl",
+	host = 'ensembl.org');
+
+# Example: ENSMUST00000094665 ENSMUSG00000070719       Pla2g4d
+t2g <- biomaRt::getBM(attributes = c("ensembl_transcript_id",
+		      "ensembl_gene_id", "external_gene_name"), mart = mart)
+t2g <- dplyr::rename(t2g, target_id = ensembl_transcript_id,
+		     ens_gene = ensembl_gene_id, ext_gene = external_gene_name)
+print("t2g:")
+print(t2g)
+
 # Extract first integer from each kallisto dirname (should be sample ID 1-18)
 # dir name example: chondro-sample1-rep1-time1
-sample_id <- str_extract(dir(kallisto_dir),"[0-9]+");
+sample_id <- str_extract(dir(kallisto_dir),"[0-9]+")[1:9];
 print("sample_id:")
 print(sample_id)
 
 # Concatenate each kallisto subdir to kallisto_dir
 # Similar to paste(kallisto_dir, dir(kallisto_dir), sep='/')
-kal_dirs <- file.path(kallisto_dir,dir(kallisto_dir))
+kal_dirs <- file.path(kallisto_dir,dir(kallisto_dir))[1:9]
 print("kal_dirs:")
 print(kal_dirs)
 
@@ -104,25 +123,6 @@ print(full_design_factor)
 colnames(full_design_factor) <- c("CH-T1", "CH-T2", "CH-T3")
 print("colnames[full_design_factor]:")
 print(colnames(full_design_factor))
-
-##########################
-### biomaRt stuff #########
-### get gene names etc ###
-
-# FIXME: build and release??  Extract from local GFF/FASTA instead?
-# FIXME: Complains that host should have https://, but fails if it does
-print("Fetching mus_musculus...");
-mart <- biomaRt::useMart(biomart = "ENSEMBL_MART_ENSEMBL",
-	dataset = "mmusculus_gene_ensembl",
-	host = 'ensembl.org');
-
-# Example: ENSMUST00000094665 ENSMUSG00000070719       Pla2g4d
-t2g <- biomaRt::getBM(attributes = c("ensembl_transcript_id",
-		      "ensembl_gene_id", "external_gene_name"), mart = mart)
-t2g <- dplyr::rename(t2g, target_id = ensembl_transcript_id,
-		     ens_gene = ensembl_gene_id, ext_gene = external_gene_name)
-print("t2g:")
-print(t2g)
 
 # sleuth_prep() and sleuth_fit() take a long time, so reuse results if possible
 so_filename <- "so.RData"
@@ -186,7 +186,6 @@ write.table(ce.t3_vs_t1, paste0(sleuth_dir, "/ch-t3-vs-t1.txt"),
 	    row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
 write.table(ce.t2_vs_t1, paste0(sleuth_dir, "/ch-t2-vs-t1.txt"),
 	    row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
-quit()
 
 # Repeats for other sample groups below
 
@@ -234,9 +233,7 @@ ce.t3_vs_t2 <- ce.t3_vs_t2[, c(1,2,3,5,6, 14:22)]
 write.table(ce.t3_vs_t2, paste0(sleuth_dir, "/ce14vsce4.txt"), row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
 
 
-
-
-### Within Nuero treat as a single experiment
+### Within Neuro treat as a single experiment
 
 ##########################
 ###biomaRt stuff #########
