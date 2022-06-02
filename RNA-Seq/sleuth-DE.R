@@ -14,7 +14,7 @@
 library(stringr)
 library(biomaRt)
 library(dplyr)
-library(sleuth);
+library(sleuth)
 
 ############################
 #############################
@@ -127,7 +127,7 @@ print(t2g)
 # sleuth_prep() and sleuth_fit() take a long time, so reuse results if possible
 so_filename <- "so.RData"
 if ( file.exists(so_filename) ) {
-    print(paste("Reusing ", so_filename))
+    print(paste0("Reusing ", so_filename))
     print("Remove and run again to force running sleuth_prep() and sleuth_fit().")
     so <- sleuth_load(so_filename)
 } else {
@@ -182,9 +182,9 @@ print(ce.t2_vs_t1)
 ce.t3_vs_t1 <- merge(ce.t3_vs_t1, sleuth_matrix)
 ce.t3_vs_t1 <- ce.t3_vs_t1[, c(1,2,3,5,6, 14:22)]
 
-write.table(ce.t3_vs_t1, paste(sleuth_dir, "ch-t3-vs-t1.txt", sep='/'),
+write.table(ce.t3_vs_t1, paste0(sleuth_dir, "/ch-t3-vs-t1.txt"),
 	    row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
-write.table(ce.t2_vs_t1, paste(sleuth_dir, "ch-t2-vs-t1.txt", sep='/'),
+write.table(ce.t2_vs_t1, paste0(sleuth_dir, "/ch-t2-vs-t1.txt"),
 	    row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
 quit()
 
@@ -231,7 +231,7 @@ sleuth_matrix$target_id <- rownames(sleuth_matrix)
 ce.t3_vs_t2 <- merge(ce.t3_vs_t2, sleuth_matrix)
 ce.t3_vs_t2 <- ce.t3_vs_t2[, c(1,2,3,5,6, 14:22)]
 
-write.table(ce.t3_vs_t2, paste(sleuth_dir, "ce14vsce4.txt", sep='/'), row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
+write.table(ce.t3_vs_t2, paste0(sleuth_dir, "/ce14vsce4.txt"), row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
 
 
 
@@ -291,8 +291,8 @@ ne.t2_vs_t1 <- ne.t2_vs_t1[, c(1,2,3,5,6, 14:22)]
 ne.t3_vs_t1 <- merge(ne.t3_vs_t1, sleuth_matrix)
 ne.t3_vs_t1 <- ne.t3_vs_t1[, c(1,2,3,5,6, 14:22)]
 
-write.table(ne.t3_vs_t1, paste(sleuth_dir, "ne6vsne0.txt", sep='/'), row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
-write.table(ne.t2_vs_t1, paste(sleuth_dir, "ne2vsne0.txt", sep='/'), row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
+write.table(ne.t3_vs_t1, paste0(sleuth_dir, "/ne6vsne0.txt"), row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
+write.table(ne.t2_vs_t1, paste0(sleuth_dir, "/ne2vsne0.txt"), row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
 
 
 
@@ -340,7 +340,7 @@ sleuth_matrix$target_id <- rownames(sleuth_matrix)
 ne.t3_vs_t2 <- merge(ne.t3_vs_t2, sleuth_matrix)
 ne.t3_vs_t2 <- ne.t3_vs_t2[, c(1,2,3,5,6, 14:22)]
 
-write.table(ne.t3_vs_t2, paste(sleuth_dir, "ne6vsne2.txt", sep='/'), row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
+write.table(ne.t3_vs_t2, paste0(sleuth_dir, "/ne6vsne2.txt"), row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
 
 
 
@@ -394,7 +394,7 @@ ne_t1.vs.ch_t1 <- merge(ne_t1.vs.ch_t1, sleuth_matrix)
 ne_t1.vs.ch_t1 <- ne_t1.vs.ch_t1[, c(1,2,3,5,6, 14:31)]
 
 #### Write out results
-write.table(ne_t1.vs.ch_t1, paste(sleuth_dir, "ne0vsce0.txt", sep='/'), row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
+write.table(ne_t1.vs.ch_t1, paste0(sleuth_dir, "/ne0vsce0.txt"), row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
 
 ##################################################################3
 ##### CE Day 4 vs NE Day 2
@@ -447,7 +447,7 @@ ne2.vs.ce4 <- merge(ne2.vs.ce4, sleuth_matrix)
 ne2.vs.ce4 <- ne2.vs.ce4[, c(1,2,3,5,6, 14:31)]
 
 #### Write out resultsv
-write.table(ne2.vs.ce4, paste(sleuth_dir, "ne2vsce4.txt", sep='/'), row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
+write.table(ne2.vs.ce4, paste0(sleuth_dir, "/ne2vsce4.txt"), row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
 
 
 
@@ -506,17 +506,17 @@ sleuth_matrix$target_id <- rownames(sleuth_matrix)
 ne6.vs.ce14 <- merge(ne6.vs.ce14, sleuth_matrix)
 ne6.vs.ce14 <- ne6.vs.ce14[, c(1,2,3,5,6, 14:31)]
 
-write.table(ne6.vs.ce14, paste(sleuth_dir, "ne6vsce14.txt", sep='/'), row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
+write.table(ne6.vs.ce14, paste0(sleuth_dir, "/ne6vsce14.txt"), row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
 
 
 ####### Read in the ce0vsne0, ce4vsne2, and ce14vsne6. Remove genes in ce0vsne0, and report the non-overlap for ce4vsne2 and ce14vsne6.
-ce0vsne0 <- read.table(paste(sleuth_dir, "ne0vsce0.txt", sep='/'), header=TRUE, sep="\t")
-ne2vsce4 <- read.table(paste(sleuth_dir, "ne2vsce4.txt", sep='/'), header=TRUE, sep="\t")
-ne6vsce14 <- read.table(paste(sleuth_dir, "ne6vsce14.txt", sep='/'), header=TRUE, sep="\t")
+ce0vsne0 <- read.table(paste0(sleuth_dir, "/ne0vsce0.txt"), header=TRUE, sep="\t")
+ne2vsce4 <- read.table(paste0(sleuth_dir, "/ne2vsce4.txt"), header=TRUE, sep="\t")
+ne6vsce14 <- read.table(paste0(sleuth_dir, "/ne6vsce14.txt"), header=TRUE, sep="\t")
 
 ne6vsce14.v2 <- subset(ne6vsce14, !ext_gene %in% ce0vsne0$ext_gene)
 ne2vsce4.v2 <- subset(ne2vsce4, !ext_gene %in% ce0vsne0$ext_gene)
 
-write.table(ne6vsce14.v2, paste(sleuth_dir, "ne6vsce14_v2.txt", sep='/'), col.names=TRUE, row.names=FALSE, quote=FALSE, sep="\t")
-write.table(ne2vsce4.v2, paste(sleuth_dir, "ne2vsce4_v2.txt", sep='/'), col.names=TRUE, row.names=FALSE, quote=FALSE, sep="\t")
+write.table(ne6vsce14.v2, paste0(sleuth_dir, "/ne6vsce14_v2.txt"), col.names=TRUE, row.names=FALSE, quote=FALSE, sep="\t")
+write.table(ne2vsce4.v2, paste0(sleuth_dir, "/ne2vsce4_v2.txt"), col.names=TRUE, row.names=FALSE, quote=FALSE, sep="\t")
 
