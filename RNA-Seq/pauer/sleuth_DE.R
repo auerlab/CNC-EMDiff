@@ -59,7 +59,6 @@ print(sample_id)
 
 kal_dirs <- sapply(sample_id, function(id) file.path(base_dir, id))
 print(kal_dirs)
-quit()
 
 expdesign <- data.frame(sample=sample_id,
 			time=factor(c("A", "B", "C", "A", "B", "C", "A", "B", "C")),
@@ -98,11 +97,13 @@ ce.4vs0 <- ce.4vs0[, c(1,2,3,5,6, 14:22)]
 ce.14vs0 <- merge(ce.14vs0, sleuth_matrix)
 ce.14vs0 <- ce.14vs0[, c(1,2,3,5,6, 14:22)]
 
-write.table(ce.14vs0, "~/Data/CNC-EMDiff-Sleuth-Prelim/ce14vsce0.txt", row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
-write.table(ce.4vs0, "~/Data/CNC-EMDiff-Sleuth-Prelim/ce4vsce0.txt", row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
+dir.create("Sleuth-Prelim")
+write.table(ce.14vs0, "Sleuth-Prelim/ce14vsce0.txt", row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
+write.table(ce.4vs0, "Sleuth-Prelim/ce4vsce0.txt", row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
 
-all.expressed <- merge(res.pass, sleuth_matrix)
-write.table(all.expressed[, c(1:3, 14:22)], "~/Data/CNC-EMDiff-Sleuth-Prelim/CE_expressed.txt", row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
+# Object res.pass not found
+# all.expressed <- merge(res.pass, sleuth_matrix)
+# write.table(all.expressed[, c(1:3, 14:22)], "Sleuth-Prelim/CE_expressed.txt", row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
 
 ## CE Day 14 vs CE Day 4
 library(sleuth)
@@ -119,7 +120,7 @@ t2g <- biomaRt::getBM(attributes = c("ensembl_transcript_id", "ensembl_gene_id",
 t2g <- dplyr::rename(t2g, target_id = ensembl_transcript_id, ens_gene = ensembl_gene_id, ext_gene = external_gene_name)
 ############################
 
-base_dir <- "~/Data/CNC-EMDiff/RNASeq/4-kallisto-quant-m30-u15/"
+base_dir <- "4-kallisto-quant-0.46.1"
 sample_id <- as.character(sort(as.numeric(dir(file.path(base_dir))[1:18])))[1:9]
 
 kal_dirs <- sapply(sample_id, function(id) file.path(base_dir, id))
@@ -150,7 +151,7 @@ sleuth_matrix$target_id <- rownames(sleuth_matrix)
 ce.14vs4 <- merge(ce.14vs4, sleuth_matrix)
 ce.14vs4 <- ce.14vs4[, c(1,2,3,5,6, 14:22)]
 
-write.table(ce.14vs4, "~/Data/CNC-EMDiff-Sleuth-Prelim/ce14vsce4.txt", row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
+write.table(ce.14vs4, "Sleuth-Prelim/ce14vsce4.txt", row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
 
 
 
@@ -173,7 +174,7 @@ t2g <- dplyr::rename(t2g, target_id = ensembl_transcript_id, ens_gene = ensembl_
 
 
 ## NE Day 2 vs NE Day 0
-base_dir <- "~/Data/CNC-EMDiff/RNASeq/4-kallisto-quant-m30-u15/"
+base_dir <- "4-kallisto-quant-0.46.1"
 sample_id <- as.character(sort(as.numeric(dir(file.path(base_dir))[1:18])))[10:18]
 
 kal_dirs <- sapply(sample_id, function(id) file.path(base_dir, id))
@@ -215,11 +216,12 @@ ne.2vs0 <- ne.2vs0[, c(1,2,3,5,6, 14:22)]
 ne.6vs0 <- merge(ne.6vs0, sleuth_matrix)
 ne.6vs0 <- ne.6vs0[, c(1,2,3,5,6, 14:22)]
 
-write.table(ne.6vs0, "~/Data/CNC-EMDiff-Sleuth-Prelim/ne6vsne0.txt", row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
-write.table(ne.2vs0, "~/Data/CNC-EMDiff-Sleuth-Prelim/ne2vsne0.txt", row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
+write.table(ne.6vs0, "Sleuth-Prelim/ne6vsne0.txt", row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
+write.table(ne.2vs0, "Sleuth-Prelim/ne2vsne0.txt", row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
 
-all.expressed <- merge(res.pass.filter, sleuth_matrix)
-write.table(all.expressed[, c(1:3, 14:22)], "~/Data/CNC-EMDiff-Sleuth-Prelim/NE_expressed.txt", row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
+# Object res.pass not found
+# all.expressed <- merge(res.pass.filter, sleuth_matrix)
+# write.table(all.expressed[, c(1:3, 14:22)], "Sleuth-Prelim/NE_expressed.txt", row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
 
 
 
@@ -240,7 +242,7 @@ t2g <- dplyr::rename(t2g, target_id = ensembl_transcript_id, ens_gene = ensembl_
 ############################
 #############################
 
-base_dir <- "~/Data/CNC-EMDiff/RNASeq/4-kallisto-quant-m30-u15/"
+base_dir <- "4-kallisto-quant-0.46.1"
 sample_id <- as.character(sort(as.numeric(dir(file.path(base_dir))[1:18])))[10:18]
 
 kal_dirs <- sapply(sample_id, function(id) file.path(base_dir, id))
@@ -271,7 +273,7 @@ sleuth_matrix$target_id <- rownames(sleuth_matrix)
 ne.6vs2 <- merge(ne.6vs2, sleuth_matrix)
 ne.6vs2 <- ne.6vs2[, c(1,2,3,5,6, 14:22)]
 
-write.table(ne.6vs2, "~/Data/CNC-EMDiff-Sleuth-Prelim/ne6vsne2.txt", row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
+write.table(ne.6vs2, "Sleuth-Prelim/ne6vsne2.txt", row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
 
 
 
@@ -291,7 +293,7 @@ t2g <- dplyr::rename(t2g, target_id = ensembl_transcript_id, ens_gene = ensembl_
 ############################
 #############################
 
-base_dir <- "~/Data/CNC-EMDiff/RNASeq/4-kallisto-quant-m30-u15/"
+base_dir <- "4-kallisto-quant-0.46.1"
 sample_id <- as.character(sort(as.numeric(dir(file.path(base_dir))[1:18])))
 
 kal_dirs <- sapply(sample_id, function(id) file.path(base_dir, id))
@@ -326,7 +328,7 @@ ne0.vs.ce0 <- merge(ne0.vs.ce0, sleuth_matrix)
 ne0.vs.ce0 <- ne0.vs.ce0[, c(1,2,3,5,6, 14:31)]
 
 #### Write out results
-write.table(ne0.vs.ce0, "~/Data/CNC-EMDiff-Sleuth-Prelim/ne0vsce0.txt", row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
+write.table(ne0.vs.ce0, "Sleuth-Prelim/ne0vsce0.txt", row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
 
 
 
@@ -347,7 +349,7 @@ t2g <- dplyr::rename(t2g, target_id = ensembl_transcript_id, ens_gene = ensembl_
 ############################
 #############################
 
-base_dir <- "~/Data/CNC-EMDiff/RNASeq/4-kallisto-quant-m30-u15/"
+base_dir <- "4-kallisto-quant-0.46.1"
 sample_id <- as.character(sort(as.numeric(dir(file.path(base_dir))[1:18])))
 
 kal_dirs <- sapply(sample_id, function(id) file.path(base_dir, id))
@@ -381,7 +383,7 @@ ne2.vs.ce4 <- merge(ne2.vs.ce4, sleuth_matrix)
 ne2.vs.ce4 <- ne2.vs.ce4[, c(1,2,3,5,6, 14:31)]
 
 #### Write out resultsv
-write.table(ne2.vs.ce4, "~/Data/CNC-EMDiff-Sleuth-Prelim/ne2vsce4.txt", row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
+write.table(ne2.vs.ce4, "Sleuth-Prelim/ne2vsce4.txt", row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
 
 
 
@@ -408,7 +410,7 @@ t2g <- dplyr::rename(t2g, target_id = ensembl_transcript_id, ens_gene = ensembl_
 ############################
 #############################
 
-base_dir <- "~/Data/CNC-EMDiff/RNASeq/4-kallisto-quant-m30-u15/"
+base_dir <- "4-kallisto-quant-0.46.1"
 sample_id <- as.character(sort(as.numeric(dir(file.path(base_dir))[1:18])))
 
 kal_dirs <- sapply(sample_id, function(id) file.path(base_dir, id))
@@ -441,17 +443,17 @@ sleuth_matrix$target_id <- rownames(sleuth_matrix)
 ne6.vs.ce14 <- merge(ne6.vs.ce14, sleuth_matrix)
 ne6.vs.ce14 <- ne6.vs.ce14[, c(1,2,3,5,6, 14:31)]
 
-write.table(ne6.vs.ce14, "~/Data/CNC-EMDiff-Sleuth-Prelim/ne6vsce14.txt", row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
+write.table(ne6.vs.ce14, "Sleuth-Prelim/ne6vsce14.txt", row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
 
 
 ####### Read in the ce0vsne0, ce4vsne2, and ce14vsne6. Remove genes in ce0vsne0, and report the non-overlap for ce4vsne2 and ce14vsne6.
-ce0vsne0 <- read.table("~/Data/CNC-EMDiff-Sleuth-Prelim/ne0vsce0.txt", header=TRUE, sep="\t")
-ne2vsce4 <- read.table("~/Data/CNC-EMDiff-Sleuth-Prelim/ne2vsce4.txt", header=TRUE, sep="\t")
-ne6vsce14 <- read.table("~/Data/CNC-EMDiff-Sleuth-Prelim/ne6vsce14.txt", header=TRUE, sep="\t")
+ce0vsne0 <- read.table("Sleuth-Prelim/ne0vsce0.txt", header=TRUE, sep="\t")
+ne2vsce4 <- read.table("Sleuth-Prelim/ne2vsce4.txt", header=TRUE, sep="\t")
+ne6vsce14 <- read.table("Sleuth-Prelim/ne6vsce14.txt", header=TRUE, sep="\t")
 
 ne6vsce14.v2 <- subset(ne6vsce14, !ext_gene %in% ce0vsne0$ext_gene)
 ne2vsce4.v2 <- subset(ne2vsce4, !ext_gene %in% ce0vsne0$ext_gene)
 
-write.table(ne6vsce14.v2, "~/Data/CNC-EMDiff-Sleuth-Prelim/ne6vsce14_v2.txt", col.names=TRUE, row.names=FALSE, quote=FALSE, sep="\t")
-write.table(ne2vsce4.v2, "~/Data/CNC-EMDiff-Sleuth-Prelim/ne2vsce4_v2.txt", col.names=TRUE, row.names=FALSE, quote=FALSE, sep="\t")
+write.table(ne6vsce14.v2, "Sleuth-Prelim/ne6vsce14_v2.txt", col.names=TRUE, row.names=FALSE, quote=FALSE, sep="\t")
+write.table(ne2vsce4.v2, "Sleuth-Prelim/ne2vsce4_v2.txt", col.names=TRUE, row.names=FALSE, quote=FALSE, sep="\t")
 
