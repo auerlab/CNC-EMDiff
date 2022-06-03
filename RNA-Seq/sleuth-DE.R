@@ -187,8 +187,9 @@ write.table(ce.t3_vs_t1, paste0(sleuth_dir, "/ch-t3-vs-t1.txt"),
 write.table(ce.t2_vs_t1, paste0(sleuth_dir, "/ch-t2-vs-t1.txt"),
 	    row.names=FALSE, col.names=TRUE, sep="\t", quote=FALSE)
 
-# Repeats for other sample groups below
+# FIXME: Code below for other cases is not yet finished
 
+# Repeats for other sample groups below
 ############################
 
 sample_id <- as.character(sort(as.numeric(dir(file.path(kallisto_dir))[1:18])))[1:9]

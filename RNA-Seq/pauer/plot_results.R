@@ -17,22 +17,29 @@ ne6vsne2 <- read.table("Sleuth-Prelim/ne6vsne2.txt", header=TRUE, sep="\t")
 
 ### Start with Chondro plots
 
+# Merge rows of all chondro counts
 ce <- rbind(ce14vsce0, ce4vsce0, ce14vsce4)
+head(ce)
+dim(ce)
 
 ### Remove duplicate rows
 ce.v2 <- ce[which(duplicated(ce$target_id)==FALSE),]
+dim(ce.v2)
 
 ### Normalize all columns. Take log first
 
+# Extract columns with counts.  +0.01 to avoid zeros?
 input.v1 <- log(as.matrix(ce.v2[, 6:14]) + 0.01)
 col.mean <- apply(input.v1, 2, mean)
 col.sd <- apply(input.v1, 2, sd)
+print(col.mean)
+print(col.sd)
+quit()
 
 input.v2 <- input.v1[, c(1,4,7,2,5,8,3,6,9)]
 for(i in 1:9){
 input.v2[,i] <- (input.v1[,i] - col.mean[i])/col.sd[i]
 }
-
 
 K = 6
 kclus <- kmeans(input.v2, K)
