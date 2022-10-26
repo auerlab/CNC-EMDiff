@@ -1,0 +1,30 @@
+#!/bin/sh -e
+
+
+##########################################################################
+#   Function description:
+#       Pause until user presses return
+##########################################################################
+
+pause()
+{
+    local junk
+    
+    printf "Press return to continue..."
+    read junk
+}
+
+dir=Data/09-kallisto-quant
+for cell_type in neuro chondro; do
+    for condition in time1 time2; do
+	printf "Normalizing $condition...\n"
+	time fasda normalize --output $condition-all-norm.tsv \
+	    $dir/$cell_type-*-rep*-$condition/abundance.tsv
+    done
+    
+    printf "Computing fold-change...\n"
+    time fasda fold-change --output time1-time2-FC.txt \
+	time1-all-norm.tsv time2-all-norm.tsv
+    pause
+    more time1-time2-FC.txt
+done
