@@ -30,7 +30,7 @@ library(DESeq2)
 pause <- function()
 {
     # Change to TRUE for interactive run
-    if ( FALSE )
+    if ( TRUE )
     {
 	cat("Press Enter to continue...")
 	invisible(b <- scan("stdin", character(), nlines=1, quiet=TRUE))
@@ -85,15 +85,17 @@ files=dir("../09-remove-duplicates/",
 
 # Extract rep and time portions of filename
 split_files <- strsplit(files, split="-", fixed=TRUE)
-#print(split_files)
+print(split_files)
 
 rep <- lapply(split_files, function(x) x[3]) %>% unlist() #%>% unique()
-#print("rep")
-#print(rep)
+print("rep")
+print(rep)
+pause()
 
 time <- lapply(split_files, function(x) x[4]) %>% unlist() #%>% unique()
-#print("time")
-#print(time)
+print("time")
+print(time)
+pause()
 
 SampleID <- lapply(split_files, function(x) paste0(x[1], '-', x[2])) %>% unlist() #%>% unique()
 print("SampleID")
