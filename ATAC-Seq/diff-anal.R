@@ -189,11 +189,32 @@ if ( file.exists(readcounts_filename) ) {
     #save(list=c("samples", "readcounts_pvalsort"), file="sampledata.RData")
 }
 
-print("readcounts_pvalsort:")
+# Debug / explore results for producing k-means heatmap
+print("typeof(readcounts_pvalsort):")
 typeof(readcounts_pvalsort)
+
+print("class(readcounts_pvalsort):")
+class(readcounts_pvalsort)
+
+print("dim(readcounts_pvalsort):")
+dim(readcounts_pvalsort)
+
+print("names(readcounts_pvalsort):")
+names(readcounts_pvalsort)
+
+print("length(readcounts_pvalsort):")
 length(readcounts_pvalsort)
-print(readcounts_pvalsort)
-pause()
+
+print("head(readcounts_pvalsort[[8]]):")
+head(readcounts_pvalsort[[8]]) # Just "binding"
+
+print("head(readcounts_pvalsort$binding):")
+head(readcounts_pvalsort$binding)
+typeof(readcounts_pvalsort$binding)
+class(readcounts_pvalsort$binding)
+length(readcounts_pvalsort$binding)
+write.table(readcounts_pvalsort$binding,
+	    file=paste0(cell_type, "-counts.tsv"), sep="\t", row.names=FALSE)
 
 # Does not work: "Cannot coerc" error
 # write.table(readcounts_pvalsort, file="readcounts_pvalsort.table",

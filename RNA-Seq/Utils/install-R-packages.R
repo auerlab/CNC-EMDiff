@@ -29,6 +29,7 @@ if (!requireNamespace("BiocManager", quietly = TRUE))
 BiocManager::install("rhdf5")
 BiocManager::install("pachterlab/sleuth")
 BiocManager::install("biomaRt")
+BiocManager::install("ComplexHeatmap")      # DE plots
 
 # Alternative for comparison
 BiocManager::install("DESeq2")
