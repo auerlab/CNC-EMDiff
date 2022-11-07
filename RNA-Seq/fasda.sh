@@ -14,6 +14,9 @@ pause()
     read junk
 }
 
+#export PATH=$HOME/Prog/Src/local/bin:$PATH
+which fasda
+
 dir=Data/09-kallisto-quant
 for cell_type in neuro chondro; do
     for condition in time1 time2; do

@@ -19,9 +19,9 @@ usage()
 if [ $# != 1 ]; then
     usage
 fi
-printf "Time1:\n"
-awk -v id=$1 '$1 == id { print $4 }' \
-    Data/09-kallisto-quant/chondro-sample*-time1/abun*.tsv
-printf "Time2:\n"
-awk -v id=$1 '$1 == id { print $4 }' \
-    Data/09-kallisto-quant/chondro-sample*-time2/abun*.tsv
+t1=$(awk -v id=$1 '$1 == id { print $4 }' Data/09-kallisto-quant/chondro-sample*-time1/abun*.tsv)
+t2=$(awk -v id=$1 '$1 == id { print $4 }' Data/09-kallisto-quant/chondro-sample*-time2/abun*.tsv)
+printf "Time1  Time2:\n"
+printf "%s %s " $t1 $t2
+printf "\n"
+
