@@ -13,13 +13,14 @@
 BEGIN {
     agree=0;
     disagree=0;
+    min=0.03;
+    max=0.07;
 }
 {
     if ( $1 == "Feature" ) {
 	print $0;
     }
-    #printf("%s %s\n", $5, $9);
-    if ( ($1 ~ "ENS") && (($5 < 0.05 && $9 >= 0.05) || ($5 >= 0.05 && $9 < 0.05)) ) {
+    if ( ($1 ~ "ENS") && (($5 < min && $9 >= max) || ($5 >= max && $9 < min)) ) {
 	++disagree;
 	print $0;
     }
@@ -28,6 +29,8 @@ BEGIN {
     }
 }
 END {
-    printf("Agree: %d  Disagree: %d\n", agree, disagree);
+    printf("Min = %f  Max = %f\n", min, max);
+    printf("Agree = %d  Disagree = %d  Agreement = %d%%\n",
+	    agree, disagree, agree * 100 / (agree + disagree));
 }
 
