@@ -145,7 +145,7 @@ if ( file.exists(so_filename) ) {
 so2 <- sleuth_wt(so, "CH-T2")
 res <- sleuth_results(so2, "CH-T2", test_type="wt")
 
-keep <- res[which(res$qval < 0.05),]
+keep <- res[which(res$qval < 0.2),]
 ce.t2_vs_t1 <- keep
 print("ce.t2_vs_t1:")
 print(ce.t2_vs_t1)
@@ -153,7 +153,7 @@ print(ce.t2_vs_t1)
 ### CE Day 14 vs CE Day 0
 so2 <- sleuth_wt(so, "CH-T3")
 res <- sleuth_results(so2, "CH-T3", test_type="wt")
-keep <- res[which(res$qval < 0.05),]
+keep <- res[which(res$qval < 0.2),]
 ce.t3_vs_t1 <- keep
 
 #### Get TPMs for each gene-transcript. Merge into results
@@ -218,7 +218,7 @@ so <- sleuth_prep(sample_to_covariates = expdesign,
 so <- sleuth_fit(so)
 so2 <- sleuth_wt(so, "CH-T3")
 res <- sleuth_results(so2, "CH-T3", test_type="wt")
-keep <- res[which(res$qval < 0.05),]
+keep <- res[which(res$qval < 0.2),]
 ce.t3_vs_t2 <- keep
 
 #### Get TPMs for each gene-transcript. Merge into results
@@ -269,13 +269,13 @@ so <- sleuth_prep(sample_to_covariates = expdesign, full_model=full_design_facto
 so <- sleuth_fit(so)
 so2 <- sleuth_wt(so, "NE-T2")
 res <- sleuth_results(so2, "NE-T2", test_type="wt")
-keep <- res[which(res$qval < 0.05),]
+keep <- res[which(res$qval < 0.2),]
 ne.t2_vs_t1 <- keep
 
 ## NE Day 6 vs NE Day 0
 so2 <- sleuth_wt(so, "NE-T3")
 res <- sleuth_results(so2, "NE-T3", test_type="wt")
-keep <- res[which(res$qval < 0.05),]
+keep <- res[which(res$qval < 0.2),]
 ne.t3_vs_t1 <- keep
 
 #### Get TPMs for each gene-transcript. Merge into results
@@ -327,7 +327,7 @@ so <- sleuth_prep(sample_to_covariates = expdesign, full_model=full_design_facto
 so <- sleuth_fit(so)
 so2 <- sleuth_wt(so, "NE-T3")
 res <- sleuth_results(so2, "NE-T3", test_type="wt")
-keep <- res[which(res$qval < 0.05),]
+keep <- res[which(res$qval < 0.2),]
 ne.t3_vs_t2 <- keep
 
 #### Get TPMs for each gene-transcript. Merge into results
@@ -376,7 +376,7 @@ so <- sleuth_prep(sample_to_covariates = expdesign, full_model=full_design_facto
 so <- sleuth_fit(so)
 so2 <- sleuth_wt(so, "NE-T1")
 res <- sleuth_results(so2, "NE-T1", test_type="wt")
-keep <- res[which(res$qval < 0.05),]
+keep <- res[which(res$qval < 0.2),]
 ne_t1.vs.ch_t1 <- keep
 
 #### Get TPMs for each gene-transcript. Merge into results
@@ -428,7 +428,7 @@ so <- sleuth_prep(sample_to_covariates = expdesign, full_model=full_design_facto
 so <- sleuth_fit(so)
 so2 <- sleuth_wt(so, "NE-T2")
 res <- sleuth_results(so2, "NE-T2", test_type="wt")
-keep <- res[which(res$qval < 0.05),]
+keep <- res[which(res$qval < 0.2),]
 ne2.vs.ce4 <- keep
 
 #### Get TPMs for each gene-transcript. Merge into results
@@ -489,7 +489,7 @@ so <- sleuth_prep(sample_to_covariates = expdesign, full_model=full_design_facto
 so <- sleuth_fit(so)
 so2 <- sleuth_wt(so, "NE-T3")
 res <- sleuth_results(so2, "NE-T3", test_type="wt")
-keep <- res[which(res$qval < 0.05),]
+keep <- res[which(res$qval < 0.2),]
 ne6.vs.ce14 <- keep
 
 #### Get TPMs for each gene-transcript. Merge into results
