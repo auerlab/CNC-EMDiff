@@ -66,7 +66,7 @@ options(max.print=60)
 
 kallisto_dir <- "Data/09-kallisto-quant";
 
-sleuth_dir <- "Data/13-sleuth-DE"
+sleuth_dir <- "Data/14-sleuth-DE"
 # mkdir() is in the R docs, but does not exist
 dir.create(sleuth_dir)
 

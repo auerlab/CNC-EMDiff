@@ -1,7 +1,7 @@
 #!/bin/sh -e
 
 fasda=chondro-time1-time2-FC.txt
-sleuth=Data/13-sleuth-DE/ch-t2-vs-t1.txt
+sleuth=Data/14-sleuth-DE/ch-t2-vs-t1.txt
 wc $fasda $sleuth
 
 header="$(head -1 $fasda | awk '{ printf("%20s %7s %7s %6s %5s\n", $1, $2, $3, $4, $5); }')    SC1    SC2  SFC    SPV"
