@@ -22,8 +22,8 @@
 # Run a sample job and monitor closely in "top" or rununder a tool that
 # reports maximum memory use.
 #SBATCH --mem=9000
-#SBATCH --output=Logs/16-hisat2-align/slurm-%A_%a.out
-#SBATCH --error=Logs/16-hisat2-align/slurm-%A_%a.err
+#SBATCH --output=Logs/17-hisat2-align/slurm-%A_%a.out
+#SBATCH --error=Logs/17-hisat2-align/slurm-%A_%a.err
 
 ##############################################################################
 # Align with hisat2, which can handle splice junctions in RNA reads
@@ -41,7 +41,7 @@ release=$(../Common/genome-release.sh)
 genome=$(Reference/genome-filename.sh)
 
 # samtools sort dumps temp files in CWD
-cd Data/16-hisat2-align
+cd Data/17-hisat2-align
 
 # hisat2 can't handle xz.
 # Convert xz to gz rather than raw to reduce NFS load from compute nodes
@@ -58,10 +58,10 @@ bam=${gzb%-R*}.bam
 #echo $gz1
 #echo $gz2
 #echo $bam
-#ls ../15-hisat2-index/$genome
+#ls ../16-hisat2-index/$genome
 #exit
 
 set -x
-hisat2 --threads $SLURM_CPUS_PER_TASK -x ../15-hisat2-index/$genome \
+hisat2 --threads $SLURM_CPUS_PER_TASK -x ../16-hisat2-index/$genome \
     -1 $gz1 -2 $gz2 | samtools sort > $bam
 samtools index $bam
