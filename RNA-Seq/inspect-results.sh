@@ -90,15 +90,18 @@ view_files()
     fi
     
     for file in $@; do
-	printf "\n(V)iew $file\n(S)kip $file (default)\n(Q)uit\n"
+	printf "\n(V)iew $file (default)\n(S)kip $file\n(Q)uit\n"
 	read view
 	case $view in
-	V|v)
-	    more $file
+	S|s)
 	    ;;
 	
 	Q|q)
 	    break
+	    ;;
+	
+	*)
+	    more $file
 	    ;;
 	esac
     done
@@ -126,17 +129,19 @@ wb_files()
     fi
 
     for file in $@; do
-	printf "\n(V)iew $file?\n(S)kip $file (default)\n(Q)uit\n"
+	printf "\n(V)iew $file (default)\n(S)kip $file\n(Q)uit\n"
 	read view
 	case $view in
-	V|v)
-	    webbrowser $file
+	S|s)
 	    ;;
 	
 	Q|q)
 	    break
 	    ;;
 	
+	*)
+	    webbrowser $file
+	    ;;
 	esac
     done
     return 0
@@ -194,7 +199,7 @@ EOM
 
     4)
 	view_files Logs/04-trim/*
-	printf "Check for remaining adapter contamination? y/[n] "
+	printf "Check for remaining adapter contamination (may take a long time)? y/[n] "
 	read scum
 	if [ 0$scum = 0y ]; then
 	    for fq in Data/04-trim/*.gz; do
