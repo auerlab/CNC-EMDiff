@@ -54,8 +54,8 @@ uname -a
 fastq-trim --version
 pwd
 
-input1=$(ls Data/Raw-renamed/*sample${SLURM_ARRAY_TASK_ID}-*R1*)
-input2=$(ls Data/Raw-renamed/*sample${SLURM_ARRAY_TASK_ID}-*R2*)
+input1=$(ls Data/01-organize/Raw-renamed/*sample${SLURM_ARRAY_TASK_ID}-*R1*)
+input2=$(ls Data/01-organize/Raw-renamed/*sample${SLURM_ARRAY_TASK_ID}-*R2*)
 base=$(basename $input1)
 stem=${base%%-R*.fastq.xz}
 
@@ -110,7 +110,7 @@ else
 fi
 
 # fastq-trim is 2.5x faster with 1 core than cutadapt with 2 cores
-# Our reads use the default Illumina universal adatper,
+# Our reads use the default Illumina universal adapter,
 # but we'll state it explicitly anyway
 set -x
 time fastq-trim --3p-adapter1 $adapter --3p-adapter2 $adapter \

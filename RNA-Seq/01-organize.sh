@@ -83,18 +83,18 @@ done
 
 # CE1A_S1_L002-R1.fastq.xz
 cd Data
-rm -rf Raw-renamed
-mkdir -p Raw-renamed
-cd Raw-renamed
+rm -rf 01-organize/Raw-renamed
+mkdir -p 01-organize/Raw-renamed
+cd 01-organize/Raw-renamed
 for rep in 1 2 3; do
     for time in A B C; do
 	numeric_time=$(echo $time | tr "ABC" "123")
 	for read in 1 2; do
-	    orig=$(ls ../../../Raw/190822_AHFN3KDRXX-Lane2-RNA/CE${rep}${time}_*_L002_R${read}_001.fastq.xz)
+	    orig=$(ls ../../../../Raw/190822_AHFN3KDRXX-Lane2-RNA/CE${rep}${time}_*_L002_R${read}_001.fastq.xz)
 	    sample=$(echo $orig | awk -F '_' '{ print $3 }' | sed -e 's|S|sample|')
 	    ln -sf $orig \
 		chondro-$sample-rep${rep}-time${numeric_time}-R${read}.fastq.xz
-	    orig=$(ls ../../../Raw/190822_AHFN3KDRXX-Lane2-RNA/NE${rep}${time}_*_L002_R${read}_001.fastq.xz)
+	    orig=$(ls ../../../../Raw/190822_AHFN3KDRXX-Lane2-RNA/NE${rep}${time}_*_L002_R${read}_001.fastq.xz)
 	    sample=$(echo $orig | awk -F '_' '{ print $3 }' | sed -e 's|S|sample|')
 	    ln -sf $orig \
 		neuro-$sample-rep${rep}-time${numeric_time}-R${read}.fastq.xz
