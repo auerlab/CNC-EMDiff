@@ -133,6 +133,8 @@ while [ 0$selection != 0q ]; do
 11. SAM MultiQC report
 12. Merged kallisto BAMs (IGV)
 13. FASDA DE results
+16. Hisat2 index
+17. Hisat2 alignments
 Q.. Quit
 
 EOM
@@ -218,6 +220,22 @@ EOM
     13)
 	view_files more Logs/13-fasda/*
 	view_files more Data/13-fasda/*.txt
+	;;
+
+    16)
+	view_files more Logs/16-hisat2-index/*
+	# more doesn't function under srun, so use cat and pipe
+	# through local more process
+	run_cmd "$srun cat Data/16-hisat2-index/all-but-xy.genome.fa | more"
+	run_cmd "$srun cat Data/16-hisat2-index/all-but-xy.genome.fa.fai | more"
+	;;
+    
+    17)
+	view_files more Logs/17-hisat2-align/*
+	# FIXME: srun has trouble with "more"
+	#for file in Data/17-hisat2-align/*.bam; do
+	#    run_cmd "$srun samtools view $file" | more
+	#done
 	;;
 	
     Q|q)
