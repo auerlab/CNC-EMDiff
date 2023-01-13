@@ -1,7 +1,7 @@
 #!/bin/sh -e
 
-#SBATCH --output=Logs/13-fasda/slurm-%A_%a.out
-#SBATCH --error=Logs/13-fasda/slurm-%A_%a.err
+#SBATCH --output=Logs/13-fasda-kallisto/slurm-%A_%a.out
+#SBATCH --error=Logs/13-fasda-kallisto/slurm-%A_%a.err
 
 # Document software versions used for publication
 uname -a
