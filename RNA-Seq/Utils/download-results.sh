@@ -45,8 +45,8 @@ if [ $# != 1 ]; then
 fi
 remote_host=$1
 
-if [ $0 != ./download-results.sh ]; then
-    printf "$0 should be run as ./download-results.sh\n"
+if [ $0 != Utils/download-results.sh ]; then
+    printf "$0 should be run as Utils/download-results.sh\n"
     exit 1
 fi
 
