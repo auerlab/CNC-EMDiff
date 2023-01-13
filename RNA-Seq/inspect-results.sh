@@ -176,6 +176,7 @@ while [ 0$selection != 0q ]; do
 5.. Trimmed FastQC reports
 6.. Trimmed MultiQC report
 7.. Reference transcriptome
+8.. Kallisto index
 Q.. Quit
 
 EOM
@@ -228,7 +229,13 @@ EOM
 	(cd Data/07-reference && view_files *.fa *.fai *.tsv)
 	;;
     
+    8)
+	view_files Logs/08-kallisto-index/*
+	run_cmd "$srun kallisto inspect Data/08-kallisto-index/all-but-xy.index | more"
+	;;
+    
     Q|q)
+	exit 0
 	;;
     
     *)
