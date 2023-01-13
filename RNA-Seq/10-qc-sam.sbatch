@@ -39,4 +39,5 @@ pwd
 printf "Running task $SLURM_ARRAY_TASK_ID...\n"
 
 infile=Data/09-kallisto-quant/*sample$SLURM_ARRAY_TASK_ID*/pseudoalignments.bam
-fastqc $infile -o Data/10-qc-sam
+mkdir Data/10-qc-sam/$SLURM_ARRAY_TASK_ID
+fastqc $infile -o Data/10-qc-sam/$SLURM_ARRAY_TASK_ID

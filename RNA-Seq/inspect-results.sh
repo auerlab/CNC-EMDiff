@@ -6,18 +6,6 @@
 #   Description:
 #       Check logs and visualize results of each step in the pipeline
 #
-#   Arguments:
-#       
-#   Returns:
-#
-#   Examples:
-#
-#   Files:
-#
-#   Environment:
-#
-#   See also:
-#       
 #   History:
 #   Date        Name        Modification
 #   2023-01-12  Jason Bacon Begin
@@ -142,6 +130,9 @@ while [ 0$selection != 0q ]; do
 8.. Kallisto index
 9.. Kallisto abundances
 10. SAM FastQC reports
+11. SAM MultiQC report
+12. Merged kallisto BAMs (IGV)
+13. FASDA DE results
 Q.. Quit
 
 EOM
@@ -209,6 +200,26 @@ EOM
 	view_files webbrowser Data/10-qc-sa/*.html
 	;;
     
+    11)
+	view_files more Logs/11-multiqc-sam/*
+	run_cmd "webbrowser ./Data/11-multiqc-sam/multiqc_report.html"
+	;;
+
+    12)
+	view_files more Logs/12-merge-kallisto-bams/*
+	if which igv > /dev/null 2>&1; then
+	    (cd Data/12-merge-kallisto-bams && igv)
+	else
+	    printf "IGV is not installed on $(hostname).\n"
+	    printf "Please install IGV and try again.\n"
+	fi
+	;;
+    
+    13)
+	view_files more Logs/13-fasda/*
+	view_files more Data/13-fasda/*.txt
+	;;
+	
     Q|q)
 	exit 0
 	;;
