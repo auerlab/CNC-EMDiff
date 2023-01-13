@@ -84,10 +84,12 @@ run_cmd()
 
 view_files()
 {
-    if [ $# -lt 1 ]; then
-	printf "Usage: view_files file-spec\n" >> /dev/stderr
+    if [ $# -lt 2 ]; then
+	printf 'Usage: view_files "command" file-spec\n' >> /dev/stderr
 	exit 1
     fi
+    command="$1"
+    shift
     
     for file in $@; do
 	printf "\n(V)iew $file (default)\n(S)kip $file\n(Q)uit\n"
@@ -101,46 +103,7 @@ view_files()
 	    ;;
 	
 	*)
-	    more $file
-	    ;;
-	esac
-    done
-    return 0
-}
-
-
-##########################################################################
-#   Function description:
-#       
-#   Arguments:
-#       
-#   Returns:
-#       
-#   History:
-#   Date        Name        Modification
-#   2023-01-12  Jason Bacon Begin
-##########################################################################
-
-wb_files()
-{
-    if [ $# -lt 1 ]; then
-	printf "Usage: wb_files file-spec\n" >> /dev/stderr
-	exit 1
-    fi
-
-    for file in $@; do
-	printf "\n(V)iew $file (default)\n(S)kip $file\n(Q)uit\n"
-	read view
-	case $view in
-	S|s)
-	    ;;
-	
-	Q|q)
-	    break
-	    ;;
-	
-	*)
-	    webbrowser $file
+	    $command $file
 	    ;;
 	esac
     done
@@ -177,6 +140,8 @@ while [ 0$selection != 0q ]; do
 6.. Trimmed MultiQC report
 7.. Reference transcriptome
 8.. Kallisto index
+9.. Kallisto abundances
+10. SAM FastQC reports
 Q.. Quit
 
 EOM
@@ -189,17 +154,17 @@ EOM
 	;;
     
     2)
-	view_files Logs/02-qc-raw/*
-	wb_files Data/02-qc-raw/*.html
+	view_files more Logs/02-qc-raw/*
+	view_files webbrowser Data/02-qc-raw/*.html
 	;;
     
     3)
-	view_files Logs/03-multiqc-raw/*
+	view_files more Logs/03-multiqc-raw/*
 	run_cmd "webbrowser ./Data/03-multiqc-raw/multiqc_report.html"
 	;;
 
     4)
-	view_files Logs/04-trim/*
+	view_files more Logs/04-trim/*
 	printf "Check for remaining adapter contamination (may take a long time)? y/[n] "
 	read scum
 	if [ 0$scum = 0y ]; then
@@ -215,23 +180,33 @@ EOM
 	;;
     
     5)
-	view_files Logs/05-qc-trimmed/*
-	wb_files Data/05-qc-trimmed/*.html
+	view_files more Logs/05-qc-trimmed/*
+	view_files webbrowser Data/05-qc-trimmed/*.html
 	;;
     
     6)
-	view_files Logs/06-multiqc-trimmed/*
+	view_files more Logs/06-multiqc-trimmed/*
 	run_cmd "webbrowser ./Data/06-multiqc-trimmed/multiqc_report.html"
 	;;
 
     7)
-	view_files Logs/07-reference/*
-	(cd Data/07-reference && view_files *.fa *.fai *.tsv)
+	view_files more Logs/07-reference/*
+	(cd Data/07-reference && view_files more *.fa *.fai *.tsv)
 	;;
     
     8)
-	view_files Logs/08-kallisto-index/*
+	view_files more Logs/08-kallisto-index/*
 	run_cmd "$srun kallisto inspect Data/08-kallisto-index/all-but-xy.index | more"
+	;;
+    
+    9)
+	view_files more Logs/09-kallisto-quant/*
+	view_files more Data/09-kallisto-quant/*/abundance.tsv
+	;;
+
+    10)
+	view_files more Logs/10-qc-sam/*
+	view_files webbrowser Data/10-qc-sa/*.html
 	;;
     
     Q|q)
