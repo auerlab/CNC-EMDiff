@@ -8,17 +8,36 @@ fetch=$(../Common/find-fetch.sh)
 release=$(../Common/genome-release.sh)
 gff=$(Reference/gff-filename.sh)
 
-# GFF
-# Can't guarantee this file or the chromosome files will always be available.
-# You may need to edit this.
-cd Data/07-reference
-if [ ! -e $gff.gz ]; then
-    printf "Fetching $gff.gz...\n"
-    $fetch ftp://ftp.ensembl.org/pub/release-$release/gff3/mus_musculus/$gff.gz
-fi
+# macOS zcat looks for .Z extension, while Linux does not have gzcat
+zcat='gunzip -c'
 
-if [ ! -e $gff ]; then
-    # Filter for autosomes during decompress
-    printf "Uncompressing and filtering $gff...\n"
-    gunzip --stdout $gff.gz | awk '$1 ~ "^[0-9]"' > $gff
+##########################################################################
+# Ensembl combined GFFs are sorted lexically by chromosome, while BAMs are
+# sorted numerically.  Build our own GFF by concatenating individual
+# chromosome GFFs in numeric order.  Resorting a GFF is complicated due
+# to the hierarchical sort order (all gene components directly under the
+# gene, etc).
+##########################################################################
+
+cd Data/07-reference
+rm -f $gff
+site=http://ftp.ensembl.org/pub/release-$release/gff3/mus_musculus
+
+# Keep header from first GFF
+file=Mus_musculus.GRCm38.98.chromosome.1.gff3.gz
+if [ ! -e $file ]; then
+    printf "Fetching $file...\n"
+    $fetch $site/$file
 fi
+$zcat $file | egrep '^##gff|^#!' > $gff
+
+# Concatenate the rest without the header
+for chrom in $(seq 2 19); do
+    file=Mus_musculus.GRCm38.98.chromosome.$chrom.gff3.gz
+    if [ ! -e $file ]; then
+	printf "Fetching $file...\n"
+	$fetch $site/$file
+    fi
+    $zcat $file | egrep -v '^##[a-z]|^#!' >> $gff
+done
+

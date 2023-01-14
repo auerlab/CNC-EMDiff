@@ -53,6 +53,7 @@ pwd
 
 # Reference/cdna.sh       # Remove XY from Ensembl cdna transcriptome
 Reference/gtf2fasta.sh  # Construct genome minus XY using Ensembl GFF
+Reference/fetch-gff.sh
 
 # Reference/create-chrom-sizes.sh
 chrom_sizes="Data/07-reference/chromosome-sizes.tsv"
