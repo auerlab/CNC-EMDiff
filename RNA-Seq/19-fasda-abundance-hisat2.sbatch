@@ -4,8 +4,8 @@
 # One core for fasda abundance, one for samtools
 #SBATCH --array=1-18
 #SBATCH --cpus-per-task=2
-#SBATCH --output=Logs/19-fasda-hisat2/slurm-%A_%a.out
-#SBATCH --error=Logs/19-fasda-hisat2/slurm-%A_%a.err
+#SBATCH --output=Logs/19-fasda-abundance-hisat2/slurm-%A_%a.out
+#SBATCH --error=Logs/19-fasda-abundance-hisat2/slurm-%A_%a.err
 
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
@@ -17,7 +17,7 @@ samtools --version
 pwd
 
 hisat2_dir=Data/17-hisat2-align
-fasda_dir=Data/19-fasda-hisat2
+fasda_dir=Data/19-fasda-abundance-hisat2
 
 # Need to fetch gff3 for computing abundances
 gff_filename=$(Reference/gff-filename.sh)
