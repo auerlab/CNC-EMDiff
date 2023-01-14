@@ -80,7 +80,7 @@ view_files()
     shift
     
     for file in $@; do
-	printf "\n(V)iew $file (default)\n(S)kip $file\n(Q)uit\n"
+	printf "\n(V)iew $file (default)\n(S)kip\n(Q)uit\n"
 	read view
 	case $view in
 	S|s)
@@ -132,9 +132,11 @@ while [ 0$selection != 0q ]; do
 10. SAM FastQC reports
 11. SAM MultiQC report
 12. Merged kallisto BAMs (IGV)
-13. FASDA DE results
+13. FASDA DE results for kallisto
 16. Hisat2 index
 17. Hisat2 alignments
+19. FASDA abundance for hisat2
+20. FASDA DE results for hisat2 
 Q.. Quit
 
 EOM
@@ -238,6 +240,17 @@ EOM
 	#done
 	;;
 	
+    19)
+	view_files more Logs/19-fasda-abundance-hisat2/*
+	# FIXME: Move update FASDA to place abundance files in separate dir
+	view_files more Data/17-hisat2-align/*.tsv
+	;;
+
+    20)
+	view_files more Logs/20-fasda-fc-hisat2/*
+	view_files more Data/20-fasda-fc-hisat2/*.txt
+	;;
+
     Q|q)
 	exit 0
 	;;

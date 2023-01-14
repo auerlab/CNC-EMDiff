@@ -1,7 +1,7 @@
 #!/bin/sh -e
 
-#SBATCH --output=Logs/19-fasda-hisat2/slurm-%A_%a.out
-#SBATCH --error=Logs/19-fasda-hisat2/slurm-%A_%a.err
+#SBATCH --output=Logs/20-fasda-fc-hisat2/slurm-%A_%a.out
+#SBATCH --error=Logs/20-fasda-fc-hisat2/slurm-%A_%a.err
 
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
@@ -13,7 +13,7 @@ samtools --version
 pwd
 
 hisat2_dir=Data/17-hisat2-align
-fasda_dir=Data/19-fasda-hisat2
+fasda_dir=Data/20-fasda-fc-hisat2
 
 # Need to fetch gff3 for computing abundances
 gff_filename=$(Reference/gff-filename.sh)
@@ -23,12 +23,15 @@ reference_dir=Data/07-reference
 #   Compute abundances
 ##########################################################################
 
+# Example input file: neuro-sample10-rep1-time1-abundance.tsv
+
 for cell_type in neuro chondro; do
     for condition in time1 time2 time3; do
 	printf "Normalizing $condition...\n"
+	ls $hisat2_dir/$cell_type-*-rep*-$condition-abundance.tsv
 	time fasda normalize \
 	    --output $fasda_dir/$cell_type-$condition-all-norm.tsv \
-	    $kallisto_dir/$cell_type-*-rep*-$condition/abundance.tsv
+	    $hisat2_dir/$cell_type-*-rep*-$condition-abundance.tsv
     done
 
     printf "Computing fold-change...\n"
