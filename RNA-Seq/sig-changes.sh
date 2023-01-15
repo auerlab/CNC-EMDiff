@@ -42,9 +42,21 @@ if [ $# != 0 ]; then
 fi
 
 # Possibly use GAF files directly, or tools sets like goatools or ermineJ
-# wget http://geneontology.org/gene-associations/goa_human.gaf.gz
 
-# 
+gaf_file=goa_human.gaf
+obo_file=go.obo
+
+if [ ! -e $gaf_file ]; then
+    curl -O http://current.geneontology.org/annotations/$gaf_file.gz
+    gunzip $gaf_file.gz
+fi
+
+if [ ! -e $obo_file ]; then
+    curl -O http://current.geneontology.org/ontology/go.obo
+fi
+
+awk -f go-names.awk go.obo > go-name.tsv
+
 while true; do
     clear
     cat << EOM
@@ -108,6 +120,11 @@ EOM
 	if [ -z "$max_pv" ]; then
 	    max_pv=0.2
 	fi
+	
+	# Need to map gene IDs to UniProt IDs in order to search GO
+	# associations
+	# printf "GO term? "
+	# read go_term
 
 	printf "%-30s %-s\n" "File" "Features meeting criteria"
 	for file in Data/13-fasda-kallisto/*.txt; do
