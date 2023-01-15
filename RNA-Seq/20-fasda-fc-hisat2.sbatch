@@ -1,5 +1,10 @@
 #!/bin/sh -e
 
+#
+#   Dependencies:
+#       Requires hisat2 abundances.
+#       Run after *-fasda-abundance-hisat2.sbatch
+
 #SBATCH --output=Logs/20-fasda-fc-hisat2/slurm-%A_%a.out
 #SBATCH --error=Logs/20-fasda-fc-hisat2/slurm-%A_%a.err
 

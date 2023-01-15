@@ -4,6 +4,9 @@
 #   Description:
 #       Run kallisto quantification for each RNA sample.
 #
+#   Dependencies:
+#       Requires kallisto index.  Run after *-kallisto-index.sbatch.
+#
 #       All necessary tools are assumed to be in PATH.  If this is not
 #       the case, add whatever code is needed here to gain access.
 #       (Adding such code to your .bashrc or other startup script is

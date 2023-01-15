@@ -1,5 +1,9 @@
 #!/bin/sh -e
 
+#
+#   Dependencies:
+#       Requires SAM FastQC results.  Run after *-qc-sam.sbatch.
+
 if which srun > /dev/null; then
     srun=srun
 else

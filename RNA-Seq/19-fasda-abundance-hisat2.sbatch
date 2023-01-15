@@ -1,5 +1,9 @@
 #!/bin/sh -e
 
+#
+#   Dependencies:
+#       Requires hisat2 alignments.  Run after *-hisat2-align.sbatch.
+
 # Computing abundances takes a little while, so we do this in parallel
 # One core for fasda abundance, one for samtools
 #SBATCH --array=1-18

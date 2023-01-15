@@ -1,5 +1,9 @@
 #!/bin/sh -e
 
+#
+#   Dependencies:
+#       Requires trimmed FastQC results.  Run after *-qc-trimmed.sbatch.
+
 if which srun > /dev/null; then
     srun=srun
 else

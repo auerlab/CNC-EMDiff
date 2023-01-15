@@ -4,6 +4,9 @@
 #   Description:
 #       Build hisat2 index for reference genome.
 #
+#   Dependencies:
+#       Requires a reference genome.  Run after *-reference.sbatch.
+#
 #       All necessary tools are assumed to be in PATH.  If this is not
 #       the case, add whatever code is needed here to gain access.
 #       (Adding such code to your .bashrc or other startup script is
@@ -35,6 +38,7 @@ ln -f Data/07-reference/$genome Data/16-hisat2-index
 genome=Data/16-hisat2-index/$genome
 printf "Using reference $genome...\n"
 
+# FIXME: Do this in *-reference.sbatch
 if [ ! -e $genome.8.ht2 ]; then
     printf "Building $genome.*.ht2...\n"
     hisat2-build $genome $genome

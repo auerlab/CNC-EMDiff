@@ -4,6 +4,9 @@
 #   Description:
 #       Run hisat2 aligner on each RNA sample.
 #
+#   Dependencies:
+#       Requires hisat2 index.  Run after *-hisat2-index.sbatch.
+#
 #       All necessary tools are assumed to be in PATH.  If this is not
 #       the case, add whatever code is needed here to gain access.
 #       (Adding such code to your .bashrc or other startup script is

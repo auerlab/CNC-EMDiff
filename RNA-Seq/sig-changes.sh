@@ -7,18 +7,6 @@
 #       user-provided criteria, showing fold-change, P-value, other
 #       statistics, available gene function information, etc.
 #
-#   Arguments:
-#       
-#   Returns:
-#
-#   Examples:
-#
-#   Files:
-#
-#   Environment:
-#
-#   See also:
-#       
 #   History:
 #   Date        Name        Modification
 #   2023-01-12  Jason Bacon Begin

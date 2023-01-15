@@ -4,6 +4,9 @@
 #   Script description:
 #       QC kallisto alignments
 #
+#   Dependencies:
+#       Requires kallisto pseudobams.  Run after *-kallisto-quant.sbatch.
+#
 #   Usage:
 #       SLURM cluster:
 #           sbatch 5-qc.sbatch

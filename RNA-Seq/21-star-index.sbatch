@@ -9,6 +9,9 @@
 #       (Adding such code to your .bashrc or other startup script is
 #       generally a bad idea since it's too complicated to support
 #       every program with one environment.)
+#
+#   Dependencies
+#       Requires a reference genome.  Run after *-reference.sbatch.
 #       
 #   History:
 #   Date        Name        Modification
@@ -24,8 +27,8 @@
 # Run a sample job and monitor closely in "top" or rununder a tool that
 # reports maximum memory use.
 #SBATCH --mem=60g
-#SBATCH --output=Logs/20-star-index/slurm-%A.out
-#SBATCH --error=Logs/20-star-index/slurm-%A.err
+#SBATCH --output=Logs/21-star-index/slurm-%A.out
+#SBATCH --error=Logs/21-star-index/slurm-%A.err
 
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
@@ -58,9 +61,9 @@ printf "Using reference $genome, $gtf...\n"
 # Overhang should be read length - 1
 STAR --runThreadN $SLURM_CPUS_PER_TASK \
     --runMode genomeGenerate \
-    --genomeDir Data/20-star-index \
+    --genomeDir Data/21-star-index \
     --genomeFastaFiles Data/03-reference/$genome \
     --sjdbGTFfile Data/03-reference/$gtf \
     --sjdbOverhang 97
 
-ls Data/20-star-index
+ls Data/21-star-index

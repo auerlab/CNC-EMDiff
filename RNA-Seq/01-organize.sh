@@ -14,6 +14,10 @@
 #       addition, linking this way can correct for sample mixups, etc.
 #
 #       Use links to preserve the original files and document the mapping.
+#
+#   Dependencies:
+#       Creates required directory structure.
+#       Run this before all other scripts.
 #       
 #   History:
 #   Date        Name        Modification

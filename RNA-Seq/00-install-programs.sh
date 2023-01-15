@@ -1,5 +1,10 @@
 #!/bin/sh -e
 
+##########################################################################
+#   Run before all other scripts on supported platforms.
+#   Must be run by a systems manager.
+##########################################################################
+
 if which cluster-run; then
     cluster_run=cluster-run
     srun="srun --ntasks=1 --mem=1g"

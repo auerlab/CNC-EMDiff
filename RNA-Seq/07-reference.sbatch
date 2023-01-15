@@ -4,6 +4,9 @@
 #   Description:
 #       Build reference genome and transcriptome for all aligners.
 #
+#   Dependencies:
+#       Requires directory structure.  Run after *-organize.sh.
+#
 #       All necessary tools are assumed to be in PATH.  If this is not
 #       the case, add whatever code is needed here to gain access.
 #       (Adding such code to your .bashrc or other startup script is

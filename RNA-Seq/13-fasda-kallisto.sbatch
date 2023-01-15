@@ -1,5 +1,9 @@
 #!/bin/sh -e
 
+#
+#   Dependencies:
+#       Requires kallisto abundances.  Run after *-kallisto-quant.sbatch.
+
 #SBATCH --output=Logs/13-fasda-kallisto/slurm-%A_%a.out
 #SBATCH --error=Logs/13-fasda-kallisto/slurm-%A_%a.err
 

@@ -1,5 +1,9 @@
 #!/bin/sh -e
 
+#
+#   Dependencies:
+#       Requires raw FastQC results.  Run after *-qc-raw.sbatch.
+
 if which srun > /dev/null; then
     srun=srun
 else

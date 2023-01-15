@@ -9,6 +9,9 @@
 #       (Adding such code to your .bashrc or other startup script is
 #       generally a bad idea since it's too complicated to support
 #       every program with one environment.)
+#
+#   Dependencies:
+#       Requires a STAR index.  Run after *-star-index.sbatch.
 #       
 #   History:
 #   Date        Name        Modification
@@ -27,8 +30,8 @@
 # Run a sample job and monitor closely in "top" or rununder a tool that
 # reports maximum memory use.
 #SBATCH --mem=24000
-#SBATCH --output=Logs/21-star-align/slurm-%A_%a.out
-#SBATCH --error=Logs/21-star-align/slurm-%A_%a.err
+#SBATCH --output=Logs/22-star-align/slurm-%A_%a.out
+#SBATCH --error=Logs/22-star-align/slurm-%A_%a.err
 
 ##############################################################################
 # Align with star, which can handle splice junctions in RNA reads
@@ -66,7 +69,7 @@ xz2=$(echo Data/03-trim/*sample${SLURM_ARRAY_TASK_ID}-*-R2.fastq.xz)
 
 xzb=$(basename $xz1)
 filename_prefix=${xzb%-R*}-
-bam=Data/21-star-align/${filename_prefix}Aligned.sortedByCoord.out.bam
+bam=Data/22-star-align/${filename_prefix}Aligned.sortedByCoord.out.bam
 
 # Empty BAM files may be caused by failing --readFilesCommand
 # This didn't help.  2 issues on Github about empty BAM files, so
@@ -79,7 +82,7 @@ STAR \
     --runThreadN 1 \
     --readFilesIn $xz1 $xz2 \
     --readFilesCommand xzcat \
-    --outFileNamePrefix Data/21-star-align/$filename_prefix \
+    --outFileNamePrefix Data/22-star-align/$filename_prefix \
     --outSAMtype BAM Unsorted \
     --outSAMunmapped Within \
     --outSAMattributes Standard
