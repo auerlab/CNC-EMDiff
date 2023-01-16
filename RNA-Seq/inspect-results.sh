@@ -220,8 +220,8 @@ EOM
 	;;
     
     13)
-	view_files more Logs/13-fasda/*
-	view_files more Data/13-fasda/*.txt
+	view_files more Logs/13-fasda-kallisto/*
+	view_files more Data/13-fasda-kallisto/*.txt
 	;;
 
     16)

@@ -55,7 +55,7 @@ if [ ! -e $obo_file ]; then
     curl -O http://current.geneontology.org/ontology/go.obo
 fi
 
-awk -f go-names.awk go.obo > go-name.tsv
+awk -f go-names.awk go.obo > go-names.tsv
 
 while true; do
     clear

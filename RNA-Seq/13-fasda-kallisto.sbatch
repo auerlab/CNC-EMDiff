@@ -13,7 +13,7 @@ fasda --version
 pwd
 
 kallisto_dir=Data/09-kallisto-quant
-fasda_dir=Data/13-fasda
+fasda_dir=Data/13-fasda-kallisto
 
 for cell_type in neuro chondro; do
     for condition in time1 time2 time3; do
