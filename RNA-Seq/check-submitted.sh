@@ -5,9 +5,9 @@ for script in [012]*-*.s*; do
     if [ -d $dir ]; then
 	printf "%-40s: " $script
 	if [ -z "$(ls $dir)" ]; then
-	    printf "Not done.\n"
+	    printf "Not submitted.\n"
 	else
-	    printf "Done\n"
+	    printf "Submitted\n"
 	fi
     fi
 done
