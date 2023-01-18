@@ -127,26 +127,25 @@ EOM
 	# read go_term
 
 	printf "%-30s %-s\n" "File" "Features meeting criteria"
-	for file in Data/13-fasda-kallisto/*.txt; do
+	for file in Data/13-fasda-kallisto/*-FC.txt; do
 	    printf "%-30s" `basename $file`
+	    outfile=${file%.txt}-$min_count-$min_agree-$min_fc-$max_pv.txt
 	    awk -v min_count=$min_count \
 		-v min_agree=$min_agree \
 		-v min_fc=$min_fc \
 		-v max_pv=$max_pv \
 		'(($2 >= min_count) || ($3 >= min_count)) && ($6 >= min_agree) && ($7 >= min_fc) && ($8 <= max_pv)' \
-		$file | wc -l
+		$file > $outfile
+	    
+	    # Use pipe to avoid printing filename
+	    cat $outfile | wc -l
 	done
+
 	printf "\nView results? [y]/n "
 	read view
 	if [ 0$view != 0n ]; then
-	    for file in Data/13-fasda-kallisto/*.txt; do
-		basename $file
-		awk -v min_count=$min_count \
-		    -v min_agree=$min_agree \
-		    -v min_fc=$min_fc \
-		    -v max_pv=$max_pv \
-		    '(($2 >= min_count) || ($3 >= min_count)) && ($6 >= min_agree) && ($7 >= min_fc) && ($8 <= max_pv)' \
-		    $file | more
+	    for file in Data/13-fasda-kallisto/*-$min_count-$min_agree-$min_fc-$max_pv.txt; do
+		more $file
 	    done
 	fi
 	;;
