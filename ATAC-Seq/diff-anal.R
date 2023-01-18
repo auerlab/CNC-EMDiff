@@ -43,12 +43,12 @@ options(max.print=60)
 # Make all output group-writable
 Sys.umask(mode = 007)
 
-setwd("Data/15-diff-anal")
+setwd("Data/16-diff-anal")
 
-Peaks <- paste0("../14-process-peaks/p10-", cell_type, "-501-merged.bed")
+Peaks <- paste0("../15-process-peaks/p10-", cell_type, "-501-merged.bed")
 if ( ! file.exists(Peaks) ) {
     print(paste0("Error: File ", Peaks))
-    print("does not exist.  Run 14-process-peaks.sbatch first.")
+    print("does not exist.  Run 15-process-peaks.sbatch first.")
     stop()
 }
 
@@ -62,7 +62,7 @@ print(Peaks)
 # Due to data mislabling, 1 = time point (condition) and A is replicate
 # SampleID <- strsplit(dir("ALIGNED_TRANS/"), split=".", fixed=TRUE) %>%
 # Could this just as well use the merged BAMs in 12-merged-bams?
-# Was using 09-remove-duplicates.  Because deduped BAMs were previously stored there?
+# Was using 10-remove-duplicates.  Because deduped BAMs were previously stored there?
 # neuro-sample14-rep2-time2-nodup-mapq1.bam
 #
 # Correct from old filenames:
@@ -78,7 +78,7 @@ print(Peaks)
 # [1] "../4-bwa-mem/"
 
 # dir uses regular expressions, not globbing patterns
-files=dir("../09-remove-duplicates/",
+files=dir("../10-remove-duplicates/",
 	  pattern=paste0(cell_type, "-.*-nodup-mapq1.bam$"))
 #print("files")
 #print(files)
@@ -102,7 +102,7 @@ print("SampleID")
 print(SampleID)
 
 if ( ! exists("time") ) {
-    print("Error: Could not generate reps and times from ../09-remove-duplicates/*.bam")
+    print("Error: Could not generate reps and times from ../10-remove-duplicates/*.bam")
     stop()
 }
 
@@ -121,8 +121,8 @@ pause()
 
 # Select only .bam files
 # chondro-sample1-rep1-time1.sam
-bamReads <- paste0("../09-remove-duplicates/",
-		   dir("../09-remove-duplicates/",
+bamReads <- paste0("../10-remove-duplicates/",
+		   dir("../10-remove-duplicates/",
 		   pattern=paste0(cell_type, ".*-mapq1.bam$")))
 
 print("bamReads")

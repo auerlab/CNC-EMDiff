@@ -27,6 +27,9 @@
 #SBATCH --output=Logs/02-fastx-derep/slurm-%A_%a.out
 #SBATCH --error=Logs/02-fastx-derep/slurm-%A_%a.err
 
+printf "Not currently used pending implementation of paired-end mode.\n"
+exit 0
+
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
 
