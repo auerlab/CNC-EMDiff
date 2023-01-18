@@ -53,9 +53,14 @@ pwd
 #
 # More importantly, the CDNA does not document features such as exons, UTRs,
 # etc.  If downstream analysis will examine such features, use the GFF.
+#
+# Remove XY from Ensembl cdna transcriptome
+# Reference/cdna.sh
+#
+# Construct transciptome minus XY using GTF and genome
+Reference/gtf2fasta.sh
 
-# Reference/cdna.sh       # Remove XY from Ensembl cdna transcriptome
-Reference/gtf2fasta.sh  # Construct genome minus XY using Ensembl GFF
+# GFF needed for fasda abundance
 Reference/fetch-gff.sh
 
 # Reference/create-chrom-sizes.sh
