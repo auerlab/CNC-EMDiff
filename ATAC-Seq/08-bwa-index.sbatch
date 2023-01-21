@@ -5,8 +5,8 @@
 #       Generate index for BWA aligner
 #
 #   Usage:
-#       sbatch 07-bwa-index.sbatch
-#       ./07-bwa-index.sbatch |& tee 3.log
+#       sbatch 08-bwa-index.sbatch
+#       ./08-bwa-index.sbatch |& tee 3.log
 #
 #   History:
 #       Based on the work of Dr. Andrea Rau:
@@ -20,8 +20,8 @@
 ##########################################################################
 
 #SBATCH --mem=3g
-#SBATCH --output=Logs/07-bwa-index/slurm-%A_%a.out
-#SBATCH --error=Logs/07-bwa-index/slurm-%A_%a.err
+#SBATCH --output=Logs/08-bwa-index/slurm-%A_%a.out
+#SBATCH --error=Logs/08-bwa-index/slurm-%A_%a.err
 
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
@@ -33,7 +33,7 @@ pwd
 
 genome_file=$(../RNA-Seq/Reference/genome-filename.sh)
 
-genome_dir=../RNA-Seq/Data/07-reference
+genome_dir=../RNA-Seq/Data/08-reference
 if [ ! -e $genome_dir/$genome_file ]; then
     save_cwd=$(pwd)
     cd ../RNA-Seq
@@ -41,6 +41,6 @@ if [ ! -e $genome_dir/$genome_file ]; then
     cd $save_cwd
 fi
 
-cd Data/07-bwa-index
+cd Data/08-bwa-index
 ln -sf ../../$genome_dir/$genome_file
 bwa index $genome_file

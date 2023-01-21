@@ -45,8 +45,8 @@
 # Run a sample job and monitor closely in "top" or rununder a tool that
 # reports maximum memory use.
 #SBATCH --mem-per-cpu=250
-#SBATCH --output=Logs/04-trim/slurm-%A_%a.out
-#SBATCH --error=Logs/04-trim/slurm-%A_%a.err
+#SBATCH --output=Logs/05-trim/slurm-%A_%a.out
+#SBATCH --error=Logs/05-trim/slurm-%A_%a.err
 
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
@@ -67,10 +67,10 @@ stem=${base%%-R*.fastq.xz}
 # number of bases at the same time as trimming adapters ( -u and -U in
 # cutadapt ), so we run cutadapt directly.
 #
-# trim_galore --illumina --stringency 3 -q 20 --paired -o Data/04-trim \
-#    $input1 $input2 > Data/04-trim/${stem}-trash.out
-# trim_galore --illumina --stringency 3 -q 20 --paired --trim1 -o Data/04-trim-trim1 \
-#    $input1 $input2 > Data/04-trim-trim1/${stem}-trash.out
+# trim_galore --illumina --stringency 3 -q 20 --paired -o Data/05-trim \
+#    $input1 $input2 > Data/05-trim/${stem}-trash.out
+# trim_galore --illumina --stringency 3 -q 20 --paired --trim1 -o Data/05-trim-trim1 \
+#    $input1 $input2 > Data/05-trim-trim1/${stem}-trash.out
 #
 # Command from trim_galore log:
 #   cutadapt -j 1 -e 0.1 -q 20 -O 3 -a AGATCGGAAGAGC
@@ -95,8 +95,8 @@ stem=${base%%-R*.fastq.xz}
 #
 # suffix=.xz
 suffix=.gz
-output1=Data/04-trim/${stem}-R1.fastq$suffix
-output2=Data/04-trim/${stem}-R2.fastq$suffix
+output1=Data/05-trim/${stem}-R1.fastq$suffix
+output2=Data/05-trim/${stem}-R2.fastq$suffix
 
 # Maximize compression throughput so gzip is not a bottleneck.  Can determine
 # performance from fastq-trim CPU % in job-top.
@@ -125,6 +125,6 @@ time fastq-trim --3p-adapter1 $adapter --3p-adapter2 $adapter \
 #    -u -3 -U -3 \
 #    -a $adapter -A $adapter \
 #    --minimum-length=30 \
-#    --output=Data/04-trim/${stem}-R1.fastq$suffix \
-#    --paired-output=Data/04-trim/${stem}-R2.fastq$suffix \
+#    --output=Data/05-trim/${stem}-R1.fastq$suffix \
+#    --paired-output=Data/05-trim/${stem}-R2.fastq$suffix \
 #    $input1 $input2
