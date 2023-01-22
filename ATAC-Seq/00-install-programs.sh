@@ -16,14 +16,36 @@ FreeBSD)
     ;;
 
 *)
-    cat << EOM
+    # Check for pkgsrc installed via auto-pkgsrc-setup
+    # FIXME: Replace wip with biology
+    if which auto-pkgsrc-prefix; then
+	if ! which sbatch; then
+	    cd $(auto-pkgsrc-dir)/wip/atac-seq
+	    bmake deinstall clean clean-depends install
+	else
+	    cat << EOM
 
-$0: $(uname) is not yet supported.
+$0: You appear to be using a non-FreeBSD cluster.
 
-Please consider updating $0 to support $(uname).
+You can use pkgsrc and install the biology/rna-seq package on all
+compute nodes or in a shared location that compute nodes can access.
 
 EOM
-    exit 1
+	    exit 1
+	fi
+    else
+	cat << EOM
+
+$0: No pkgsrc installation found.
+
+If you have a pkgsrc tree installed, install sysutils/auto-admin so
+that $0 can use auto-pkgsrc-prefix to find it.
+
+Otherwise, please consider updating $0 to support $(uname).
+
+EOM
+	exit 1
+    fi
     ;;
 
 esac
