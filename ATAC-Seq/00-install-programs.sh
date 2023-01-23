@@ -17,7 +17,6 @@ FreeBSD)
 
 *)
     # Check for pkgsrc installed via auto-pkgsrc-setup
-    # FIXME: Replace wip with biology
     if which sbatch; then
 	cat << EOM
 
@@ -30,7 +29,7 @@ EOM
 	exit 1
     else
 	if which auto-pkgsrc-prefix; then
-	    cd $(auto-pkgsrc-dir)/wip/atac-seq
+	    cd $(auto-pkgsrc-dir)/biology/atac-seq
 	    bmake deinstall clean clean-depends install
 	else
 	    cat << EOM
