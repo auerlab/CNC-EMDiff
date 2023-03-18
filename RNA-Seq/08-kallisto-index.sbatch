@@ -34,7 +34,7 @@ kallisto version
 samtools --version
 pwd
 
-transcriptome=Data/07-reference/$(Reference/transcriptome-filename.sh)
+transcriptome=Results/07-reference/$(Reference/transcriptome-filename.sh)
 printf "Using reference $transcriptome...\n"
 
 # Needed for kallisto --genomebam
@@ -45,4 +45,4 @@ fi
 
 printf "Building kallisto index...\n"
 set -x
-kallisto index --index=Data/08-kallisto-index/all-but-xy.index $transcriptome
+kallisto index --index=Results/08-kallisto-index/all-but-xy.index $transcriptome

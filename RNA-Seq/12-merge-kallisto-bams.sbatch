@@ -34,8 +34,8 @@ uname -a
 samtools --version
 pwd
 
-input_dir=Data/09-kallisto-quant
-output_dir=Data/12-merge-kallisto-bams
+input_dir=Results/09-kallisto-quant
+output_dir=Results/12-merge-kallisto-bams
 if [ $SLURM_ARRAY_TASK_ID -le 3 ]; then
     cell_type=chondro
     time=$SLURM_ARRAY_TASK_ID

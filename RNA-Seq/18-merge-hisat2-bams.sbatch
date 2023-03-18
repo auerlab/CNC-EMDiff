@@ -34,8 +34,8 @@ uname -a
 samtools --version
 pwd
 
-input_dir=Data/17-hisat2-align
-output_dir=Data/18-merge-hisat2-bams
+input_dir=Results/17-hisat2-align
+output_dir=Results/18-merge-hisat2-bams
 if [ $SLURM_ARRAY_TASK_ID -le 3 ]; then
     cell_type=chondro
     time=$SLURM_ARRAY_TASK_ID

@@ -39,11 +39,11 @@ if [ $# != 0 ]; then
     usage
 fi
 
-mkdir -p Data Logs
+mkdir -p Results Logs
 scripts=$(ls 0[2-9]-* [1-9][0-9]-*)
 for script in $scripts; do
     stage=${script%.*}
-    mkdir -p Data/$stage Logs/$stage
+    mkdir -p Results/$stage Logs/$stage
 done
 
 ##############################################################################
@@ -86,7 +86,7 @@ done
 ##############################################################################
 
 # CE1A_S1_L002-R1.fastq.xz
-cd Data
+cd Results
 rm -rf 01-organize/Raw-renamed
 mkdir -p 01-organize/Raw-renamed
 cd 01-organize/Raw-renamed

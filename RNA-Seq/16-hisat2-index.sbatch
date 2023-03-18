@@ -34,8 +34,8 @@ pwd
 # Run hisat2-build on a copy in 16-hisat2-index so it will put the .ht2
 # files there
 genome=$(Reference/genome-filename.sh)
-ln -f Data/07-reference/$genome Data/16-hisat2-index
-genome=Data/16-hisat2-index/$genome
+ln -f Results/07-reference/$genome Results/16-hisat2-index
+genome=Results/16-hisat2-index/$genome
 printf "Using reference $genome...\n"
 
 # FIXME: Do this in *-reference.sbatch
@@ -47,4 +47,4 @@ if [ ! -e $genome.fai ]; then
     printf "Building $genome.fai...\n"
     samtools faidx $genome
 fi
-ls Data/16-hisat2-index
+ls Results/16-hisat2-index

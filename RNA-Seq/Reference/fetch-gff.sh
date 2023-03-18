@@ -19,7 +19,7 @@ zcat='gunzip -c'
 # gene, etc).
 ##########################################################################
 
-cd Data/07-reference
+cd Results/07-reference
 rm -f $gff
 site=http://ftp.ensembl.org/pub/release-$release/gff3/mus_musculus
 

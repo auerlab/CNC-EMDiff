@@ -71,7 +71,7 @@ EOM
     
     case 0$selection in
     01)
-	more Data/13-fasda-kallisto/*.txt
+	more Results/13-fasda-kallisto/*.txt
 	;;
     
     02)
@@ -127,7 +127,7 @@ EOM
 	# read go_term
 
 	printf "%-30s %-s\n" "File" "Features meeting criteria"
-	for file in Data/13-fasda-kallisto/*-FC.txt; do
+	for file in Results/13-fasda-kallisto/*-FC.txt; do
 	    printf "%-30s" `basename $file`
 	    outfile=${file%.txt}-$min_count-$min_agree-$min_fc-$max_pv.txt
 	    awk -v min_count=$min_count \
@@ -144,7 +144,7 @@ EOM
 	printf "\nView results? [y]/n "
 	read view
 	if [ 0$view != 0n ]; then
-	    for file in Data/13-fasda-kallisto/*-$min_count-$min_agree-$min_fc-$max_pv.txt; do
+	    for file in Results/13-fasda-kallisto/*-$min_count-$min_agree-$min_fc-$max_pv.txt; do
 		more $file
 	    done
 	fi

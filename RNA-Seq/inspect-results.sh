@@ -145,17 +145,17 @@ EOM
     
     case $selection in
     1)
-	run_cmd "ls -l Data/01-organize/Raw-renamed | more"
+	run_cmd "ls -l Results/01-organize/Raw-renamed | more"
 	;;
     
     2)
 	view_files more Logs/02-qc-raw/*
-	view_files webbrowser Data/02-qc-raw/*.html
+	view_files webbrowser Results/02-qc-raw/*.html
 	;;
     
     3)
 	view_files more Logs/03-multiqc-raw/*
-	run_cmd "webbrowser ./Data/03-multiqc-raw/multiqc_report.html"
+	run_cmd "webbrowser ./Results/03-multiqc-raw/multiqc_report.html"
 	;;
 
     4)
@@ -163,7 +163,7 @@ EOM
 	printf "Check for remaining adapter contamination (may take a long time)? y/[n] "
 	read scum
 	if [ 0$scum = 0y ]; then
-	    for fq in Data/04-trim/*.gz; do
+	    for fq in Results/04-trim/*.gz; do
 		run_cmd "$srun fastq-scum $fq"
 		printf "View another? [y]/n "
 		read another
@@ -176,43 +176,43 @@ EOM
     
     5)
 	view_files more Logs/05-qc-trimmed/*
-	view_files webbrowser Data/05-qc-trimmed/*.html
+	view_files webbrowser Results/05-qc-trimmed/*.html
 	;;
     
     6)
 	view_files more Logs/06-multiqc-trimmed/*
-	run_cmd "webbrowser ./Data/06-multiqc-trimmed/multiqc_report.html"
+	run_cmd "webbrowser ./Results/06-multiqc-trimmed/multiqc_report.html"
 	;;
 
     7)
 	view_files more Logs/07-reference/*
-	(cd Data/07-reference && view_files more *.fa *.fai *.tsv)
+	(cd Results/07-reference && view_files more *.fa *.fai *.tsv)
 	;;
     
     8)
 	view_files more Logs/08-kallisto-index/*
-	run_cmd "$srun kallisto inspect Data/08-kallisto-index/all-but-xy.index | more"
+	run_cmd "$srun kallisto inspect Results/08-kallisto-index/all-but-xy.index | more"
 	;;
     
     9)
 	view_files more Logs/09-kallisto-quant/*
-	view_files more Data/09-kallisto-quant/*/abundance.tsv
+	view_files more Results/09-kallisto-quant/*/abundance.tsv
 	;;
 
     10)
 	view_files more Logs/10-qc-sam/*
-	view_files webbrowser Data/10-qc-sa/*.html
+	view_files webbrowser Results/10-qc-sa/*.html
 	;;
     
     11)
 	view_files more Logs/11-multiqc-sam/*
-	run_cmd "webbrowser ./Data/11-multiqc-sam/multiqc_report.html"
+	run_cmd "webbrowser ./Results/11-multiqc-sam/multiqc_report.html"
 	;;
 
     12)
 	view_files more Logs/12-merge-kallisto-bams/*
 	if which igv > /dev/null 2>&1; then
-	    (cd Data/12-merge-kallisto-bams && igv)
+	    (cd Results/12-merge-kallisto-bams && igv)
 	else
 	    printf "IGV is not installed on $(hostname).\n"
 	    printf "Please install IGV and try again.\n"
@@ -221,21 +221,21 @@ EOM
     
     13)
 	view_files more Logs/13-fasda-kallisto/*
-	view_files more Data/13-fasda-kallisto/*.txt
+	view_files more Results/13-fasda-kallisto/*.txt
 	;;
 
     16)
 	view_files more Logs/16-hisat2-index/*
 	# more doesn't function under srun, so use cat and pipe
 	# through local more process
-	run_cmd "$srun cat Data/16-hisat2-index/all-but-xy.genome.fa | more"
-	run_cmd "$srun cat Data/16-hisat2-index/all-but-xy.genome.fa.fai | more"
+	run_cmd "$srun cat Results/16-hisat2-index/all-but-xy.genome.fa | more"
+	run_cmd "$srun cat Results/16-hisat2-index/all-but-xy.genome.fa.fai | more"
 	;;
     
     17)
 	view_files more Logs/17-hisat2-align/*
 	# FIXME: srun has trouble with "more"
-	#for file in Data/17-hisat2-align/*.bam; do
+	#for file in Results/17-hisat2-align/*.bam; do
 	#    run_cmd "$srun samtools view $file" | more
 	#done
 	;;
@@ -243,12 +243,12 @@ EOM
     19)
 	view_files more Logs/19-fasda-abundance-hisat2/*
 	# FIXME: Move update FASDA to place abundance files in separate dir
-	view_files more Data/17-hisat2-align/*.tsv
+	view_files more Results/17-hisat2-align/*.tsv
 	;;
 
     20)
 	view_files more Logs/20-fasda-fc-hisat2/*
-	view_files more Data/20-fasda-fc-hisat2/*.txt
+	view_files more Results/20-fasda-fc-hisat2/*.txt
 	;;
 
     Q|q)

@@ -38,7 +38,7 @@ pwd
 #############################################################################
 # Choose cdna.sh or gtf2fasta.sh, or download the prebuilt kallisto
 # file mus_musculus.tar.gz, extract, and copy transcriptome.idx to
-# Data/03-kallisto-index/all-but-xy.index.
+# Results/03-kallisto-index/all-but-xy.index.
 #
 # There are multiple possible transcriptome references that can be used with
 # kallisto.
@@ -64,7 +64,7 @@ Reference/gtf2fasta.sh
 Reference/fetch-gff.sh
 
 # Reference/create-chrom-sizes.sh
-chrom_sizes="Data/07-reference/chromosome-sizes.tsv"
+chrom_sizes="Results/07-reference/chromosome-sizes.tsv"
 printf "Generating $chrom_sizes...\n"
-blt chrom-lens < Data/07-reference/$(Reference/genome-filename.sh) > $chrom_sizes
+blt chrom-lens < Results/07-reference/$(Reference/genome-filename.sh) > $chrom_sizes
 cat $chrom_sizes

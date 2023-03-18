@@ -17,7 +17,7 @@ genome=$(Reference/genome-filename.sh)
 
 Reference/build-genome.sh
 
-cd Data/07-reference
+cd Results/07-reference
 # https://github.com/griffithlab/rnaseq_tutorial/wiki/Kallisto
 if [ ! -e $transcriptome ]; then
     # gtf_to_fasta is part of tophat, which is obsolete

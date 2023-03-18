@@ -20,12 +20,12 @@ fasda --version
 samtools --version
 pwd
 
-hisat2_dir=Data/17-hisat2-align
-fasda_dir=Data/19-fasda-abundance-hisat2
+hisat2_dir=Results/17-hisat2-align
+fasda_dir=Results/19-fasda-abundance-hisat2
 
 # Need to fetch gff3 for computing abundances
 gff_filename=$(Reference/gff-filename.sh)
-reference_dir=Data/07-reference
+reference_dir=Results/07-reference
 
 ##########################################################################
 #   Compute abundances

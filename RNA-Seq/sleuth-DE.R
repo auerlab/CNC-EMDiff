@@ -64,9 +64,9 @@ options(max.print=60)
 
 # Extract numeric sample IDs from kallisto output directory names
 
-kallisto_dir <- "Data/09-kallisto-quant";
+kallisto_dir <- "Results/09-kallisto-quant";
 
-sleuth_dir <- "Data/14-sleuth-DE"
+sleuth_dir <- "Results/14-sleuth-DE"
 # mkdir() is in the R docs, but does not exist
 dir.create(sleuth_dir)
 
@@ -101,9 +101,9 @@ kal_dirs <- file.path(kallisto_dir,dir(kallisto_dir))[1:9]
 print("kal_dirs:")
 print(kal_dirs)
 
-# 1       1   T1         1 Data/09-kallisto-quant/chondro-sample1-rep1-time1
+# 1       1   T1         1 Results/09-kallisto-quant/chondro-sample1-rep1-time1
 # ...
-# 18     18   T3         3  Data/09-kallisto-quant/neuro-sample18-rep3-time3
+# 18     18   T3         3  Results/09-kallisto-quant/neuro-sample18-rep3-time3
 expdesign <- data.frame(sample=sample_id,
 			time=factor(c("T1", "T2", "T3",
 				      "T1", "T2", "T3",
