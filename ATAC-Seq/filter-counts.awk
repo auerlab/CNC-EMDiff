@@ -14,13 +14,13 @@ BEGIN {
     OFS="\t"
 }
 {
-    t10_file="Data/15-diff-anal/" cell_type "-T1-vs-T0.tsv"
+    t10_file="Results/15-diff-anal/" cell_type "-T1-vs-T0.tsv"
     getline t10 < t10_file
     
-    t20_file="Data/15-diff-anal/" cell_type "-T2-vs-T0.tsv"
+    t20_file="Results/15-diff-anal/" cell_type "-T2-vs-T0.tsv"
     getline t20 < t20_file
     
-    t21_file="Data/15-diff-anal/" cell_type "-T2-vs-T1.tsv"
+    t21_file="Results/15-diff-anal/" cell_type "-T2-vs-T1.tsv"
     getline t21 < t21_file
     
     if ( $1 !~ "CHR" )  # Discard column names

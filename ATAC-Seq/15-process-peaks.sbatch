@@ -49,7 +49,7 @@ case $SLURM_ARRAY_TASK_ID in
 
 esac
 
-cd Data/14-process-peaks
+cd Results/14-process-peaks
 macs_dir=../13-macs-peaks
 
 ##########################################################################
@@ -89,7 +89,7 @@ awk -f ../../Aux/filter.awk \
 
 bed_sort="sort -k1,1 -k2,2n"
 bedtools slop -b 250 -i p$p_value-$cell_type-summits.bed \
-    -g ../../../RNA-Seq/Data/07-reference/chromosome-sizes.tsv \
+    -g ../../../RNA-Seq/Results/07-reference/chromosome-sizes.tsv \
     | $bed_sort > p$p_value-$cell_type-501.bed
 
 head -4 p$p_value-$cell_type-summits.bed \

@@ -38,11 +38,11 @@ uname -a
 blt --version
 pwd
 
-infile1=$(ls Data/01-organize/Raw-renamed/*sample$SLURM_ARRAY_TASK_ID-*-R1.fastq.xz)
-infile2=$(ls Data/01-organize/Raw-renamed/*sample$SLURM_ARRAY_TASK_ID-*-R2.fastq.xz)
+infile1=$(ls Results/01-organize/Raw-renamed/*sample$SLURM_ARRAY_TASK_ID-*-R1.fastq.xz)
+infile2=$(ls Results/01-organize/Raw-renamed/*sample$SLURM_ARRAY_TASK_ID-*-R2.fastq.xz)
 
-outfile1=Data/02-fastx-derep/$(basename ${infile1%.xz}).gz
-outfile2=Data/02-fastx-derep/$(basename ${infile2%.xz}).gz
+outfile1=Results/02-fastx-derep/$(basename ${infile1%.xz}).gz
+outfile2=Results/02-fastx-derep/$(basename ${infile2%.xz}).gz
 
 printf "Dereplicating $infile1 -> $outfile1...\n"
 xzcat $infile1 | blt fastx-derep | gzip -1 > $outfile1

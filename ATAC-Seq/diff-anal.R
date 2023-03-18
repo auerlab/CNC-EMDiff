@@ -43,7 +43,7 @@ options(max.print=60)
 # Make all output group-writable
 Sys.umask(mode = 007)
 
-setwd("Data/16-diff-anal")
+setwd("Results/16-diff-anal")
 
 Peaks <- paste0("../15-process-peaks/p10-", cell_type, "-501-merged.bed")
 if ( ! file.exists(Peaks) ) {

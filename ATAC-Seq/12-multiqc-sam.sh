@@ -12,7 +12,7 @@ export LC_ALL=en_US.UTF-8
 
 $srun multiqc --version > Logs/11-multiqc-sam/multiqc-version.txt 2>&1
 
-dir=Data/11-multiqc-sam
+dir=Results/11-multiqc-sam
 mkdir -p $dir/Raw $dir/Rmdup
 
 cd $dir/Raw

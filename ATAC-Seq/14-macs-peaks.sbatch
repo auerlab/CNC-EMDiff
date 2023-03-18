@@ -49,6 +49,6 @@ printf "$cell_type: Peak calling, merging replicates across all time points, cal
 # Would it make any difference to use the merged BAMs instead?
 set -x
 macs2 callpeak --nomodel \
-    -t Data/09-remove-duplicates/$cell_type-*-mapq1.bam \
+    -t Results/09-remove-duplicates/$cell_type-*-mapq1.bam \
     -f BAMPE -g mm --call-summits -n ATAC-$cell_type \
-    --keep-dup all --outdir Data/13-macs-peaks
+    --keep-dup all --outdir Results/13-macs-peaks

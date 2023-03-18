@@ -36,7 +36,7 @@ pwd
 # alignments.  Still need to run this step since we cannot identify all
 # duplicate alignments before alignment.
 
-cd Data/09-remove-duplicates
+cd Results/09-remove-duplicates
 
 # This should match only 1 file.  '*' used only to match irrelevant variations.
 # The integer following 'S' in the filename should be unique (1 - 18)

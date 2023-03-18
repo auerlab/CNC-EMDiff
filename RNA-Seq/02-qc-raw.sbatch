@@ -29,8 +29,8 @@
 # Run a sample job and monitor closely in "top" or rununder a tool that
 # reports maximum memory use.
 #SBATCH --mem=1g
-#SBATCH --output=Logs/02-qc-raw/slurm-%A_%a.out
-#SBATCH --error=Logs/02-qc-raw/slurm-%A_%a.err
+#SBATCH --output=Logs/03-qc-raw/slurm-%A_%a.out
+#SBATCH --error=Logs/03-qc-raw/slurm-%A_%a.err
 
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
@@ -49,8 +49,8 @@ stem_raw1=$(basename ${raw1%.fastq.xz})
 stem_raw2=$(basename ${raw2%.fastq.xz})
 
 # Background the first three to run 4 jobs in parallel
-xzcat $raw1 | fastqc -o Results/02-qc-raw stdin:$stem_raw1 &
-xzcat $raw2 | fastqc -o Results/02-qc-raw stdin:$stem_raw2
+xzcat $raw1 | fastqc -o Results/03-qc-raw stdin:$stem_raw1 &
+xzcat $raw2 | fastqc -o Results/03-qc-raw stdin:$stem_raw2
 
 # Make sure backgrounded job completes before terminating script
 wait

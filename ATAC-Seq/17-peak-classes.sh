@@ -32,7 +32,7 @@ if [ ! -e $gff ]; then
     fi
     $fetch ftp://ftp.ensembl.org/pub/release-$release/gff3/mus_musculus/$gff
 fi
-output_dir=Data/16-peak-classes
+output_dir=Results/16-peak-classes
 mkdir -p $output_dir
 
 which peak-classifier
@@ -41,7 +41,7 @@ which peak-classifier
 #   All peaks
 ##########################################################################
 
-for peaks_file in Data/14-process-peaks/p10-*-501-merged.bed; do
+for peaks_file in Results/14-process-peaks/p10-*-501-merged.bed; do
     printf "\n===\nMACS2 output:   $peaks_file\n"
     
     overlaps_file=$output_dir/$(basename ${peaks_file%.bed}-overlaps.tsv)
@@ -59,7 +59,7 @@ done
 ##########################################################################
 
 pval=0.05
-for file in Data/15-diff-anal/*-T*.tsv; do
+for file in Results/15-diff-anal/*-T*.tsv; do
     printf "\n===\nDESeq2 output:     $file\n"
     peaks_file=$output_dir/$(basename ${file%.tsv}-p$pval.bed)
     printf "Converting to bed: $peaks_file\n"

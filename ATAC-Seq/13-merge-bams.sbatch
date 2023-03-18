@@ -57,12 +57,12 @@ case $SLURM_ARRAY_TASK_ID in
     time=3
     ;;
 esac
-input_bams=$(ls Data/09-remove-duplicates/$cell_line-*-time$time-*-mapq1.bam)
+input_bams=$(ls Results/09-remove-duplicates/$cell_line-*-time$time-*-mapq1.bam)
 
 if [ $SLURM_ARRAY_TASK_ID -le 3 ]; then
-    output_bam=Data/12-merge-bams/atac-chondro-$time.bam
+    output_bam=Results/12-merge-bams/atac-chondro-$time.bam
 else
-    output_bam=Data/12-merge-bams/atac-neuro-$time.bam
+    output_bam=Results/12-merge-bams/atac-neuro-$time.bam
 fi
 
 set -x

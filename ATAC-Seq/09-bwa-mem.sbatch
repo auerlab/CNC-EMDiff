@@ -6,7 +6,7 @@
 #
 #   Usage:
 #       SLURM cluster:
-#           sbatch 08-bwa-mem.sbatch
+#           sbatch 09-bwa-mem.sbatch
 #
 #   History:
 #       Based on the work of Dr. Andrea Rau:
@@ -28,8 +28,8 @@
 # Based on 2 threads on Albacore cluster
 # 12 threads on Peregrine used close to 6g
 #SBATCH --mem=6g
-#SBATCH --output=Logs/08-bwa-mem/bwa-mem-%A_%a.out
-#SBATCH --error=Logs/08-bwa-mem/bwa-mem-%A_%a.err
+#SBATCH --output=Logs/09-bwa-mem/bwa-mem-%A_%a.out
+#SBATCH --error=Logs/09-bwa-mem/bwa-mem-%A_%a.err
 
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
@@ -43,7 +43,7 @@ pwd
 ref_file=$(../RNA-Seq/Reference/genome-filename.sh)
 
 # One iteration if running under SLURM, all iterations otherwise
-cd Data/08-bwa-mem
+cd Results/09-bwa-mem
 printf "Running task $SLURM_ARRAY_TASK_ID...\n"
 infile1=$(ls ../04-trim/*sample$SLURM_ARRAY_TASK_ID-*-R1.fastq.gz)
 infile2=$(ls ../04-trim/*sample$SLURM_ARRAY_TASK_ID-*-R2.fastq.gz)
