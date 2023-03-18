@@ -41,8 +41,8 @@ fastqc --version
 pwd
 
 # Cutadapt output
-trimmed1=$(ls Results/04-trim/*sample${SLURM_ARRAY_TASK_ID}-*R1*.fastq.gz)
-trimmed2=$(ls Results/04-trim/*sample${SLURM_ARRAY_TASK_ID}-*R2*.fastq.gz)
+trimmed1=$(ls Results/05-trim/*sample${SLURM_ARRAY_TASK_ID}-*R1*.fastq.gz)
+trimmed2=$(ls Results/05-trim/*sample${SLURM_ARRAY_TASK_ID}-*R2*.fastq.gz)
 
 # Filename stems for fastqc output
 stem_trimmed1=$(basename ${trimmed1%.fastq.gz})
