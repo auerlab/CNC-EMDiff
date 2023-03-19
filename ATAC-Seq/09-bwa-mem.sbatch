@@ -27,7 +27,7 @@
 #SBATCH --array=1-18 --cpus-per-task=4
 # Based on 2 threads on Albacore cluster
 # 12 threads on Peregrine used close to 6g
-#SBATCH --mem=6g
+#SBATCH --mem=8g
 #SBATCH --output=Logs/09-bwa-mem/bwa-mem-%A_%a.out
 #SBATCH --error=Logs/09-bwa-mem/bwa-mem-%A_%a.err
 
