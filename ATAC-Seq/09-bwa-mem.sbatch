@@ -45,10 +45,10 @@ ref_file=$(../RNA-Seq/Reference/genome-filename.sh)
 # One iteration if running under SLURM, all iterations otherwise
 cd Results/09-bwa-mem
 printf "Running task $SLURM_ARRAY_TASK_ID...\n"
-infile1=$(ls ../04-trim/*sample$SLURM_ARRAY_TASK_ID-*-R1.fastq.gz)
-infile2=$(ls ../04-trim/*sample$SLURM_ARRAY_TASK_ID-*-R2.fastq.gz)
+infile1=$(ls ../05-trim/*sample$SLURM_ARRAY_TASK_ID-*-R1.fastq.gz)
+infile2=$(ls ../05-trim/*sample$SLURM_ARRAY_TASK_ID-*-R2.fastq.gz)
 outfile=$(basename ${infile1%-R1.fastq.gz}).sam
 
 set -x
 bwa mem -M -t $SLURM_CPUS_PER_TASK \
-    ../07-bwa-index/$ref_file $infile1 $infile2 > $outfile
+    ../08-bwa-index/$ref_file $infile1 $infile2 > $outfile

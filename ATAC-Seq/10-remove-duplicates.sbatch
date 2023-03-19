@@ -21,8 +21,8 @@
 
 #SBATCH --array=1-18%6
 #SBATCH --mem=3g
-#SBATCH --output=Logs/09-remove-duplicates/slurm-%A_%a.out
-#SBATCH --error=Logs/09-remove-duplicates/slurm-%A_%a.err
+#SBATCH --output=Logs/10-remove-duplicates/slurm-%A_%a.out
+#SBATCH --error=Logs/10-remove-duplicates/slurm-%A_%a.err
 
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
@@ -36,12 +36,12 @@ pwd
 # alignments.  Still need to run this step since we cannot identify all
 # duplicate alignments before alignment.
 
-cd Results/09-remove-duplicates
+cd Results/10-remove-duplicates
 
 # This should match only 1 file.  '*' used only to match irrelevant variations.
 # The integer following 'S' in the filename should be unique (1 - 18)
 # Variable assignments don't expand globbing patterns, so insert an ls command
-saminput=$(ls ../08-bwa-mem/*sample$SLURM_ARRAY_TASK_ID-*.sam)
+saminput=$(ls ../09-bwa-mem/*sample$SLURM_ARRAY_TASK_ID-*.sam)
 sambase=$(basename $saminput)
 sorted=${sambase%.sam}-sorted.bam
 nodup=${sambase%.sam}-nodup.bam
