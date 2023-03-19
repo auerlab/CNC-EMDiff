@@ -33,7 +33,7 @@ pwd
 
 genome_file=$(../RNA-Seq/Reference/genome-filename.sh)
 
-genome_dir=../RNA-Seq/Results/08-reference
+genome_dir=../RNA-Seq/Results/07-reference
 if [ ! -e $genome_dir/$genome_file ]; then
     save_cwd=$(pwd)
     cd ../RNA-Seq
