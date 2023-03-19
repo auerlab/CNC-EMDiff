@@ -24,7 +24,7 @@
 # Memory requirements can only be determined by trial and error.
 # Run a sample job and monitor closely in "top" or rununder a tool that
 # reports maximum memory use.
-#SBATCH --mem=9000
+#SBATCH --mem=2500
 #SBATCH --output=Logs/17-hisat2-align/slurm-%A_%a.out
 #SBATCH --error=Logs/17-hisat2-align/slurm-%A_%a.err
 
