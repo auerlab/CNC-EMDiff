@@ -41,7 +41,7 @@ which peak-classifier
 #   All peaks
 ##########################################################################
 
-for peaks_file in Results/14-process-peaks/p10-*-501-merged.bed; do
+for peaks_file in Results/15-process-peaks/p10-*-501-merged.bed; do
     printf "\n===\nMACS2 output:   $peaks_file\n"
     
     overlaps_file=$output_dir/$(basename ${peaks_file%.bed}-overlaps.tsv)
