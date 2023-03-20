@@ -20,8 +20,8 @@
 #SBATCH --mem=20
 # 18 samples, merging 3 time points
 #SBATCH --array=1-6
-#SBATCH --output=Logs/12-merge-bams/slurm-%A_%a.out
-#SBATCH --error=Logs/12-merge-bams/slurm-%A_%a.err
+#SBATCH --output=Logs/13-merge-bams/slurm-%A_%a.out
+#SBATCH --error=Logs/13-merge-bams/slurm-%A_%a.err
 
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
@@ -57,12 +57,12 @@ case $SLURM_ARRAY_TASK_ID in
     time=3
     ;;
 esac
-input_bams=$(ls Results/09-remove-duplicates/$cell_line-*-time$time-*-mapq1.bam)
+input_bams=$(ls Results/10-remove-duplicates/$cell_line-*-time$time-*-mapq1.bam)
 
 if [ $SLURM_ARRAY_TASK_ID -le 3 ]; then
-    output_bam=Results/12-merge-bams/atac-chondro-$time.bam
+    output_bam=Results/13-merge-bams/atac-chondro-$time.bam
 else
-    output_bam=Results/12-merge-bams/atac-neuro-$time.bam
+    output_bam=Results/13-merge-bams/atac-neuro-$time.bam
 fi
 
 set -x

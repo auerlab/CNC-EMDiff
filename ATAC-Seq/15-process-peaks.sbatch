@@ -21,8 +21,8 @@
 
 #SBATCH --array=1-2
 #SBATCH --mem=100
-#SBATCH --output=Logs/14-process-peaks/slurm-%A_%a.out
-#SBATCH --error=Logs/14-process-peaks/slurm-%A_%a.err
+#SBATCH --output=Logs/15-process-peaks/slurm-%A_%a.out
+#SBATCH --error=Logs/15-process-peaks/slurm-%A_%a.err
 
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
@@ -49,8 +49,8 @@ case $SLURM_ARRAY_TASK_ID in
 
 esac
 
-cd Results/14-process-peaks
-macs_dir=../13-macs-peaks
+cd Results/15-process-peaks
+macs_dir=../14-macs-peaks
 
 ##########################################################################
 #   Filter for high-confidence peaks: p-value < 1e-10

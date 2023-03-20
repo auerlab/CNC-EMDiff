@@ -1,7 +1,7 @@
 #!/bin/sh -e
 
 # Record OS and software versions
-uname -a > Logs/16-peak-classes/uname.txt
+uname -a > Logs/17-peak-classes/uname.txt
 
 build=$(../Common/genome-build.sh)
 release=$(../Common/genome-release.sh)
@@ -32,7 +32,7 @@ if [ ! -e $gff ]; then
     fi
     $fetch ftp://ftp.ensembl.org/pub/release-$release/gff3/mus_musculus/$gff
 fi
-output_dir=Results/16-peak-classes
+output_dir=Results/17-peak-classes
 mkdir -p $output_dir
 
 which peak-classifier
@@ -59,7 +59,7 @@ done
 ##########################################################################
 
 pval=0.05
-for file in Results/15-diff-anal/*-T*.tsv; do
+for file in Results/16-diff-anal/*-T*.tsv; do
     printf "\n===\nDESeq2 output:     $file\n"
     peaks_file=$output_dir/$(basename ${file%.tsv}-p$pval.bed)
     printf "Converting to bed: $peaks_file\n"

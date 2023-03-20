@@ -17,8 +17,8 @@
 
 #SBATCH --array=1-2
 #SBATCH --mem=4g
-#SBATCH --output=Logs/13-macs-peaks/slurm-%A_%a.out
-#SBATCH --error=Logs/13-macs-peaks/slurm-%A_%a.err
+#SBATCH --output=Logs/14-macs-peaks/slurm-%A_%a.out
+#SBATCH --error=Logs/14-macs-peaks/slurm-%A_%a.err
 
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
@@ -49,6 +49,6 @@ printf "$cell_type: Peak calling, merging replicates across all time points, cal
 # Would it make any difference to use the merged BAMs instead?
 set -x
 macs2 callpeak --nomodel \
-    -t Results/09-remove-duplicates/$cell_type-*-mapq1.bam \
+    -t Results/10-remove-duplicates/$cell_type-*-mapq1.bam \
     -f BAMPE -g mm --call-summits -n ATAC-$cell_type \
-    --keep-dup all --outdir Results/13-macs-peaks
+    --keep-dup all --outdir Results/14-macs-peaks

@@ -17,8 +17,8 @@
 
 #SBATCH --array=1-2
 #SBATCH --mem=3g
-#SBATCH --output=Logs/15-diff-anal/slurm-%A_%a.out
-#SBATCH --error=Logs/15-diff-anal/slurm-%A_%a.err
+#SBATCH --output=Logs/16-diff-anal/slurm-%A_%a.out
+#SBATCH --error=Logs/16-diff-anal/slurm-%A_%a.err
 
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}

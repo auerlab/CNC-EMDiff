@@ -6,7 +6,7 @@
 #
 #   Usage:
 #       SLURM cluster:
-#           sbatch 10-qc.sbatch
+#           sbatch 11-qc-sam.sbatch
 #
 #   History:
 #       Based on the work of Dr. Andrea Rau:
@@ -22,8 +22,8 @@
 #SBATCH --array=1-18
 # FIXME: Check actual memory use
 #SBATCH --mem=1g
-#SBATCH --output=Logs/10-qc-sam/slurm-%A_%a.out
-#SBATCH --error=Logs/10-qc-sam/slurm-%A_%a.err
+#SBATCH --output=Logs/11-qc-sam/slurm-%A_%a.out
+#SBATCH --error=Logs/11-qc-sam/slurm-%A_%a.err
 
 # Set a default value for testing outside the SLURM environment
 : ${SLURM_ARRAY_TASK_ID:=1}
@@ -33,13 +33,13 @@ uname -a
 fastqc --version
 pwd
 
-qc_dir=Results/10-qc-sam
+qc_dir=Results/11-qc-sam
 mkdir -p $qc_dir/Raw
-infile=Results/08-bwa-mem/*sample${SLURM_ARRAY_TASK_ID}-*.sam
+infile=Results/09-bwa-mem/*sample${SLURM_ARRAY_TASK_ID}-*.sam
 printf "Processing $infile...\n"
 fastqc $infile -o $qc_dir/Raw
 
 mkdir -p $qc_dir/Rmdup
-infile=Results/09-remove-duplicates/*sample${SLURM_ARRAY_TASK_ID}-*-mapq1.bam
+infile=Results/10-remove-duplicates/*sample${SLURM_ARRAY_TASK_ID}-*-mapq1.bam
 printf "Processing $infile...\n"
 fastqc $infile -o $qc_dir/Rmdup
