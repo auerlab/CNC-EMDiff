@@ -11,6 +11,13 @@ if [ -e $results ]; then
     printf "$raw already processed.\n"
 else
     printf "Processing $raw with fastqc...\n"
+    
+    log_stem=Logs/02-qc-raw/$stem_raw
+    # Document software versions used for publication
+    uname -a > $log_stem.out
+    fastqc --version >> $log_stem.out
+    pwd $log_stem.out
+
     xzcat $raw | fastqc -o Results/02-qc-raw stdin:$stem_raw \
-	> Logs/02-qc-raw/$stem_raw.out 2> Logs/02-qc-raw/$stem_raw.err
+	>> $log_stem.out 2>> $log_stem.err
 fi

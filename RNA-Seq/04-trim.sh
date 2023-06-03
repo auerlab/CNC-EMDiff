@@ -21,10 +21,13 @@
 ##########################################################################
 
 if which sbatch; then
-    sbatch SLURM/02-qc-raw.sbatch
+    sbatch SLURM/04-trim.sbatch
 else
+    # Debug
+    rm Results/04-trim/*
+    
     hw_threads=$(./get_hw_threads.sh)
-    jobs=$hw_threads
-    ls Results/01-organize/Raw-renamed/*.fastq.xz | \
-	xargs -n 1 -P $jobs Xargs/02-qc-raw.sh
+    jobs=$(($hw_threads / 2))
+    ls Results/01-organize/Raw-renamed/*-R1.fastq.xz | \
+	xargs -n 1 -P $jobs Xargs/04-trim.sh
 fi
