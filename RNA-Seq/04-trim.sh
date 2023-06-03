@@ -24,7 +24,7 @@ if which sbatch; then
     sbatch SLURM/04-trim.sbatch
 else
     # Debug
-    rm Results/04-trim/*
+    # rm -f Results/04-trim/*
     
     hw_threads=$(./get_hw_threads.sh)
     jobs=$(($hw_threads / 2))
