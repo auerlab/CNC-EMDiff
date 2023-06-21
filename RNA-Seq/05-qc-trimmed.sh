@@ -2,7 +2,7 @@
 
 ##########################################################################
 #   Script description:
-#       Run quality checks on raw and trimmed data for comparison
+#       Run quality checks on trimmed data
 #       Based on work of Dr. Andrea Rau:
 #       https://github.com/andreamrau/OpticRegen_2019
 #
