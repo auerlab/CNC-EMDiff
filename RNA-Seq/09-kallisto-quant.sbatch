@@ -76,13 +76,14 @@ out_dir=Results/09-kallisto-quant/$stem
 mkdir -p $out_dir
 
 # Manual says a GTF is needed.  Kallisto aborts using GFF3.
+# Sleuth uses bootstrap estimates? --bootstrap-samples=500
+
 set -x
 kallisto quant \
     --genomebam \
 	--gtf=Results/07-reference/$gtf \
 	--chromosomes=Results/07-reference/chromosome-sizes.tsv \
-    --bootstrap-samples=500 \
-    --threads=2 \
+    --threads=$SLURM_CPUS_PER_TASK \
     --index=Results/08-kallisto-index/all-but-xy.index \
     --output-dir=$out_dir $gz1 $gz2
 
