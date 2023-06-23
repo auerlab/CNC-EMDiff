@@ -22,9 +22,9 @@
 #SBATCH --array=1-18
 #SBATCH --cpus-per-task=4
 # Memory requirements can only be determined by trial and error.
-# Run a sample job and monitor closely in "top" or rununder a tool that
+# Run a sample job and monitor closely in "top" or run under a tool that
 # reports maximum memory use.
-#SBATCH --mem=2500
+#SBATCH --mem=4000
 #SBATCH --output=Logs/17-hisat2-align/slurm-%A_%a.out
 #SBATCH --error=Logs/17-hisat2-align/slurm-%A_%a.err
 
@@ -39,30 +39,16 @@ uname -a
 hisat2 --version
 pwd
 
-build=$(../Common/genome-build.sh)
-release=$(../Common/genome-release.sh)
 genome=$(Reference/genome-filename.sh)
 
 # samtools sort dumps temp files in CWD
 cd Results/17-hisat2-align
 
-# hisat2 can't handle xz.
-# Convert xz to gz rather than raw to reduce NFS load from compute nodes
-xz1=$(echo ../04-trim/*sample${SLURM_ARRAY_TASK_ID}-*-R1.fastq.xz)
-xz2=$(echo ../04-trim/*sample${SLURM_ARRAY_TASK_ID}-*-R2.fastq.xz)
 gz1=$(echo ../04-trim/*sample${SLURM_ARRAY_TASK_ID}-*-R1.fastq.gz)
 gz2=$(echo ../04-trim/*sample${SLURM_ARRAY_TASK_ID}-*-R2.fastq.gz)
-test -e $gz1 || xzcat $xz1 | gzip --stdout > $gz1
-test -e $gz2 || xzcat $xz2 | gzip --stdout > $gz2
 
 gzb=$(basename $gz1)
 bam=${gzb%-R*}.bam
-
-#echo $gz1
-#echo $gz2
-#echo $bam
-#ls ../16-hisat2-index/$genome
-#exit
 
 set -x
 hisat2 --threads $SLURM_CPUS_PER_TASK -x ../16-hisat2-index/$genome \
