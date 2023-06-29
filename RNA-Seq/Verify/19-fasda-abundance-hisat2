@@ -24,3 +24,5 @@ for id in $(awk '{ print $1 }' $kallisto | fgrep -v target_id | head -40); do
     hc=$(awk -v id=$id '$1 ~ id { print $4 }' $hisat2)
     printf "%20s%20s%20s\n" $id $kc $hc
 done | more
+
+# Add more sophisticated checks here if desired

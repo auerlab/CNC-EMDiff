@@ -5,3 +5,5 @@ echo $gff
 awk '$3 == "mRNA"' Results/07-reference/$gff | wc -l
 printf "Counts below should be 1 more than above.\n"
 wc -l Results/20-fasda-fc-hisat2/*-FC.txt
+
+# Add more sophisticated checks here if desired
