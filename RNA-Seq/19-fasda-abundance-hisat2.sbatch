@@ -33,7 +33,7 @@ reference_dir=Results/07-reference
 
 file=`ls $hisat2_dir/*-sample$SLURM_ARRAY_TASK_ID-*.bam`
 
-fasda abundance 
+fasda abundance \
     --output-dir $fasda_dir \
     $reference_dir/$gff_filename \
     $file

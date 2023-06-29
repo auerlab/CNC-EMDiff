@@ -17,7 +17,7 @@ fasda --version
 samtools --version
 pwd
 
-hisat2_dir=Results/17-hisat2-align
+abundance_dir=Results/19-fasda-abundance-hisat2
 fasda_dir=Results/20-fasda-fc-hisat2
 
 # Need to fetch gff3 for computing abundances
@@ -33,10 +33,10 @@ reference_dir=Results/07-reference
 for cell_type in neuro chondro; do
     for condition in time1 time2 time3; do
 	printf "Normalizing $condition...\n"
-	ls $hisat2_dir/$cell_type-*-rep*-$condition-abundance.tsv
+	ls $abundance_dir/$cell_type-*-rep*-$condition-abundance.tsv
 	time fasda normalize \
 	    --output $fasda_dir/$cell_type-$condition-all-norm.tsv \
-	    $hisat2_dir/$cell_type-*-rep*-$condition-abundance.tsv
+	    $abundance_dir/$cell_type-*-rep*-$condition-abundance.tsv
     done
 
     printf "Computing fold-change...\n"

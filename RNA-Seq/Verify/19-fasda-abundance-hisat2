@@ -1,0 +1,7 @@
+#!/bin/sh -e
+
+gff=$(Reference/gff-filename.sh)
+echo $gff
+awk '$3 == "mRNA"' Results/07-reference/$gff | wc -l
+printf "Counts below should be 1 more than above.\n"
+wc -l Results/19-fasda-abundance-hisat2/*.tsv
