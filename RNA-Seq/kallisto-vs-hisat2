@@ -1,0 +1,10 @@
+#!/bin/sh -e
+
+kallisto=Results/09-kallisto-quant/sample16-time000-rep1/abundance.tsv
+hisat2=Results/17-hisat2-align/sample16-time000-rep1-abundance.tsv
+for id in $(awk -F ';' '{ print $1 }' $kallisto | fgrep -v target_id | head -40); do
+    kc=$(awk -v id=$id '$1 ~ id { print $4 }' $kallisto)
+    hc=$(awk -v id=$id '$1 == id { print $4 }' $hisat2)
+    printf "%20s%20s%20s\n" $id $kc $hc
+done
+

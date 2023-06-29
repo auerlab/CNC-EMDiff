@@ -52,5 +52,5 @@ bam=${gzb%-R*}.bam
 
 set -x
 hisat2 --threads $SLURM_CPUS_PER_TASK -x ../16-hisat2-index/$genome \
-    -1 $gz1 -2 $gz2 | samtools sort > $bam
+    -1 $gz1 -2 $gz2 | samtools sort -T /tmp > $bam
 samtools index $bam

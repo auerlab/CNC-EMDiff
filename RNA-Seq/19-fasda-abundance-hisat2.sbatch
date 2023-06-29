@@ -32,7 +32,11 @@ reference_dir=Results/07-reference
 ##########################################################################
 
 file=`ls $hisat2_dir/*-sample$SLURM_ARRAY_TASK_ID-*.bam`
-ab=${file%.bam}-abundance.tsv
-fasda abundance $reference_dir/$gff_filename $file
-head $ab
 
+fasda abundance 
+    --output-dir $fasda_dir \
+    $reference_dir/$gff_filename \
+    $file
+
+ab=${file%.bam}-abundance.tsv
+head $ab
