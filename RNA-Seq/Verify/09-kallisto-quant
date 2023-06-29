@@ -1,0 +1,11 @@
+#!/bin/sh -e
+
+ref_dir=Results/07-reference
+gtf=$(Reference/gtf-filename.sh)
+
+printf "Transcripts in GTF file:\n"
+awk '$3 ~ "transcript"' $ref_dir/$gtf | wc -l
+
+printf "\nLine counts in kallisto abundance files:\n"
+printf "Should be 1 more than above (to account for header line).\n\n"
+wc -l Results/09-kallisto-quant/*/abundance.tsv

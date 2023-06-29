@@ -10,8 +10,7 @@ transcriptome_gff=transcriptome-gff.fa
 genome=$(Reference/genome-filename.sh)
 
 printf "$gtf (awk '$3 ~ \"transcript\"'):\n"
-awk '$3 ~ "transcript"' $ref_dir/$gtf | cut -f 9 \
-    | fgrep ENSMUST | awk '{ print $6 }' | sort | uniq | wc -l
+awk '$3 ~ "transcript"' $ref_dir/$gtf | wc -l
 
 # "transccript" in the GTF translates to various feature names in
 # the GFF.  Transcripts can be identitied by the ID in col 9.
