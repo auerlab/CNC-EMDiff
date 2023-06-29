@@ -5,11 +5,9 @@
 ##########################################################################
 
 fetch=$(../Common/find-fetch.sh)
+build=$(../Common/genome-build.sh)
 release=$(../Common/genome-release.sh)
 gff=$(Reference/gff-filename.sh)
-
-# macOS zcat looks for .Z extension, while Linux does not have gzcat
-zcat='gunzip -c'
 
 ##########################################################################
 # Ensembl combined GFFs are sorted lexically by chromosome, while BAMs are
@@ -24,20 +22,23 @@ rm -f $gff
 site=http://ftp.ensembl.org/pub/release-$release/gff3/mus_musculus
 
 # Keep header from first GFF
-file=Mus_musculus.GRCm38.98.chromosome.1.gff3.gz
-if [ ! -e $file ]; then
-    printf "Fetching $file...\n"
-    $fetch $site/$file
+gff_chr_1=Mus_musculus.GRCm$build.$release.chromosome.1.gff3.gz
+if [ ! -e $gff_chr_1 ]; then
+    printf "Fetching $gff_chr_1...\n"
+    $fetch $site/$gff_chr_1
 fi
-$zcat $file | egrep '^##gff|^#!' > $gff
+
+# macOS zcat looks for .Z extension, while Linux does not have gzcat
+printf "Adding $gff_chr_1 to $gff...\n"
+gunzip -c $gff_chr_1 > $gff
 
 # Concatenate the rest without the header
 for chrom in $(seq 2 19); do
-    file=Mus_musculus.GRCm38.98.chromosome.$chrom.gff3.gz
-    if [ ! -e $file ]; then
-	printf "Fetching $file...\n"
-	$fetch $site/$file
+    gff_chr_N=Mus_musculus.GRCm$build.$release.chromosome.$chrom.gff3.gz
+    if [ ! -e $gff_chr_N ]; then
+	printf "Fetching $gff_chr_N...\n"
+	$fetch $site/$gff_chr_N
     fi
-    $zcat $file | egrep -v '^##[a-z]|^#!' >> $gff
+    printf "Adding $gff_chr_N to $gff...\n"
+    gunzip -c $gff_chr_N | egrep -v '^##[a-z]|^#!' >> $gff
 done
-

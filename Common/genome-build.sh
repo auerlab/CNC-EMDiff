@@ -1,4 +1,4 @@
 #!/bin/sh -e
 
 # GRCm38 = mm10
-echo 38
+echo 39

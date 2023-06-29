@@ -8,21 +8,22 @@ if [ $0 != $proper_name ]; then
 fi
 
 Reference/fetch-gtf.sh
+
 fetch=$(../Common/find-fetch.sh)
 build=$(../Common/genome-build.sh)
 release=$(../Common/genome-release.sh)
+
 transcriptome=$(Reference/transcriptome-filename.sh)
 gtf=$(Reference/gtf-filename.sh)
 genome=$(Reference/genome-filename.sh)
 
 Reference/build-genome.sh
 
-cd Results/07-reference
 # https://github.com/griffithlab/rnaseq_tutorial/wiki/Kallisto
+cd Results/07-reference
 if [ ! -e $transcriptome ]; then
     # gtf_to_fasta is part of tophat, which is obsolete
     # gtf_to_fasta $gtf $genome $transcriptome
-    
     # Maybe?
     # bedtools getfasta -fi $genome -bed $gtf > $transcriptome
     
@@ -37,7 +38,3 @@ if [ ! -e $transcriptome ]; then
 else
     printf "Using existing $transcriptome...\n"
 fi
-
-# Tidy up headers: Actually has no effect
-# perl -ne 'if ($_ =~/^\>\d+\s+\w+\s+(ERCC\S+)[\+\-]/){print ">$1\n"}elsif($_ =~ /\d+\s+(ENST\d+)/){print ">$1\n"}else{print $_}' \
-
