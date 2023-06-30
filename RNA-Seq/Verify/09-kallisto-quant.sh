@@ -1,5 +1,10 @@
 #!/bin/sh -e
 
+# Must be run from parent parent of Verify dir for relative paths to work
+if [ `basename $(pwd)` == Verify ]; then
+    cd ..
+fi
+
 ref_dir=Results/07-reference
 gtf=$(Reference/gtf-filename.sh)
 

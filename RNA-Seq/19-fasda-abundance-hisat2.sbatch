@@ -39,4 +39,4 @@ fasda abundance \
     $file
 
 ab=${file%.bam}-abundance.tsv
-head $ab
+head $fasda_dir/$(basename $ab)
