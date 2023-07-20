@@ -35,6 +35,7 @@ file=`ls $hisat2_dir/*-sample$SLURM_ARRAY_TASK_ID-*.bam`
 
 fasda abundance \
     --output-dir $fasda_dir \
+    100 \
     $reference_dir/$gff_filename \
     $file
 
