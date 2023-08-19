@@ -22,7 +22,6 @@ for chromosome in $(seq 1 19); do
     if [ ! -e $file ]; then
 	$fetch http://ftp.ensembl.org/pub/release-$release/fasta/mus_musculus/dna/$file
     fi
-    chromosome=$((chromosome + 1))
 done
 
 if [ ! -e $genome ]; then
