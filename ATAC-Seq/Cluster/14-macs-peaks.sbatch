@@ -25,7 +25,7 @@
 
 # Document software versions used for publication
 uname -a
-macs2 --version
+macs3 --version
 pwd
 
 case $SLURM_ARRAY_TASK_ID in
@@ -44,11 +44,11 @@ case $SLURM_ARRAY_TASK_ID in
 esac
 
 printf "$cell_type: Peak calling, merging replicates across all time points, calling peaks...\n"
-# "mm" is the compiled-in Mus Musculus genome size.  See MACS2 docs.
+# "mm" is the compiled-in Mus Musculus genome size.  See MACS3 docs.
 # BAMPE = BAM Paired End
 # Would it make any difference to use the merged BAMs instead?
 set -x
-macs2 callpeak --nomodel \
+macs3 callpeak --nomodel \
     -t Results/10-remove-duplicates/$cell_type-*-mapq1.bam \
     -f BAMPE -g mm --call-summits -n ATAC-$cell_type \
     --keep-dup all --outdir Results/14-macs-peaks

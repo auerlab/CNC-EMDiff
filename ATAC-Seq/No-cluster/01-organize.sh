@@ -1,7 +1,7 @@
 #!/bin/sh -e
 
 mkdir -p Results Logs
-scripts=$(ls 0[2-9]-* [1-9][0-9]-*)
+scripts=$(ls 0[2-9]-*)
 for script in $scripts; do
     stage=${script%.*}
     mkdir -p Results/$stage Logs/$stage
@@ -59,11 +59,11 @@ for time in 1 2 3; do
     for rep in A B C; do
 	numeric_rep=$(echo $rep | tr "ABC" "123")
 	for read in 1 2; do
-	    orig=$(ls ../../../../Raw/190822_AHFN3KDRXX-Lane1-ATAC/CCA${time}${rep}_*_L001_R${read}_001.fastq.xz)
+	    orig=$(ls ../../../../../Raw/190822_AHFN3KDRXX-Lane1-ATAC/CCA${time}${rep}_*_L001_R${read}_001.fastq.xz)
 	    sample=$(echo $orig | awk -F '_' '{ print $3 }' | sed -e 's|S|sample|')
 	    ln -sf $orig \
 		chondro-$sample-rep${numeric_rep}-time${time}-R${read}.fastq.xz
-	    orig=$(ls ../../../../Raw/190822_AHFN3KDRXX-Lane1-ATAC/NCA${time}${rep}_*_L001_R${read}_001.fastq.xz)
+	    orig=$(ls ../../../../../Raw/190822_AHFN3KDRXX-Lane1-ATAC/NCA${time}${rep}_*_L001_R${read}_001.fastq.xz)
 	    sample=$(echo $orig | awk -F '_' '{ print $3 }' | sed -e 's|S|sample|')
 	    ln -sf $orig \
 		neuro-$sample-rep${numeric_rep}-time${time}-R${read}.fastq.xz
