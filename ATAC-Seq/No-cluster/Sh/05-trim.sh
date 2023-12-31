@@ -45,7 +45,10 @@ else
     # but we'll state it explicitly anyway
     adapter=AGATCGGAAGAG
     
+    date
     set -x
     time fastq-trim --3p-adapter1 $adapter --3p-adapter2 $adapter \
 	--min-qual 24 --polya-min-length 4 $raw1 $trimmed1 $raw2 $trimmed2
+    set +x
+    date
 fi

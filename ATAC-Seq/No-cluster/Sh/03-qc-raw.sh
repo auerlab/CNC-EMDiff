@@ -35,6 +35,7 @@ else
     uname -a
     fastqc --version
     pwd
-
+    date
     xzcat $fastq | fastqc -o Results/03-qc-raw stdin:$stem_fastq
+    date
 fi

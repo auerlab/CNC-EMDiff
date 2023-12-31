@@ -46,9 +46,11 @@ mkfifo $pipe1 $pipe2
 zstdcat ../../$infile1 > $pipe1 &
 zstdcat ../../$infile2 > $pipe2 &
 
+date
 set -x
 bwa mem -M -t $threads_per_job \
     ../08-bwa-index/$ref_file $pipe1 $pipe2 > $outfile
-
+set +x
 wait
+date
 rm -f $pipe1 $pipe2

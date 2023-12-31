@@ -19,10 +19,13 @@
 #   Main
 ##########################################################################
 
+# FIXME: Move me to the Xargs dir and call from redirect.sh
+
 # Document software versions used for publication
 uname -a
 bwa || true
 pwd
+date
 
 genome_file=$(../../RNA-Seq/Reference/genome-filename.sh)
 
@@ -38,3 +41,4 @@ set -x
 cd Results/08-bwa-index
 ln -sf ../../$genome_dir/$genome_file
 bwa index $genome_file
+date

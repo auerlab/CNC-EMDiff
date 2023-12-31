@@ -22,5 +22,7 @@ if [ $jobs -gt $max_jobs_for_disk ]; then
 fi
 
 # Tried GNU parallel and ran into bugs.  Xargs just works.
+date
 ls Results/01-organize/Raw-renamed/*-R1.fastq.xz | \
     xargs -n 1 -P $jobs ../../Common/redirect.sh Sh/05-trim.sh
+date
