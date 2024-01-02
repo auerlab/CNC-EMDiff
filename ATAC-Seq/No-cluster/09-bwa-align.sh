@@ -9,6 +9,7 @@
 #       *-trim.sh and *-reference.sh.
 ##########################################################################
 
+set -x
 hw_threads=$(../../Common/get-hw-threads.sh)
 hw_mem=$(../../Common/get-hw-mem.sh)
 hw_gib=$(( $hw_mem / 1024 / 1024 / 1024 ))
@@ -19,6 +20,11 @@ if pwd | fgrep XenONReg; then
     jobs=$(( $hw_gib / 6 ))
 else
     jobs=$(( $hw_gib / 16 ))
+fi
+
+# Not enough RAM according to calculations above, but try anyway
+if [ $jobs = 0 ]; then
+    jobs=1
 fi
 threads_per_job=$(( $hw_threads / $jobs ))
 
@@ -34,4 +40,4 @@ fi
 # Tried GNU parallel and ran into bugs.  Xargs just works.
 ls Results/05-trim/*-R1.fastq.zst | \
     xargs -n 1 -P $jobs ../../Common/redirect.sh \
-    Sh/09-bwa-align.sh $threads_per_job
+    Xargs/09-bwa-align.sh $threads_per_job

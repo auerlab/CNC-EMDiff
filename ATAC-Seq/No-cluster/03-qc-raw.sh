@@ -16,5 +16,5 @@ jobs=$(($hw_threads / 2))
 # Tried GNU parallel and ran into bugs.  Xargs just works.
 date
 ls Results/01-organize/Raw-renamed/*.fastq.xz | \
-    xargs -n 1 -P $jobs ../../Common/redirect.sh Sh/03-qc-raw.sh
+    xargs -n 1 -P $jobs ../../Common/redirect.sh Xargs/03-qc-raw.sh
 date
