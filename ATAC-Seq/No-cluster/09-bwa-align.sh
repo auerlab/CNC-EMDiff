@@ -2,7 +2,7 @@
 
 ##########################################################################
 #   Script description:
-#       Use hisat2 to align reads to a genome reference.
+#       Use BWA to align reads to a genome reference.
 #
 #   Dependencies:
 #       Requires trimmed reads and a reference genome.  Run after
@@ -14,13 +14,7 @@ hw_threads=$(../../Common/get-hw-threads.sh)
 hw_mem=$(../../Common/get-hw-mem.sh)
 hw_gib=$(( $hw_mem / 1024 / 1024 / 1024 ))
 
-# For xenopus, hisat2 jobs take about 4.3 GB
-# For axolotl, quite a bit more
-if pwd | fgrep XenONReg; then
-    jobs=$(( $hw_gib / 6 ))
-else
-    jobs=$(( $hw_gib / 16 ))
-fi
+jobs=$(( $hw_gib / 6 ))
 
 # Not enough RAM according to calculations above, but try anyway
 if [ $jobs = 0 ]; then

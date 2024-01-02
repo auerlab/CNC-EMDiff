@@ -39,10 +39,11 @@ cd Results/09-bwa-align
 outfile=$(basename ${infile1%-R1.fastq.gz}).sam
 
 set -x
-pipe1=$(basename $infile1 | sed -e 's|zst|fifo|')
-pipe2=$(basename $infile2 | sed -e 's|zst|fifo|')
+# Pipes cannot be created on an NFS server, so place them in /tmp
+pipe1=/tmp/$(basename $infile1 | sed -e 's|zst|fifo|')
+pipe2=/tmp/$(basename $infile2 | sed -e 's|zst|fifo|')
 rm -f $pipe1 $pipe2
-mkfifo $pipe1 $pipe2
+mkfifo -m 0644 $pipe1 $pipe2
 zstdcat ../../$infile1 > $pipe1 &
 zstdcat ../../$infile2 > $pipe2 &
 
