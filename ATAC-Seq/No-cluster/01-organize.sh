@@ -1,7 +1,7 @@
 #!/bin/sh -e
 
 mkdir -p Results Logs
-scripts=$(ls 0[2-9]-*)
+scripts=$(ls 0[2-9]-*.sh 1[0-9]*.sh)
 for script in $scripts; do
     stage=${script%.*}
     mkdir -p Results/$stage Logs/$stage

@@ -36,7 +36,7 @@ ref_file=$(../../RNA-Seq/Reference/genome-filename.sh)
 
 # One iteration if running under SLURM, all iterations otherwise
 cd Results/09-bwa-align
-outfile=$(basename ${infile1%-R1.fastq.gz}).sam
+outfile=$(basename ${infile1%-R1.fastq.*}).sam
 
 set -x
 # Pipes cannot be created on an NFS server, so place them in /tmp
