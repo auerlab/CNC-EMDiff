@@ -95,6 +95,7 @@ for rep in 1 2 3; do
 	numeric_time=$(echo $time | tr "ABC" "123")
 	for read in 1 2; do
 	    orig=$(ls ../../../../../Raw/190822_AHFN3KDRXX-Lane2-RNA/CE${rep}${time}_*_L002_R${read}_001.fastq.xz)
+	    ls -l $orig
 	    sample=$(echo $orig | awk -F '_' '{ print $3 }' | sed -e 's|S|sample|')
 	    ln -sf $orig \
 		chondro-$sample-rep${rep}-time${numeric_time}-R${read}.fastq.xz

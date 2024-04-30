@@ -40,17 +40,24 @@
  
 # Set job array to number of samples.
 #lpjs jobs 18
-#lpjs cores-per-job 3
-#lpjs min-cores-per-node all
-#lpjs mem-per-core 50MiB
+#lpjs procs-per-job 3
+#lpjs min-procs-per-node all
+#lpjs mem-per-proc 50MiB
+
+if [ -e /Users/bacon/Pkgsrc ]; then
+    PATH=/Users/bacon/Pkgsrc/pkg/bin:$PATH
+    export PATH
+fi
+echo $PATH
 
 # Document software versions used for publication
 uname -a
+which fastq-trim
 fastq-trim --version
 pwd
 
-input1=$(ls Results/01-organize/Raw-renamed/*sample${SLURM_ARRAY_TASK_ID}-*R1*)
-input2=$(ls Results/01-organize/Raw-renamed/*sample${SLURM_ARRAY_TASK_ID}-*R2*)
+input1=$(ls Results/01-organize/Raw-renamed/*sample${LPJS_ARRAY_INDEX}-*R1*)
+input2=$(ls Results/01-organize/Raw-renamed/*sample${LPJS_ARRAY_INDEX}-*R2*)
 base=$(basename $input1)
 stem=${base%%-R*.fastq.xz}
 
