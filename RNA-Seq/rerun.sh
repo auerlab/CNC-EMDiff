@@ -40,6 +40,8 @@ fi
 
 if [ ${script##*.} = sbatch ]; then
     sbatch $script
+elif [ ${script##*.} = lpjs ]; then
+    lpjs submit $script
 else
     ./$script
 fi
