@@ -40,40 +40,63 @@
  
 # Set job array to number of samples.
 #lpjs jobs 18
-#lpjs procs-per-job 3
-#lpjs min-procs-per-node all
-#lpjs mem-per-proc 50MiB
+#lpjs procs-per-job 2
+#lpjs min-procs-per-node procs-per-job
+#lpjs pmem-per-proc 10MiB
+# Uncomment and edit this if desored: #lpjs log-dir Logs/04-trim
 
-if [ -e /Users/bacon/Pkgsrc ]; then
-    PATH=/Users/bacon/Pkgsrc/pkg/bin:$PATH
-    export PATH
-fi
-echo $PATH
+# FreeBSD ports are installed under /usr/local
+# pkgsrc packages in a non-priveleged tree installed by auto-pkgsrc-setup
+# are installed under ~/Pkgsrc/pkg by default
+# pkgsrc packages in a priveleged tree (installed by root) on Linux and netBSD
+# are found under /usr/pkg by default
+# pkgsrc packages in a priveleged tree (installed by root) on macOS
+# are found under /opt/pkg by default (/usr is read-only on Macs)
+# $HOME is not set on Darwin
+# Prepend common pkgsrc bin directories if they exist
+for prefix in /Users/$LPJS_USER_NAME/Pkgsrc/pkg \
+	      /home/$LPJS_USER_NAME/Pkgsrc/pkg \
+	      /usr/pkg \
+	      /opt/pkg; do
+    if [ -e $prefix ]; then
+	PATH=$prefix/bin:$PATH
+	export PATH
+    fi
+done
 
 # Document software versions used for publication
 uname -a
+hostname
+pwd
 which fastq-trim
 fastq-trim --version
-pwd
+printenv
 
-input1=$(ls Results/01-organize/Raw-renamed/*sample${LPJS_ARRAY_INDEX}-*R1*)
-input2=$(ls Results/01-organize/Raw-renamed/*sample${LPJS_ARRAY_INDEX}-*R2*)
+# Won't work yet: ls command above needs access to files to generate pathname
+
+marker=lpjs-$LPJS_SUBMIT_HOST-shared-fs-marker
+if [ ! -e $marker ]; then
+    printf "$marker does not exist.  Using rsync to transfer files.\n"
+    printf "Fetching $LPJS_SUBMIT_HOST:$LPJS_SUBMIT_DIRECTORY/$infile1\n"
+    
+    # Recreate directory structure in temp working dir and pull
+    # our input files into it
+    input_dir='Results/01-organize/Raw-renamed'
+    mkdir -p $input_dir
+    input1="$input_dir/*sample${LPJS_ARRAY_INDEX}-*R1*"
+    input2="$input_dir/*sample${LPJS_ARRAY_INDEX}-*R2*"
+    set -x
+    rsync --copy-links ${LPJS_SUBMIT_HOST}:$LPJS_SUBMIT_DIRECTORY/$input1 $input_dir
+    rsync --copy-links ${LPJS_SUBMIT_HOST}:$LPJS_SUBMIT_DIRECTORY/$input2 $input_dir
+    set +x
+else
+    printf "$marker found.  No need to transfer files.\n"
+    input1=$(ls Results/01-organize/Raw-renamed/*sample${LPJS_ARRAY_INDEX}-*R1*)
+    input2=$(ls Results/01-organize/Raw-renamed/*sample${LPJS_ARRAY_INDEX}-*R2*)
+fi
+
 base=$(basename $input1)
 stem=${base%%-R*.fastq.xz}
-
-##############################################################################
-# TrimGalore is just a wrapper around cutadapt and it cannot cut a fixed
-# number of bases at the same time as trimming adapters ( -u and -U in
-# cutadapt ), so we run cutadapt directly.
-#
-# trim_galore --illumina --stringency 3 -q 20 --paired -o Results/04-trim \
-#    $input1 $input2 > Results/04-trim/${stem}-trash.out
-# trim_galore --illumina --stringency 3 -q 20 --paired --trim1 -o Results/04-trim-trim1 \
-#    $input1 $input2 > Results/04-trim-trim1/${stem}-trash.out
-#
-# Command from trim_galore log:
-#   cutadapt -j 1 -e 0.1 -q 20 -O 3 -a AGATCGGAAGAGC
-#   -j 1 -O 3 -e 0.1 are default for cutadapt
 
 ##############################################################################
 # Remove ~15 bases at 5' end due to bias and last base at 3' end
@@ -93,7 +116,7 @@ stem=${base%%-R*.fastq.xz}
 # of the load to the compute node CPUs and reduce NFS traffic considerably.
 #
 # suffix=.xz
-suffix=.gz
+suffix=.zst
 output1=Results/04-trim/${stem}-R1.fastq$suffix
 output2=Results/04-trim/${stem}-R2.fastq$suffix
 
@@ -120,13 +143,3 @@ fi
 set -x
 time fastq-trim --3p-adapter1 $adapter --3p-adapter2 $adapter \
     --min-qual 24 --polya-min-length 4 $input1 $output1 $input2 $output2
-
-# To use cutadapt instead, comment out the above and uncomment this:
-#cutadapt --compression-level=1
-#    --quality-cutoff=24 \
-#    -u -3 -U -3 \
-#    -a $adapter -A $adapter \
-#    --minimum-length=30 \
-#    --output=Results/04-trim/${stem}-R1.fastq$suffix \
-#    --paired-output=Results/04-trim/${stem}-R2.fastq$suffix \
-#    $input1 $input2
