@@ -82,7 +82,8 @@ if [ ! -e $marker ]; then
     # Recreate directory structure in temp working dir and pull
     # our input files into it
     input_dir='Results/01-organize/Raw-renamed'
-    mkdir -p $input_dir
+    output_dir='Results/04-trim'
+    mkdir -p $input_dir $output_dir
     input1="$input_dir/*sample${LPJS_ARRAY_INDEX}-*R1*"
     input2="$input_dir/*sample${LPJS_ARRAY_INDEX}-*R2*"
     set -x
@@ -143,3 +144,8 @@ fi
 set -x
 time fastq-trim --3p-adapter1 $adapter --3p-adapter2 $adapter \
     --min-qual 24 --polya-min-length 4 $input1 $output1 $input2 $output2
+
+# Don't rsync the input files back
+if [ ! -e $marker ]; then
+    rm -rf $input_dir
+fi
