@@ -21,21 +21,15 @@
 ##########################################################################
 
 ##########################################################################
-# Cutadapt:
-# Each job in the array will run a cutadapt (python) process and a
-# compression process for part of the time.  If you don't want to
-# oversubscribe compute nodes even for a little while, add --cpus-per-task=2
-# There may be 2 pigz processes per job, but --cpus-per-task=3 doesn't help
-
-##########################################################################
 # Fastq-trim:
 # Limit concurrent jobs to 9 to avoid becoming I/O-bound.
 # Fastq-trim is so fast it ends up using only about 40% CPU while waiting
-# for NFS on albacore (only gigabit Ethernet).  Clusters with higher
-# speed networks and file servers can handle more jobs.
+# for NFS on our albacore cluster (only gigabit Ethernet).  Clusters with
+# higher speed networks and file servers can handle more jobs.
 # We'll finish the job array just as fast running only 9 at a time and
-# getting 80% CPU utilization.
-# 2 xzcat, 2 gzip, and 1 fastq-trim, but xzcat and gzip use less than
+# getting better CPU utilization.  This will leave more processors
+# available for other jobs at the same time.
+# 2 xzcat, 2 zstd, and 1 fastq-trim, but xzcat and gzip use less than
 # half a core each
  
 # Set job array to number of samples.
@@ -45,6 +39,10 @@
 #lpjs pmem-per-proc 10MiB
 # Uncomment and edit this if desored: #lpjs log-dir Logs/04-trim
 
+##############################################################################
+# Update PATH on a chimeric cluster (multiple operating systems used for
+# compute nodes.
+#
 # FreeBSD ports are installed under /usr/local
 # pkgsrc packages in a non-priveleged tree installed by auto-pkgsrc-setup
 # are installed under ~/Pkgsrc/pkg by default
@@ -54,6 +52,8 @@
 # are found under /opt/pkg by default (/usr is read-only on Macs)
 # $HOME is not set on Darwin
 # Prepend common pkgsrc bin directories if they exist
+##############################################################################
+
 for prefix in /Users/$LPJS_USER_NAME/Pkgsrc/pkg \
 	      /home/$LPJS_USER_NAME/Pkgsrc/pkg \
 	      /usr/pkg \
@@ -72,7 +72,12 @@ which fastq-trim
 fastq-trim --version
 printenv
 
-# Won't work yet: ls command above needs access to files to generate pathname
+##############################################################################
+# If this node cannot access the input files using NFS, pull them from
+# the submit node.  If all nodes use NFS, this can be removed.  Out macOS
+# node currently does not use NFS due to issues with Apple's full disk
+# access security feature.
+##############################################################################
 
 marker=lpjs-$LPJS_SUBMIT_HOST-shared-fs-marker
 if [ ! -e $marker ]; then
@@ -96,56 +101,46 @@ else
     input2=$(ls Results/01-organize/Raw-renamed/*sample${LPJS_ARRAY_INDEX}-*R2*)
 fi
 
-base=$(basename $input1)
-stem=${base%%-R*.fastq.xz}
-
-##############################################################################
-# Remove ~15 bases at 5' end due to bias and last base at 3' end
-# 5' bias is probably due to non-random cleavage and not a
-# quality issue, so -u +15 -U +15 is probably not necessary
-# -u +15 -U +15 \
-
 # https://www.rootusers.com/gzip-vs-bzip2-vs-xz-performance-comparison/
 # xz offers the best compression by far, but is slow at mid (-5) to high (-9)
 # compression levels.  At -1, xz is faster than bzip2 while providing
-# comparable compression.  If you want even faster compression and are
-# willing to sacrifice compression ratio, use .gz or no compression for
-# outputs instead.  A ZFS filesystem with lz4 compression should provide
-# enough compression for intermediate files without gzip, bzip2, or xz.
-# However, this may cause a network bottleneck as all processes write
-# uncompressed FASTQ over NFS.  Using at least gzip -1 will transfer some
-# of the load to the compute node CPUs and reduce NFS traffic considerably.
+# comparable compression.  The newer zstd is both faster than gzip and
+# produces better compression, so gzip is essentially obsolete.
+# Experiment with compression levels (zstd -1, zstd-2, etc.) to optimize
+# for your hardware.
 #
-# suffix=.xz
+# A ZFS filesystem with lz4 compression should provide
+# enough compression for intermediate files without gzip, bzip2, or zstd.
+# However, this may cause a network bottleneck as all processes send
+# uncompressed FASTQ over NFS before it is compressed by the file server.
+# Using a compression tool on the compute node, so data are compressed before
+# being sent over the network, will reduce NFS traffic considerably.
+
 suffix=.zst
+base=$(basename $input1)
+stem=${base%%-R*.fastq.xz}
 output1=Results/04-trim/${stem}-R1.fastq$suffix
 output2=Results/04-trim/${stem}-R2.fastq$suffix
 
-# Maximize compression throughput so gzip is not a bottleneck.  Can determine
-# performance from fastq-trim CPU % in job-top.
-# Don't use -1 if job is I/O bound.  Use the idle CPU to get better compression
-# and reduce I/O.  The goal is to maximum CPU utilization of the fastq-trim
-# process and the gzip processes, as shown by job-top.
-# -4 seems to work best on albacore with its
-# gigabit network.  Lower values are probably better with a high-speed network.
-# Use the highest value that does not result in a lower CPU utilization
-# for fastq-trim.
-export GZIP=-4
-
+# This script is used for both RNA-Seq and ATAC-Seq
 if pwd | fgrep -q RNA-Seq; then
     adapter=AGATCGGAAGAG
 else
     adapter=CTGTCTCTTATACACATCT
 fi
 
+##############################################################################
+# Remove ~15 bases at 5' end due to bias and last base at 3' end
+# 5' bias is probably due to non-random cleavage and not a
+# quality issue, so -u +15 -U +15 is probably not necessary
+# -u +15 -U +15 \
 # fastq-trim is 2.5x faster with 1 core than cutadapt with 2 cores
-# Our reads use the default Illumina universal adapter,
-# but we'll state it explicitly anyway
+
 set -x
 time fastq-trim --3p-adapter1 $adapter --3p-adapter2 $adapter \
     --min-qual 24 --polya-min-length 4 $input1 $output1 $input2 $output2
 
-# Don't rsync the input files back
+# Don't rsync the duplicated input files back
 if [ ! -e $marker ]; then
     rm -rf $input_dir
 fi
