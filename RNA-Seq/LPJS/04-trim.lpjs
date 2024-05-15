@@ -37,7 +37,7 @@
 #lpjs procs-per-job 2
 #lpjs min-procs-per-node procs-per-job
 #lpjs pmem-per-proc 10MiB
-# Uncomment and edit this if desored: #lpjs log-dir Logs/04-trim
+#lpjs log-dir Logs/04-trim
 
 ##############################################################################
 # Update PATH on a chimeric cluster (multiple operating systems used for
