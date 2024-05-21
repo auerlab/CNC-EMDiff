@@ -68,6 +68,9 @@ which fastqc
 fastqc --version
 printenv
 
+input_dir='Results/01-organize/Raw-renamed'
+output_dir='Results/02-qc-raw'
+
 ##############################################################################
 # If this node cannot access the input files using NFS, pull them from
 # the submit node.  If all nodes use NFS, this can be removed.  Out macOS
@@ -76,14 +79,16 @@ printenv
 ##############################################################################
 
 marker=lpjs-$LPJS_SUBMIT_HOST-shared-fs-marker
-if [ ! -e $marker ]; then
+if [ -e $marker ]; then
+    printf "$marker found.  No need to transfer files.\n"
+    input1=$(ls $input_dir/*sample${LPJS_ARRAY_INDEX}-*R1*)
+    input2=$(ls $input_dir/*sample${LPJS_ARRAY_INDEX}-*R2*)
+else
     printf "$marker does not exist.  Using rsync to transfer files.\n"
     printf "Fetching $LPJS_SUBMIT_HOST:$LPJS_SUBMIT_DIRECTORY/$infile1\n"
     
     # Recreate directory structure in temp working dir and pull
     # our input files into it
-    input_dir='Results/01-organize/Raw-renamed'
-    output_dir='Results/02-qc-raw'
     mkdir -p $input_dir $output_dir
     input1="$input_dir/*sample${LPJS_ARRAY_INDEX}-*R1*"
     input2="$input_dir/*sample${LPJS_ARRAY_INDEX}-*R2*"
@@ -91,10 +96,6 @@ if [ ! -e $marker ]; then
     rsync --copy-links ${LPJS_SUBMIT_HOST}:$LPJS_SUBMIT_DIRECTORY/$input1 $input_dir
     rsync --copy-links ${LPJS_SUBMIT_HOST}:$LPJS_SUBMIT_DIRECTORY/$input2 $input_dir
     set +x
-else
-    printf "$marker found.  No need to transfer files.\n"
-    input1=$(ls Results/01-organize/Raw-renamed/*sample${LPJS_ARRAY_INDEX}-*R1*)
-    input2=$(ls Results/01-organize/Raw-renamed/*sample${LPJS_ARRAY_INDEX}-*R2*)
 fi
 
 printf "Processing $input1 and $input2...\n"
