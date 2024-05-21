@@ -30,7 +30,7 @@
 # Run a sample job and monitor closely in "top" or rununder a tool that
 # reports maximum memory use.
 #lpjs pmem-per-proc 200MiB
-#lpjs log-dir Logs/02-qc-raw
+#lpjs log-dir Logs/05-qc-trimmed
 
 ##############################################################################
 # Update PATH on a chimeric cluster (multiple operating systems used for
@@ -82,8 +82,8 @@ if [ ! -e $marker ]; then
     
     # Recreate directory structure in temp working dir and pull
     # our input files into it
-    input_dir='Results/01-organize/Raw-renamed'
-    output_dir='Results/02-qc-raw'
+    input_dir='Results/04-trim'
+    output_dir='Results/05-qc-trimmed'
     mkdir -p $input_dir $output_dir
     input1="$input_dir/*sample${LPJS_ARRAY_INDEX}-*R1*"
     input2="$input_dir/*sample${LPJS_ARRAY_INDEX}-*R2*"
@@ -93,19 +93,17 @@ if [ ! -e $marker ]; then
     set +x
 else
     printf "$marker found.  No need to transfer files.\n"
-    input1=$(ls Results/01-organize/Raw-renamed/*sample${LPJS_ARRAY_INDEX}-*R1*)
-    input2=$(ls Results/01-organize/Raw-renamed/*sample${LPJS_ARRAY_INDEX}-*R2*)
+    input1=$(ls Results/04-trim/*sample${LPJS_ARRAY_INDEX}-*R1*)
+    input2=$(ls Results/04-trim/*sample${LPJS_ARRAY_INDEX}-*R2*)
 fi
 
-printf "Processing $input1 and $input2...\n"
-
 # Filename stems for fastqc output
-stem_input1=$(basename ${input1%.fastq.xz})
-stem_input2=$(basename ${input2%.fastq.xz})
+stem_raw1=$(basename ${trimmed1%.fastq.zst})
+stem_raw2=$(basename ${trimmed2%.fastq.zst})
 
 # Background the first three to run 4 jobs in parallel
-xzcat $input1 | fastqc -o Results/02-qc-raw stdin:$stem_input1 &
-xzcat $input2 | fastqc -o Results/02-qc-raw stdin:$stem_input2
+zstdcat $raw1 | fastqc -o Results/05-qc-trimmed stdin:$stem_raw1 &
+zstdcat $raw2 | fastqc -o Results/05-qc-trimmed stdin:$stem_raw2
 
 # Make sure backgrounded job completes before terminating script
 wait
