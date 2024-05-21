@@ -25,7 +25,7 @@ if [ $# != 1 ]; then
 fi
 script=$1
 
-base=${script%.sbatch}
+base=${script%.*}
 printf "Remove results from Results/$base? y/[n] "
 read sure
 if [ 0"$sure" = 0y ]; then
