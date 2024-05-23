@@ -50,6 +50,7 @@
 for prefix in /Users/$LPJS_USER_NAME/Pkgsrc/pkg \
 	      /home/$LPJS_USER_NAME/Pkgsrc/pkg \
 	      /usr/pkg \
+	      /usr/pkg/java/openjdk11/bin \
 	      /opt/pkg; do
     if [ -e $prefix ]; then
 	PATH=$prefix/bin:$PATH
@@ -101,12 +102,12 @@ fi
 printf "Processing $input1 and $input2...\n"
 
 # Filename stems for fastqc output
-stem_raw1=$(basename ${trimmed1%.fastq.zst})
-stem_raw2=$(basename ${trimmed2%.fastq.zst})
+stem_input1=$(basename ${input1%.fastq.zst})
+stem_input2=$(basename ${input2%.fastq.zst})
 
 # Background the first three to run 4 jobs in parallel
-zstdcat $raw1 | fastqc -o Results/05-qc-trimmed stdin:$stem_raw1 &
-zstdcat $raw2 | fastqc -o Results/05-qc-trimmed stdin:$stem_raw2
+zstdcat $input1 | fastqc -o Results/05-qc-trimmed stdin:$stem_input1 &
+zstdcat $input2 | fastqc -o Results/05-qc-trimmed stdin:$stem_input2
 
 # Make sure backgrounded job completes before terminating script
 wait
