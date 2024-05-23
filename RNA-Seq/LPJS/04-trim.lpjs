@@ -82,7 +82,6 @@ printenv
 marker=lpjs-$LPJS_SUBMIT_HOST-shared-fs-marker
 if [ ! -e $marker ]; then
     printf "$marker does not exist.  Using rsync to transfer files.\n"
-    printf "Fetching $LPJS_SUBMIT_HOST:$LPJS_SUBMIT_DIRECTORY/$infile1\n"
     
     # Recreate directory structure in temp working dir and pull
     # our input files into it

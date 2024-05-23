@@ -1,0 +1,157 @@
+#!/bin/sh -e
+
+##########################################################################
+#   Description:
+#       Run kallisto quantification for each RNA sample.
+#
+#   Dependencies:
+#       Requires kallisto index.  Run after *-kallisto-index.lpjs.
+#
+#       All necessary tools are assumed to be in PATH.  If this is not
+#       the case, add whatever code is needed here to gain access.
+#       (Adding such code to your .bashrc or other startup script is
+#       generally a bad idea since it's too complicated to support
+#       every program with one environment.)
+#       
+#   History:
+#   Date        Name        Modification
+#   2019-11-??  Jason Bacon Begin
+##########################################################################
+
+#lpjs jobs 18
+#lpjs procs-per-job 4
+#lpjs min-procs-per-node procs-per-job
+#lpjs pmem-per-proc 1500MB
+#lpjs log-dir Logs/09-kallisto-quant
+
+##############################################################################
+# --genomebam is needed to generate a genome-mapped BAM file for browsing with
+# IGV.  It requires --gtf and --chromosomes. --chromosomes requires a TSV file
+# with chromosome name and length on each line.  The chromosome names in the
+# TSV must exactly match the names in the GTF.
+# https://github.com/pachterlab/kallisto/issues/155
+#
+# The format and source of the chromosomes TSV is not clearly documented.
+# I generated one using an Ensemble GFF with Reference/create-chrom-sizes.sh.
+# GTF does not contain chromosome features.
+
+# Set a default value for testing outside the LPJS environment
+: ${LPJS_ARRAY_INDEX:=1}
+: ${LPJS_PROCS_PER_JOB:=4}
+: ${LPJS_SUBMIT_HOST:=coral.acadix.biz}
+: ${LPJS_SUBMIT_DIRECTORY:=/opt/barracuda/bacon/CNC-EMDiff/RNA-Seq/LPJS}
+
+##############################################################################
+# Update PATH on a chimeric cluster (multiple operating systems used for
+# compute nodes.
+#
+# FreeBSD ports are installed under /usr/local
+# pkgsrc packages in a non-priveleged tree installed by auto-pkgsrc-setup
+# are installed under ~/Pkgsrc/pkg by default
+# pkgsrc packages in a priveleged tree (installed by root) on Linux and netBSD
+# are found under /usr/pkg by default
+# pkgsrc packages in a priveleged tree (installed by root) on macOS
+# are found under /opt/pkg by default (/usr is read-only on Macs)
+# $HOME is not set on Darwin
+# Prepend common pkgsrc bin directories if they exist
+##############################################################################
+
+for prefix in /Users/$LPJS_USER_NAME/Pkgsrc/pkg \
+	      /home/$LPJS_USER_NAME/Pkgsrc/pkg \
+	      /usr/pkg \
+	      /opt/pkg; do
+    if [ -e $prefix ]; then
+	PATH=$prefix/bin:$PATH
+	export PATH
+    fi
+done
+
+##############################################################################
+# If this node cannot access the input files using NFS, pull them from
+# the submit node.  If all nodes use NFS, this can be removed.  Out macOS
+# node currently does not use NFS due to issues with Apple's full disk
+# access security feature.
+##############################################################################
+
+marker=lpjs-$LPJS_SUBMIT_HOST-shared-fs-marker
+if [ ! -e $marker ]; then
+    printf "$marker does not exist.  Using rsync to transfer files.\n"
+    
+    # Recreate directory structure in temp working dir and pull
+    # our input files into it
+    input_dir='Results/04-trim'
+    output_dir='Results/09-kallisto-quant'
+    index_dir='Results/08-kallisto-index'
+    mkdir -p $input_dir $output_dir $index_dir ../Reference
+    input1="$input_dir/*sample${LPJS_ARRAY_INDEX}-*R1*.zst"
+    input2="$input_dir/*sample${LPJS_ARRAY_INDEX}-*R2*.zst"
+    set -x
+    rsync --copy-links ${LPJS_SUBMIT_HOST}:$LPJS_SUBMIT_DIRECTORY/$input1 $input_dir
+    rsync --copy-links ${LPJS_SUBMIT_HOST}:$LPJS_SUBMIT_DIRECTORY/$input2 $input_dir
+    rsync -r --copy-links ${LPJS_SUBMIT_HOST}:$LPJS_SUBMIT_DIRECTORY/$index_dir/ $index_dir
+    rsync -r --copy-links ${LPJS_SUBMIT_HOST}:$LPJS_SUBMIT_DIRECTORY/../Reference/ ../Reference
+    # FIXME: Still need ../../Common
+    ls ../Reference/
+    set +x
+else
+    printf "$marker found.  No need to transfer files.\n"
+    input1=$(ls Results/01-organize/Raw-renamed/*sample${LPJS_ARRAY_INDEX}-*R1*)
+    input2=$(ls Results/01-organize/Raw-renamed/*sample${LPJS_ARRAY_INDEX}-*R2*)
+fi
+
+# Document software versions used for publication
+uname -a
+kallisto version
+pwd
+
+gtf=$(../Reference/gtf-filename.sh)
+
+# If using hdf5, you may need this:
+# https://github.com/pachterlab/kallisto/issues/197
+# export HDF5_USE_FILE_LOCKING=FALSE
+
+# merge-bams.lpjs relies on sample N being in Results/09-kallisto-quant/N
+# The sample number comes after -sample in the filename, e.g.
+# chondro-sample4-rep2-time1-R1.fastq.zst is sample 4
+
+# kallisto 0.46.1 can't handle zstd and will simply seg fault rather than
+# issue an error message.  If your trimmed fastq files are in zstd format,
+# this will convert to gzip format.
+# Convert zstd to gz rather than raw to reduce NFS load from compute nodes
+# --fast minimizes CPU usage in exchange for larger files
+printf "Creating .gz files for kallisto...\n"
+zst1=$(echo Results/04-trim/*sample${LPJS_ARRAY_INDEX}-*-R1.fastq.zst)
+zst2=$(echo Results/04-trim/*sample${LPJS_ARRAY_INDEX}-*-R2.fastq.zst)
+gz1=${zst1%.zst}.gz
+gz2=${zst2%.zst}.gz
+
+# Run both at the same time, since we allocated 4 cores anyway
+# These are CPU-bound, so disk will not usually be a bottleneck
+test -e $gz1 || zstdcat $zst1 | gzip --fast --stdout > $gz1 &
+test -e $gz2 || zstdcat $zst2 | gzip --fast --stdout > $gz2
+wait
+
+# Kallisto requires an output subdirectory for each sample
+stem=$(basename ${gz1%-R1*})
+
+out_dir=Results/09-kallisto-quant/$stem
+mkdir -p $out_dir
+
+##########################################################################
+# Manual says a GTF is needed.  Kallisto aborts using GFF3.
+#
+# If pseudobams are desired for viewing
+# Real BAMs are generated by hisat2, though
+#
+#    --genomebam \
+#        --gtf=Results/07-reference/$gtf \
+#        --chromosomes=Results/07-reference/chromosome-sizes.tsv \
+#
+# Kallisto is much faster without pseudobams and bootstrap estimates
+##########################################################################
+
+set -x
+kallisto quant \
+    --threads=$LPJS_PROCS_PER_JOB \
+    --index=Results/08-kallisto-index/all-but-xy.index \
+    --output-dir=$out_dir $gz1 $gz2
