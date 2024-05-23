@@ -5,9 +5,9 @@
 #   to work with GFF3.  Use the equivalent gff3 script instead.
 ##########################################################################
 
-fetch=$(../Common/find-fetch.sh)
-release=$(../Common/genome-release.sh)
-gtf=$(Reference/gtf-filename.sh)
+fetch=$(../../Common/find-fetch.sh)
+release=$(../../Common/genome-release.sh)
+gtf=$(../Reference/gtf-filename.sh)
 
 # GTF
 # Can't guarantee this file or the chromosome files will always be available.
