@@ -1,0 +1,48 @@
+#!/bin/sh -e
+
+##########################################################################
+#   Script description:
+#       QC kallisto alignments
+#
+#   Dependencies:
+#       Requires kallisto pseudobams.  Run after *-kallisto-quant.sbatch.
+#
+#   Usage:
+#       SLURM cluster:
+#           sbatch 5-qc.sbatch
+#       No cluster:
+#           ../slurm-sim 5-qc.sbatch |& tee 5.log
+#
+#   History:
+#       Based on the work of Dr. Andrea Rau:
+#       https://github.com/andreamrau/OpticRegen_2019
+#   Date        Name        Modification
+#   2020-02-25  Jason Bacon Begin
+##########################################################################
+
+##########################################################################
+#   Main
+##########################################################################
+
+#lpjs jobs 18
+#lpjs procs-per-job 2
+#lpjs min-procs-per-node procs-per-job
+# Memory requirements can only be determined by trial and error.
+# Run a sample job and monitor closely in "top" or rununder a tool that
+# reports maximum memory use.
+#lpjs pmem-per-proc 200MiB
+#lpjs log-dir Logs/10-qc-sam
+
+: ${LPJS_ARRAY_INDEX:=1}
+
+# Document software versions used for publication
+uname -a
+fastqc --version
+pwd
+
+# One iteration if running under SLURM, all iterations otherwise
+printf "Running task $LPJS_ARRAY_INDEX...\n"
+
+infile=Results/09-kallisto-quant/*sample$LPJS_ARRAY_INDEX*/pseudoalignments.bam
+mkdir Results/10-qc-sam/$LPJS_ARRAY_INDEX
+fastqc $infile -o Results/10-qc-sam/$LPJS_ARRAY_INDEX
