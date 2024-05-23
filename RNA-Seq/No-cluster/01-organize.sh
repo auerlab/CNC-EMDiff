@@ -40,7 +40,7 @@ if [ $# != 0 ]; then
 fi
 
 mkdir -p Results Logs
-scripts=$(ls 0[2-9]-*)
+scripts=$(ls 0[2-9]-* 1[1-9]-*)
 for script in $scripts; do
     stage=${script%.*}
     mkdir -p Results/$stage Logs/$stage
