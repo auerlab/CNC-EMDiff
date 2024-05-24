@@ -4,10 +4,10 @@
 #   GFF is used by downstream analysis, such as peak classification
 ##########################################################################
 
-fetch=$(../../Common/find-fetch.sh)
-build=$(../../Common/genome-build.sh)
-release=$(../../Common/genome-release.sh)
-gff=$(../Reference/gff-filename.sh)
+fetch=$(Common/find-fetch.sh)
+build=$(Common/genome-build.sh)
+release=$(Common/genome-release.sh)
+gff=$(Reference/gff-filename.sh)
 
 ##########################################################################
 # Ensembl combined GFFs are sorted lexically by chromosome, while BAMs are

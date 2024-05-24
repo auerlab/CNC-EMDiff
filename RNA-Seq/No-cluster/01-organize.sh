@@ -85,6 +85,9 @@ done
 # NE3C_S18_L002-R2.fastq.xz
 ##############################################################################
 
+ln -sf ../../Common .
+ln -sf ../Reference .
+
 # CE1A_S1_L002-R1.fastq.xz
 cd Results
 rm -rf 01-organize/Raw-renamed
@@ -106,3 +109,4 @@ for rep in 1 2 3; do
 	done
     done
 done
+

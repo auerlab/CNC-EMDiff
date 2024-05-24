@@ -82,16 +82,16 @@ if [ ! -e $marker ]; then
     input_dir='Results/04-trim'
     output_dir='Results/09-kallisto-quant'
     index_dir='Results/08-kallisto-index'
-    mkdir -p $input_dir $output_dir $index_dir ../Reference
+    mkdir -p $input_dir $output_dir $index_dir
     input1="$input_dir/*sample${LPJS_ARRAY_INDEX}-*R1*.zst"
     input2="$input_dir/*sample${LPJS_ARRAY_INDEX}-*R2*.zst"
     set -x
     rsync --copy-links ${LPJS_SUBMIT_HOST}:$LPJS_SUBMIT_DIRECTORY/$input1 $input_dir
     rsync --copy-links ${LPJS_SUBMIT_HOST}:$LPJS_SUBMIT_DIRECTORY/$input2 $input_dir
     rsync -r --copy-links ${LPJS_SUBMIT_HOST}:$LPJS_SUBMIT_DIRECTORY/$index_dir/ $index_dir
-    rsync -r --copy-links ${LPJS_SUBMIT_HOST}:$LPJS_SUBMIT_DIRECTORY/../Reference/ ../Reference
+    rsync -r --copy-links ${LPJS_SUBMIT_HOST}:$LPJS_SUBMIT_DIRECTORY/Reference/ Reference
     # FIXME: Still need ../../Common
-    ls ../Reference/
+    ls Reference/
     set +x
 else
     printf "$marker found.  No need to transfer files.\n"
@@ -104,7 +104,7 @@ uname -a
 kallisto version
 pwd
 
-gtf=$(../Reference/gtf-filename.sh)
+gtf=$(Reference/gtf-filename.sh)
 
 # If using hdf5, you may need this:
 # https://github.com/pachterlab/kallisto/issues/197

@@ -1,23 +1,23 @@
 #!/bin/sh -e
 
-proper_name="../Reference/gtf2fasta.sh"
+proper_name="Reference/gtf2fasta.sh"
 if [ $0 != $proper_name ]; then
     printf "$0 must be run as $proper_name\n"
     printf "from inside the Reference directory.\n"
     exit 1
 fi
 
-../Reference/fetch-gtf.sh
+Reference/fetch-gtf.sh
 
-fetch=$(../../Common/find-fetch.sh)
-build=$(../../Common/genome-build.sh)
-release=$(../../Common/genome-release.sh)
+fetch=$(Common/find-fetch.sh)
+build=$(Common/genome-build.sh)
+release=$(Common/genome-release.sh)
 
-transcriptome=$(../Reference/transcriptome-filename.sh)
-gtf=$(../Reference/gtf-filename.sh)
-genome=$(../Reference/genome-filename.sh)
+transcriptome=$(Reference/transcriptome-filename.sh)
+gtf=$(Reference/gtf-filename.sh)
+genome=$(Reference/genome-filename.sh)
 
-../Reference/build-genome.sh
+Reference/build-genome.sh
 
 # https://github.com/griffithlab/rnaseq_tutorial/wiki/Kallisto
 cd Results/07-reference

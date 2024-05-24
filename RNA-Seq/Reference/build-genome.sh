@@ -1,18 +1,18 @@
 #!/bin/sh -e
 
-if [ $0 != "../Reference/build-genome.sh" ]; then
+if [ $0 != "Reference/build-genome.sh" ]; then
     cat << EOM
 
-$0 must be run as ../Reference/build-genome.sh.
+$0 must be run as Reference/build-genome.sh.
 
 EOM
     exit 1
 fi
 
-fetch=$(../../Common/find-fetch.sh)
-build=$(../../Common/genome-build.sh)
-release=$(../../Common/genome-release.sh)
-genome=$(../Reference/genome-filename.sh)
+fetch=$(Common/find-fetch.sh)
+build=$(Common/genome-build.sh)
+release=$(Common/genome-release.sh)
+genome=$(Reference/genome-filename.sh)
 
 # Chromosome files
 mkdir -p Results/07-reference

@@ -1,5 +1,8 @@
 #!/bin/sh -e
 
+ln -sf ../../Common .
+ln -sf ../Reference .
+
 mkdir -p Results Logs
 scripts=$(ls 0[2-9]-*.lpjs 1[0-9]*.lpjs)
 for script in $scripts; do
