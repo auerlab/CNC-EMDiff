@@ -89,9 +89,9 @@ if [ ! -e $marker ]; then
     rsync --copy-links ${LPJS_SUBMIT_HOST}:$LPJS_SUBMIT_DIRECTORY/$input1 $input_dir
     rsync --copy-links ${LPJS_SUBMIT_HOST}:$LPJS_SUBMIT_DIRECTORY/$input2 $input_dir
     rsync -r --copy-links ${LPJS_SUBMIT_HOST}:$LPJS_SUBMIT_DIRECTORY/$index_dir/ $index_dir
-    rsync -r --copy-links ${LPJS_SUBMIT_HOST}:$LPJS_SUBMIT_DIRECTORY/Reference/ Reference
-    # FIXME: Still need ../../Common
-    ls Reference/
+    rsync -r --copy-links ${LPJS_SUBMIT_HOST}:$LPJS_SUBMIT_DIRECTORY/Reference .
+    rsync -r --copy-links ${LPJS_SUBMIT_HOST}:$LPJS_SUBMIT_DIRECTORY/Common .
+    ls Reference/ Common/
     set +x
 else
     printf "$marker found.  No need to transfer files.\n"
