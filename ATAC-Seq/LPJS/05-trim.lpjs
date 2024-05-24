@@ -34,7 +34,7 @@
  
 # Set job array to number of samples.
 #lpjs jobs 18
-#lpjs procs-per-job 3
+#lpjs procs-per-job 2
 #lpjs min-procs-per-node procs-per-job
 #lpjs pmem-per-proc 10MiB
 #lpjs log-dir Logs/05-trim
