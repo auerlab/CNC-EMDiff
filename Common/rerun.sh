@@ -11,7 +11,7 @@
 
 usage()
 {
-    printf "Usage: $0 script.sbatch\n"
+    printf "Usage: $0 script\n"
     exit 1
 }
 
