@@ -73,7 +73,7 @@ output_dir='Results/02-qc-raw'
 
 ##############################################################################
 # If this node cannot access the input files using NFS, pull them from
-# the submit node.  If all nodes use NFS, this can be removed.  Out macOS
+# the submit node.  If all nodes use NFS, this can be removed.  Our macOS
 # node currently does not use NFS due to issues with Apple's full disk
 # access security feature.
 ##############################################################################
@@ -98,15 +98,22 @@ else
     set +x
 fi
 
-printf "Processing $input1 and $input2...\n"
-
 # Filename stems for fastqc output
-stem_input1=$(basename ${input1%.fastq.xz})
-stem_input2=$(basename ${input2%.fastq.xz})
+base1=$(basename $input1)
+base2=$(basename $input2)
+stem_input1=${base1%.fastq.xz}
+stem_input2=${base2%.fastq.xz}
+printf "Processing $stem_input1 and $stem_input2 on $(hostname)...\n"
 
 # Background the first three to run 4 jobs in parallel
+set -x
 xzcat $input1 | fastqc -o Results/02-qc-raw stdin:$stem_input1 &
 xzcat $input2 | fastqc -o Results/02-qc-raw stdin:$stem_input2
 
 # Make sure backgrounded job completes before terminating script
 wait
+
+# Avoid sending back inputs
+if [ ! -e $marker ]; then
+    rm -f $input1 $input2
+fi
