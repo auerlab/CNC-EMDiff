@@ -1,7 +1,7 @@
 #!/bin/sh -e
 
 ln -sf ../../Common .
-ln -sf ../Reference .
+ln -sf ../../RNA-Seq/Reference .
 
 mkdir -p Results Logs
 scripts=$(ls 0[2-9]-*.sh 1[0-9]*.sh 0[2-9]-*.lpjs 1[0-9]*.lpjs 0[2-9]-*.sbatch 1[0-9]*.sbatch) || true

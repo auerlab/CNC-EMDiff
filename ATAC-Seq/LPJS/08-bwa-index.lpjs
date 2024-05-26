@@ -31,16 +31,10 @@ bwa || true
 pwd
 printenv
 
-genome_file=$(../RNA-Seq/Reference/genome-filename.sh)
+genome_file=$(Reference/genome-filename.sh)
+genome_dir=Results/07-reference
 
-genome_dir=../RNA-Seq/Results/07-reference
-if [ ! -e $genome_dir/$genome_file ]; then
-    save_cwd=$(pwd)
-    cd ../RNA-Seq
-    Reference/build-genome.sh
-    cd $save_cwd
-fi
-
+# FIXME: Add code for non-NFS nodes
 cd Results/08-bwa-index
 ln -sf ../../$genome_dir/$genome_file
 bwa index $genome_file
