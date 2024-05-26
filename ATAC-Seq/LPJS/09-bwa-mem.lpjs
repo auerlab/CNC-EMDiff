@@ -16,33 +16,93 @@
 #lpjs jobs 18
 #lpjs procs-per-job 4
 #lpjs min-procs-per-node procs-per-job
-#lpjs pmem-per-proc 6GB
+#lpjs pmem-per-proc 1500MB
 #lpjs log-dir Logs/09-bwa-mem
 
 # Set a default value for testing outside the LPJS environment
 : ${LPJS_ARRAY_INDEX:=1}
 : ${LPJS_PROCS_PER_JOB:=4}
 
+##############################################################################
+# Update PATH on a chimeric cluster (multiple operating systems used for
+# compute nodes.
+#
+# FreeBSD ports are installed under /usr/local
+# pkgsrc packages in a non-priveleged tree installed by auto-pkgsrc-setup
+# are installed under ~/Pkgsrc/pkg by default
+# pkgsrc packages in a priveleged tree (installed by root) on Linux and netBSD
+# are found under /usr/pkg by default
+# pkgsrc packages in a priveleged tree (installed by root) on macOS
+# are found under /opt/pkg by default (/usr is read-only on Macs)
+# $HOME is not set on Darwin
+# Prepend common pkgsrc bin directories if they exist
+##############################################################################
+
+for prefix in $LPJS_HOME_DIR/Pkgsrc/pkg /usr/pkg /opt/pkg; do
+    if [ -e $prefix ]; then
+	PATH=$prefix/bin:$PATH
+	export PATH
+    fi
+done
+
 # Document software versions used for publication
 uname -a
-bwa || true
+hostname
 pwd
+which fastq-trim
+bwa || true
+printenv
+
+##############################################################################
+# If this node cannot access the input files using NFS, pull them from
+# the submit node.  If all nodes use NFS, this can be removed.  Out macOS
+# node currently does not use NFS due to issues with Apple's full disk
+# access security feature.
+##############################################################################
+
+input_dir='Results/04-trim'
+output_dir='Results/09-bwa-mem'
+index_dir='Results/08-bwa-index'
+
+marker=lpjs-$LPJS_SUBMIT_HOST-shared-fs-marker
+if [ ! -e $marker ]; then
+    printf "$marker does not exist.  Using rsync to transfer files.\n"
+    
+    # Recreate directory structure in temp working dir and pull
+    # our input files into it
+    mkdir -p $input_dir $output_dir
+    input1="$input_dir/*sample${LPJS_ARRAY_INDEX}-*R1*"
+    input2="$input_dir/*sample${LPJS_ARRAY_INDEX}-*R2*"
+    set -x
+    rsync -rv --copy-links ${LPJS_SUBMIT_HOST}:$LPJS_SUBMIT_DIRECTORY/Reference .
+    rsync -rv --copy-links ${LPJS_SUBMIT_HOST}:$LPJS_SUBMIT_DIRECTORY/$index_dir Results/
+    rsync --copy-links ${LPJS_SUBMIT_HOST}:$LPJS_SUBMIT_DIRECTORY/$input1 $input_dir
+    rsync --copy-links ${LPJS_SUBMIT_HOST}:$LPJS_SUBMIT_DIRECTORY/$input2 $input_dir
+    set +x
+else
+    printf "$marker found.  No need to transfer files.\n"
+    input1=$(ls $input_dir/*sample$LPJS_ARRAY_INDEX-*R1*)
+    input2=$(ls $input_dir/*sample$LPJS_ARRAY_INDEX-*R2*)
+fi
 
 ref_file=$(Reference/genome-filename.sh)
 
 # One iteration if running under LPJS, all iterations otherwise
-cd Results/09-bwa-mem
 printf "Running task $LPJS_ARRAY_INDEX...\n"
-infile1=$(ls ../04-trim/*sample$LPJS_ARRAY_INDEX-*-R1.fastq.zst)
-infile2=$(ls ../04-trim/*sample$LPJS_ARRAY_INDEX-*-R2.fastq.zst)
-outfile=$(basename ${infile1%-R1.fastq.gz}).sam
+outfile=$(basename ${input1%-R1.fastq.gz}).sam
 
 set -x
+cd $output_dir
 rm -f pipe1 pipe2
 mkfifo pipe1
 mkfifo pipe2
-zstdcat $infile1 > pipe1 &
-zstdcat $infile2 > pipe2 &
+zstdcat ../../$input1 > pipe1 &
+zstdcat ../../$input2 > pipe2 &
 bwa mem -M -t $LPJS_PROCS_PER_JOB \
     ../08-bwa-index/$ref_file pipe1 pipe2 > $outfile
 wait
+
+# Don't waste time and bandwidth sending back input files
+if [ ! -e $marker ]; then
+    rm -rf $input_dir $index_dir Reference
+fi
