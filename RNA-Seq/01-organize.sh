@@ -18,10 +18,6 @@
 #   Dependencies:
 #       Creates required directory structure.
 #       Run this before all other scripts.
-#       
-#   History:
-#   Date        Name        Modification
-#   2021-09-25  Jason Bacon Begin
 ##########################################################################
 
 usage()

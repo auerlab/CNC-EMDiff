@@ -1,11 +1,17 @@
 #!/bin/sh -e
 
 #########################################################################
+#   Description:
 #   MultiQC is optional, but helpful for visualizing raw read quality
 #   and trimming results
 #
 #   Dependencies:
 #       Requires raw FastQC results.  Run after *-qc-raw.sbatch.
+##########################################################################
+
+##########################################################################
+#   Main
+##########################################################################
 
 #lpjs jobs 1
 #lpjs procs-per-job 1

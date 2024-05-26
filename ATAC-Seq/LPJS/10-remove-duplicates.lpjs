@@ -7,12 +7,6 @@
 #       concurrency.
 #
 #       FIXME: Explore using Picard MarkDuplicates for this instead
-#
-#   History:
-#       Based on the work of Dr. Andrea Rau:
-#       https://github.com/andreamrau/OpticRegen_2019
-#   Date        Name        Modification
-#   2020-03-01  Jason Bacon Begin
 ##########################################################################
 
 ##########################################################################

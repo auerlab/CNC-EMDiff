@@ -12,10 +12,6 @@
 #       (Adding such code to your .bashrc or other startup script is
 #       generally a bad idea since it's too complicated to support
 #       every program with one environment.)
-#       
-#   History:
-#   Date        Name        Modification
-#   2019-11-??  Jason Bacon Begin
 ##########################################################################
 
 #lpjs jobs 18

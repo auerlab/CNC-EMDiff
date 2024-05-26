@@ -12,12 +12,6 @@
 #           sbatch 5-qc.sbatch
 #       No cluster:
 #           ../slurm-sim 5-qc.sbatch |& tee 5.log
-#
-#   History:
-#       Based on the work of Dr. Andrea Rau:
-#       https://github.com/andreamrau/OpticRegen_2019
-#   Date        Name        Modification
-#   2020-02-25  Jason Bacon Begin
 ##########################################################################
 
 ##########################################################################
