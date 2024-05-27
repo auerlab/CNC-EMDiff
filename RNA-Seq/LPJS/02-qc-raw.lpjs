@@ -108,5 +108,5 @@ wait
 
 # Avoid sending back inputs
 if [ ! -e $marker ]; then
-    rm -f $input1 $input2
+    rm -rf $input_dir
 fi

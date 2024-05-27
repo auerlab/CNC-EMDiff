@@ -103,3 +103,8 @@ zstdcat $input2 | fastqc -o Results/05-qc-trimmed stdin:$stem_input2
 
 # Make sure backgrounded job completes before terminating script
 wait
+
+# Avoid sending back inputs
+if [ ! -e $marker ]; then
+    rm -rf $input_dir
+fi
