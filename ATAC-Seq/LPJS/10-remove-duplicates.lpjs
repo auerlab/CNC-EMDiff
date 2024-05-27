@@ -13,18 +13,70 @@
 #   Main
 ##########################################################################
 
-#SBATCH --array=1-18%6
-#SBATCH --mem=3g
-#SBATCH --output=Logs/10-remove-duplicates/slurm-%A_%a.out
-#SBATCH --error=Logs/10-remove-duplicates/slurm-%A_%a.err
+#lpjs jobs 18
+#lpjs procs-per-job 1
+#lpjs min-procs-per-node procs-per-job
+#lpjs pmem-per-proc 3GB
+#lpjs log-dir Logs/10-remove-duplicates
 
-# Set a default value for testing outside the SLURM environment
-: ${SLURM_ARRAY_TASK_ID:=1}
+# Set a default value for testing outside the LPJS environment
+: ${LPJS_ARRAY_INDEX:=1}
+
+##############################################################################
+# Update PATH on a chimeric cluster (multiple operating systems used for
+# compute nodes.
+#
+# FreeBSD ports are installed under /usr/local
+# pkgsrc packages in a non-priveleged tree installed by auto-pkgsrc-setup
+# are installed under ~/Pkgsrc/pkg by default
+# pkgsrc packages in a priveleged tree (installed by root) on Linux and netBSD
+# are found under /usr/pkg by default
+# pkgsrc packages in a priveleged tree (installed by root) on macOS
+# are found under /opt/pkg by default (/usr is read-only on Macs)
+# $HOME is not set on Darwin
+# Prepend common pkgsrc bin directories if they exist
+##############################################################################
+
+for prefix in $LPJS_HOME_DIR/Pkgsrc/pkg /usr/pkg /opt/pkg; do
+    if [ -e $prefix ]; then
+	PATH=$prefix/bin:$PATH
+	export PATH
+    fi
+done
 
 # Document software versions used for publication
 uname -a
-samtools --version
+hostname
 pwd
+samtools --version
+printenv
+
+##############################################################################
+# If this node cannot access the input files using NFS, pull them from
+# the submit node.  If all nodes use NFS, this can be removed.  Out macOS
+# node currently does not use NFS due to issues with Apple's full disk
+# access security feature.
+##############################################################################
+
+input_dir='Results/09-bwa-mem'
+output_dir='Results/10-remove-duplicates'
+
+marker=lpjs-$LPJS_SUBMIT_HOST-shared-fs-marker
+if [ ! -e $marker ]; then
+    printf "$marker does not exist.  Using rsync to transfer files.\n"
+    
+    # Recreate directory structure in temp working dir and pull
+    # our input files into it
+    mkdir -p $input_dir $output_dir
+    # Example: chondro-sample1-rep1-time1.sam
+    saminput="$input_dir/*sample$LPJS_ARRAY_INDEX-*"
+    set -x
+    rsync --copy-links ${LPJS_SUBMIT_HOST}:$LPJS_SUBMIT_DIRECTORY/$saminput $input_dir
+    set +x
+else
+    printf "$marker found.  No need to transfer files.\n"
+    saminput=$(ls $input_dir/*sample$LPJS_ARRAY_INDEX-*)
+fi
 
 # FIXME: Remove duplicate reads before alignment to cut down on redundant
 # alignments.  Still need to run this step since we cannot identify all
@@ -35,7 +87,7 @@ cd Results/10-remove-duplicates
 # This should match only 1 file.  '*' used only to match irrelevant variations.
 # The integer following 'S' in the filename should be unique (1 - 18)
 # Variable assignments don't expand globbing patterns, so insert an ls command
-saminput=$(ls ../09-bwa-mem/*sample$SLURM_ARRAY_TASK_ID-*.sam)
+saminput=$(ls ../09-bwa-mem/*sample$LPJS_ARRAY_INDEX-*.sam)
 sambase=$(basename $saminput)
 sorted=${sambase%.sam}-sorted.bam
 nodup=${sambase%.sam}-nodup.bam
@@ -97,3 +149,8 @@ rm -f $nodup $nodup.*
 samtools index $nodupmapq1
 samtools idxstats $nodupmapq1 > $nodupmapq1.idxstats
 samtools flagstat $nodupmapq1 > $nodupmapq1.flagstat
+
+# Don't waste time and bandwidth sending back input files
+if [ ! -e $marker ]; then
+    rm -rf $input_dir
+fi

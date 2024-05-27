@@ -43,10 +43,7 @@
 # Prepend common pkgsrc bin directories if they exist
 ##############################################################################
 
-for prefix in /Users/$LPJS_USER_NAME/Pkgsrc/pkg \
-	      /home/$LPJS_USER_NAME/Pkgsrc/pkg \
-	      /usr/pkg \
-	      /opt/pkg; do
+for prefix in $LPJS_HOME_DIR/Pkgsrc/pkg /usr/pkg /opt/pkg; do
     if [ -e $prefix ]; then
 	PATH=$prefix/bin:$PATH
 	export PATH

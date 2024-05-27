@@ -24,8 +24,10 @@ done
 # Was meant to use the same naming convention as RNA-Seq, but replicate and
 # time point were swapped in the sample naming.
 #
-# The digit in the 3rd character of the filename (1,2,3) indicates time point
-# The letter in the 4th character (A, B, C) represents replicate
+# The digit in the 3rd character of the filename (1,2,3) was supposed to
+# indicate replicate, but actually indicates time point
+# The letter in the 4th character (A, B, C) was supposed to indicate
+# time point, but actually represents replicate
 #   A = rep 0, B = rep 1, C = rep 2
 # The number following _S is the sample #
 #

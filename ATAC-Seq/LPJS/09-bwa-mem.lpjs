@@ -49,7 +49,6 @@ done
 uname -a
 hostname
 pwd
-which fastq-trim
 bwa || true
 printenv
 
@@ -89,7 +88,7 @@ ref_file=$(Reference/genome-filename.sh)
 
 # One iteration if running under LPJS, all iterations otherwise
 printf "Running task $LPJS_ARRAY_INDEX...\n"
-outfile=$(basename ${input1%-R1.fastq.gz}).sam
+outfile=$(basename ${input1%-R1.fastq.*}).sam
 
 set -x
 cd $output_dir
