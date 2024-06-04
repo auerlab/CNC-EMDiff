@@ -47,7 +47,7 @@
 ##############################################################################
 
 # Not every sh implementation can combine the two commands below
-PATH=$LPJS_HOME_DIR/Pkgsrc/pkg:$path
+PATH=$LPJS_HOME_DIR/Pkgsrc/pkg/bin:$PATH
 export PATH
 
 # Document software versions used for publication
