@@ -66,6 +66,8 @@ printenv
 ##############################################################################
 
 marker=lpjs-$LPJS_SUBMIT_HOST-shared-fs-marker
+pwd
+ls
 if [ ! -e $marker ]; then
     printf "$marker does not exist.  Using rsync to transfer files.\n"
     

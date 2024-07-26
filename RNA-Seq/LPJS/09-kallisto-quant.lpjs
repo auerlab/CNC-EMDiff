@@ -59,15 +59,16 @@ export PATH
 # access security feature.
 ##############################################################################
 
+input_dir='Results/04-trim'
+output_dir='Results/09-kallisto-quant'
+index_dir='Results/08-kallisto-index'
+
 marker=lpjs-$LPJS_SUBMIT_HOST-shared-fs-marker
 if [ ! -e $marker ]; then
     printf "$marker does not exist.  Using rsync to transfer files.\n"
     
     # Recreate directory structure in temp working dir and pull
     # our input files into it
-    input_dir='Results/04-trim'
-    output_dir='Results/09-kallisto-quant'
-    index_dir='Results/08-kallisto-index'
     mkdir -p $input_dir $output_dir $index_dir
     input1="$input_dir/*sample${LPJS_ARRAY_INDEX}-*R1*.zst"
     input2="$input_dir/*sample${LPJS_ARRAY_INDEX}-*R2*.zst"
@@ -120,8 +121,8 @@ wait
 # Kallisto requires an output subdirectory for each sample
 stem=$(basename ${gz1%-R1*})
 
-out_dir=Results/09-kallisto-quant/$stem
-mkdir -p $out_dir
+my_output_dir=$output_dir/$stem
+mkdir -p $my_output_dir
 
 ##########################################################################
 # Manual says a GTF is needed.  Kallisto aborts using GFF3.
@@ -141,4 +142,9 @@ set -x
 kallisto quant \
     --threads=$LPJS_PROCS_PER_JOB \
     --index=Results/08-kallisto-index/all-but-xy.index \
-    --output-dir=$out_dir $gz1 $gz2
+    --output-dir=$my_output_dir $gz1 $gz2
+
+# Don't waste time sending back input files
+if [ ! -e $marker ]; then
+    rm -rf $input_dir $index_dir Reference Common
+fi
