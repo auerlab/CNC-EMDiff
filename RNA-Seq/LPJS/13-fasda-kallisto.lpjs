@@ -33,6 +33,21 @@ pwd
 kallisto_dir=Results/09-kallisto-quant
 fasda_dir=Results/13-fasda-kallisto
 
+marker=lpjs-$LPJS_SUBMIT_HOST-shared-fs-marker
+if [ ! -e $marker ]; then
+    printf "$marker does not exist.  Using rsync to transfer files.\n"
+    
+    # Recreate directory structure in temp working dir and pull
+    # our input files into it
+    mkdir -p $fasda_dir
+    set -x
+    rsync -r --copy-links ${LPJS_SUBMIT_HOST}:$LPJS_SUBMIT_DIRECTORY/$kallisto_dir \
+	    Results/
+    set +x
+else
+    printf "$marker found.  No need to transfer files.\n"
+fi
+
 for cell_type in neuro chondro; do
     for condition in time1 time2 time3; do
 	printf "Normalizing $condition...\n"
@@ -57,3 +72,8 @@ for cell_type in neuro chondro; do
 	$fasda_dir/$cell_type-time2-all-norm.tsv \
 	$fasda_dir/$cell_type-time3-all-norm.tsv
 done
+
+# Don't waste time send back input files
+if [ ! -e $marker ]; then
+    rm -rf $kallisto_dir
+fi
