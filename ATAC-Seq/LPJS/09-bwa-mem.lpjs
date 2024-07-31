@@ -16,7 +16,7 @@
 #lpjs jobs 18
 #lpjs procs-per-job 4
 #lpjs min-procs-per-node procs-per-job
-#lpjs pmem-per-proc 1500MB
+#lpjs pmem-per-proc 1300MB
 #lpjs log-dir Logs/09-bwa-mem
 
 ##############################################################################
@@ -85,13 +85,15 @@ outfile=$(basename ${input1%-R1.fastq.*}).sam
 
 set -x
 cd $output_dir
-rm -f pipe1 pipe2
-mkfifo pipe1
-mkfifo pipe2
-zstdcat ../../$input1 > pipe1 &
-zstdcat ../../$input2 > pipe2 &
+pipe1=pipe1.$LPJS_JOB_ID
+pipe2=pipe2.$LPJS_JOB_ID
+rm -f $pipe1 $pipe2
+mkfifo $pipe1
+mkfifo $pipe2
+zstdcat ../../$input1 > $pipe1 &
+zstdcat ../../$input2 > $pipe2 &
 bwa mem -M -t $LPJS_PROCS_PER_JOB \
-    ../08-bwa-index/$ref_file pipe1 pipe2 > $outfile
+    ../08-bwa-index/$ref_file $pipe1 $pipe2 > $outfile
 wait
 
 # Don't waste time and bandwidth sending back input files
