@@ -95,6 +95,7 @@ zstdcat ../../$input2 > $pipe2 &
 bwa mem -M -t $LPJS_PROCS_PER_JOB \
     ../08-bwa-index/$ref_file $pipe1 $pipe2 > $outfile
 wait
+rm -f $pipe1 $pipe2
 
 # Don't waste time and bandwidth sending back input files
 if [ ! -e $marker ]; then
