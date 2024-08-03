@@ -22,7 +22,7 @@
 #lpjs log-dir Logs/13-merge-bams
 
 # Not every sh implementation can combine the two commands below
-PATH=$LPJS_HOME_DIR/Pkgsrc/pkg/bin:$PATH
+PATH=$LPJS_HOME_DIR/Pkgsrc/pkg/bin:/usr/pkgsrc:/opt/pkgsrc:$PATH
 export PATH
 
 # Set a default value for testing outside the LPJS environment

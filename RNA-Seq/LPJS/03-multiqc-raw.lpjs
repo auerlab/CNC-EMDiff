@@ -31,7 +31,7 @@
 ##############################################################################
 
 # Not every sh implementation can combine the two commands below
-PATH=$LPJS_HOME_DIR/Pkgsrc/pkg/bin:$PATH
+PATH=$LPJS_HOME_DIR/Pkgsrc/pkg/bin:/usr/pkg/bin:/opt/pkg/bin:$PATH
 export PATH
 
 # multiqc: LC_ALL and LANG must be set to a UTF-8 character set
