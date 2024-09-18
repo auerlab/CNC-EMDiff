@@ -39,7 +39,7 @@
 PATH=$LPJS_HOME_DIR/Pkgsrc/pkg/bin:$PATH
 export PATH
 
-# Set a default value for testing outside the SLURM environment
+# Set a default value for testing outside the LPJS environment
 : ${LPJS_ARRAY_INDEX:=1}
 
 # Document software versions used for publication

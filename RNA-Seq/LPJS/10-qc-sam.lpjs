@@ -8,10 +8,8 @@
 #       Requires kallisto pseudobams.  Run after *-kallisto-quant.sbatch.
 #
 #   Usage:
-#       SLURM cluster:
-#           sbatch 5-qc.sbatch
-#       No cluster:
-#           ../slurm-sim 5-qc.sbatch |& tee 5.log
+#       LPJS cluster:
+#           lpjs submit 5-qc.sbatch
 ##########################################################################
 
 ##########################################################################
@@ -49,7 +47,7 @@ uname -a
 fastqc --version
 pwd
 
-# One iteration if running under SLURM, all iterations otherwise
+# One iteration if running under LPJS, all iterations otherwise
 printf "Running task $LPJS_ARRAY_INDEX...\n"
 
 infile=Results/09-kallisto-quant/*sample$LPJS_ARRAY_INDEX*/pseudoalignments.bam
