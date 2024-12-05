@@ -68,6 +68,8 @@ printenv
 marker=lpjs-$LPJS_SUBMIT_HOST-shared-fs-marker
 pwd
 ls
+
+sample=$LPJS_ARRAY_INDEX
 if [ ! -e $marker ]; then
     printf "$marker does not exist.  Using rsync to transfer files.\n"
     
@@ -76,16 +78,16 @@ if [ ! -e $marker ]; then
     input_dir='Results/01-organize/Raw-renamed'
     output_dir='Results/04-trim'
     mkdir -p $input_dir $output_dir
-    input1="$input_dir/*sample${LPJS_ARRAY_INDEX}-*R1*"
-    input2="$input_dir/*sample${LPJS_ARRAY_INDEX}-*R2*"
+    input1="$input_dir/*sample${sample}-*R1*"
+    input2="$input_dir/*sample${sample}-*R2*"
     set -x
     rsync --copy-links ${LPJS_SUBMIT_HOST}:$LPJS_SUBMIT_DIRECTORY/$input1 $input_dir
     rsync --copy-links ${LPJS_SUBMIT_HOST}:$LPJS_SUBMIT_DIRECTORY/$input2 $input_dir
     set +x
 else
     printf "$marker found.  No need to transfer files.\n"
-    input1=$(ls Results/01-organize/Raw-renamed/*sample${LPJS_ARRAY_INDEX}-*R1*)
-    input2=$(ls Results/01-organize/Raw-renamed/*sample${LPJS_ARRAY_INDEX}-*R2*)
+    input1=$(ls Results/01-organize/Raw-renamed/*sample${sample}-*R1*)
+    input2=$(ls Results/01-organize/Raw-renamed/*sample${sample}-*R2*)
 fi
 
 # https://www.rootusers.com/gzip-vs-bzip2-vs-xz-performance-comparison/
