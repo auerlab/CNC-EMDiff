@@ -21,7 +21,8 @@
 #lpjs jobs 1
 #lpjs procs-per-job 1
 #lpjs min-procs-per-node procs-per-job
-#lpjs pmem-per-proc 4GiB
+# Peak in chaperone log = 1950500
+#lpjs pmem-per-proc 3GiB
 #lpjs log-dir Logs/08-kallisto-index
 
 ##############################################################################
