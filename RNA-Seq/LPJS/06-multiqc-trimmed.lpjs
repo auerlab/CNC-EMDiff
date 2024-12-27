@@ -16,7 +16,7 @@
 #lpjs jobs 1
 #lpjs procs-per-job 1
 #lpjs min-procs-per-node procs-per-job
-#lpjs pmem-per-proc 100MiB
+#lpjs pmem-per-proc 150MiB
 #lpjs log-dir Logs/03-multiqc-raw
 
 ##############################################################################
