@@ -22,7 +22,8 @@
 # Memory requirements can only be determined by trial and error.
 # Run a sample job and monitor closely in "top" or rununder a tool that
 # reports maximum memory use.
-#lpjs pmem-per-proc 200MiB
+# Guess based on raw and trimmed data mem use
+#lpjs pmem-per-proc 800MiB
 #lpjs log-dir Logs/10-qc-sam
 
 ##############################################################################
