@@ -25,15 +25,16 @@
 #lpjs jobs 18
 #lpjs procs-per-job 4
 #lpjs min-procs-per-node procs-per-job
-# FIXME: Verify this
-#lpjs pmem-per-proc 6GiB
+# Chaperone log shows 4200MB for 4 threads
+# Be sure to adjust if # of threads is changed
+#lpjs pmem-per-proc 1100MB
 #lpjs log-dir Logs/17-hisat2-align
 
 ##############################################################################
 # Align with hisat2, which can handle splice junctions in RNA reads
 
 # Set a default value for testing outside the SLURM environment
-: ${LPJS_JOB_INDEX:=1}
+: ${LPJS_ARRAY_INDEX:=1}
 
 # Document software versions used for publication
 uname -a
@@ -45,11 +46,12 @@ genome=$(Reference/genome-filename.sh)
 # samtools sort dumps temp files in CWD
 cd Results/17-hisat2-align
 
-gz1=$(echo ../04-trim/*sample${LPJS_JOB_INDEX}-*-R1.fastq.gz)
-gz2=$(echo ../04-trim/*sample${LPJS_JOB_INDEX}-*-R2.fastq.gz)
+gz1=$(echo ../04-trim/*sample${LPJS_ARRAY_INDEX}-*-R1.fastq.gz)
+gz2=$(echo ../04-trim/*sample${LPJS_ARRAY_INDEX}-*-R2.fastq.gz)
 
 gz_base=$(basename $gz1)
 bam=${gz_base%-R*}.bam
+bam_sorted=${gz_base%-R*}-sorted.bam
 
 # Set this to a partition with lots of space, preferably on the
 # compute node's local disk.  Samtools uses this for many large
@@ -59,10 +61,11 @@ tmpdir=/usr/tmp
 
 set -x
 hisat2 --threads $LPJS_PROCS_PER_JOB -x ../16-hisat2-index/$genome \
-    -1 $gz1 -2 $gz2 | samtools sort -T $tmpdir > $bam
+    -1 $gz1 -2 $gz2 > $bam
+samtools sort -@ $LPJS_PROCS_PER_JOB -T $tmpdir $bam > $bam_sorted
 
 # Not sure how helpful multithreading is here, but since we allocated
 # the cores for hisat2, might as well use them
 pwd
 ls
-samtools index -c $bam
+samtools index -@ $LPJS_PROCS_PER_JOB -c $bam_sorted
