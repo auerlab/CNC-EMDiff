@@ -1,0 +1,44 @@
+#!/bin/sh -e
+
+#########################################################################
+#   Description:
+#   MultiQC is optional, but helpful for visualizing combined results
+#
+#   Dependencies:
+#       Requires hisat2 alignments.  Run after *-hisat2-align.lpjs.
+##########################################################################
+
+##########################################################################
+#   Main
+##########################################################################
+
+#lpjs jobs 1
+#lpjs procs-per-job 1
+#lpjs min-procs-per-node procs-per-job
+# chaperone reported peak of 118MB
+#lpjs pmem-per-proc 150MiB
+#lpjs log-dir Logs/19-multiqc-hisat2
+
+##############################################################################
+# Update PATH on a chimeric cluster (multiple operating systems used for
+# compute nodes.
+#
+# The path used by the package manager that installed LPJS is added
+# automatically (/usr/local for FreeBSD ports, usually /usr/pkg or /opt/pkg
+# for pkgsrc).
+#
+# Add the default non-priveleged pkgsrc prefix used by auto-pkgsrc-setup.
+##############################################################################
+
+# Not every sh implementation can combine the two commands below
+PATH=$LPJS_HOME_DIR/Pkgsrc/pkg/bin:/usr/pkg/bin:/opt/pkg/bin:$PATH
+export PATH
+
+# multiqc: LC_ALL and LANG must be set to a UTF-8 character set
+# in your environment in order for the click module to function.
+export LC_ALL=en_US.UTF-8
+
+cd Results/19-multiqc-hisat2
+rm -rf *
+multiqc --version > ../../Logs/19-multiqc-hisat2/multiqc-version.txt 2>&1
+multiqc ../18-qc-hisat2 2>&1 | tee ../../Logs/19-multiqc-hisat2/multiqc.out

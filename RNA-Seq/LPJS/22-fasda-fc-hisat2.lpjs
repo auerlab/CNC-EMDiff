@@ -1,0 +1,57 @@
+#!/bin/sh -e
+
+#
+#   Dependencies:
+#       Requires hisat2 abundances.
+#       Run after *-fasda-abundance-hisat2.lpjs
+
+#lpjs jobs 1
+#lpjs procs-per-job 1
+#lpjs min-procs-per-node procs-per-job
+#lpjs pmem-per-proc 300MiB
+#lpjs log-dir Logs/22-fasda-fc-hisat2
+
+# Document software versions used for publication
+uname -a
+fasda --version
+samtools --version
+pwd
+
+abundance_dir=Results/21-fasda-abundance-hisat2
+fasda_dir=Results/22-fasda-fc-hisat2
+
+# Need to fetch gff3 for computing abundances
+gff_filename=$(Reference/gff-filename.sh)
+reference_dir=Results/07-reference
+
+##########################################################################
+#   Compute abundances
+##########################################################################
+
+# Example input file: neuro-sample10-rep1-time1-abundance.tsv
+
+for cell_type in chondro neuro; do
+    for condition in time1 time2 time3; do
+	printf "Normalizing $condition...\n"
+	ls $abundance_dir/$cell_type-*-rep*-$condition-abundance.tsv
+	time fasda normalize \
+	    --output $fasda_dir/$cell_type-$condition-all-norm.tsv \
+	    $abundance_dir/$cell_type-*-rep*-$condition-abundance.tsv
+    done
+
+    printf "Computing fold-change...\n"
+    time fasda fold-change \
+	--output $fasda_dir/$cell_type-time1-time2-FC.txt \
+	$fasda_dir/$cell_type-time1-all-norm.tsv \
+	$fasda_dir/$cell_type-time2-all-norm.tsv
+
+    time fasda fold-change \
+	--output $fasda_dir/$cell_type-time1-time3-FC.txt \
+	$fasda_dir/$cell_type-time1-all-norm.tsv \
+	$fasda_dir/$cell_type-time3-all-norm.tsv
+
+    time fasda fold-change \
+	--output $fasda_dir/$cell_type-time2-time3-FC.txt \
+	$fasda_dir/$cell_type-time2-all-norm.tsv \
+	$fasda_dir/$cell_type-time3-all-norm.tsv
+done

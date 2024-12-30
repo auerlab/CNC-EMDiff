@@ -33,7 +33,7 @@
 # Be sure to adjust if # of threads is changed.  Total should be about
 # the same, but divided by a different # of processors.
 #lpjs pmem-per-proc 800MiB
-#lpjs log-dir Logs/18-hisat2-qc-sam
+#lpjs log-dir Logs/18-qc-hisat2
 
 : ${LPJS_ARRAY_INDEX:=1}
 
@@ -48,4 +48,4 @@ printf "Running task $LPJS_ARRAY_INDEX...\n"
 # Change this and #lpjs jobs above to rerun limited samples
 sample=$LPJS_ARRAY_INDEX
 infile=Results/17-hisat2-align/*sample$sample*.bam
-fastqc -o Results/18-hisat2-qc-sam $infile
+fastqc -o Results/18-qc-hisat2 $infile

@@ -14,11 +14,11 @@
 #       every program with one environment.)
 #############################################################################
 
-# This is extremely I/O-intensive (disk-bound), so running jobs in
-# parallel won't do much good, if any.  Might even slow us down due to
-# disk contention.
-# Each of the 6 iterations here only takes a few minutes when running alone.
-# Samtools merge can be sped up by using multiple compression threads, though.
+# This is extremely I/O-intensive (disk-bound), so running multiple merges
+# in parallel won't do much good, if any.  Might even slow us down due to
+# disk contention.  Each merge only takes a few minutes when running alone,
+# so there isn't much point in trying to optimize further.  Each individual
+# merge can be sped up by using multiple compression threads, though.
 #lpjs jobs 1
 #lpjs procs-per-job 5
 #lpjs min-procs-per-node procs-per-job
@@ -28,7 +28,9 @@
 # reports maximum memory use.
 # top showed a steady 25M virtual, 12 res with a spike to 42/30 at the
 # end (samtools index?) on FreeBSD 13
-#lpjs pmem-per-proc 50MiB
+# chaperone reported a peak of 50MiB total pmem
+# Divide this by the procs-per-job and add some margin to set the number below
+#lpjs pmem-per-proc 12MiB
 
 #lpjs log-dir Logs/20-merge-hisat2-bams
 
@@ -43,8 +45,8 @@ pwd
 input_dir=Results/17-hisat2-align
 output_dir=Results/20-merge-hisat2-bams
 
-for time in 1 2 3; do
-    for cell_line in chondro neuro; do
+for cell_line in chondro neuro; do
+    for time in 1 2 3; do
 	# Example: chondro-sample1-rep1-time1.bam
 	input1=$(echo $input_dir/$cell_line-sample*-rep1-time$time.bam)
 	input2=$(echo $input_dir/$cell_line-sample*-rep2-time$time.bam)
@@ -52,10 +54,10 @@ for time in 1 2 3; do
 	output=$output_dir/$cell_line-time$time.bam
 	
 	set -x
-	# One main thread + N compression threads
+	# One main thread + N compression threads = procs-per-job
 	samtools merge -@ $(($LPJS_PROCS_PER_JOB - 1)) \
 	    -o $output $input1 $input2 $input3
-	samtools index $output
+	samtools index -@ $(($LPJS_PROCS_PER_JOB - 1)) $output
 	set +x
     done
 done
