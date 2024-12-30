@@ -1,0 +1,51 @@
+#!/bin/sh -e
+
+##########################################################################
+#   Script description:
+#       QC hisat2 alignments
+#
+#   Dependencies:
+#       Requires hisat2 bams.  Run after *-hisat2-align.lpjs.
+#
+#   Usage:
+#       LPJS cluster:
+#           lpjs submit 18-hisat2-qc.lpjs
+#
+#   History:
+#       Based on the work of Dr. Andrea Rau:
+#       https://github.com/andreamrau/OpticRegen_2019
+#   Date        Name        Modification
+#   2020-02-25  Jason Bacon Begin
+##########################################################################
+
+##########################################################################
+#   Main
+##########################################################################
+
+# One job per sample
+#lpjs jobs 18
+#lpjs procs-per-job 2
+#lpjs min-procs-per-node procs-per-job
+# Memory requirements can only be determined by trial and error.
+# Run a sample job and monitor closely in "top" or run under a tool that
+# reports maximum memory use.
+# Chaperone log shows ??
+# Be sure to adjust if # of threads is changed.  Total should be about
+# the same, but divided by a different # of processors.
+#lpjs pmem-per-proc 800MiB
+#lpjs log-dir Logs/18-hisat2-qc-sam
+
+: ${LPJS_ARRAY_INDEX:=1}
+
+# Document software versions used for publication
+uname -a
+fastqc --version
+pwd
+
+# One iteration if running under SLURM, all iterations otherwise
+printf "Running task $LPJS_ARRAY_INDEX...\n"
+
+# Change this and #lpjs jobs above to rerun limited samples
+sample=$LPJS_ARRAY_INDEX
+infile=Results/17-hisat2-align/*sample$sample*.bam
+fastqc -o Results/18-hisat2-qc-sam $infile

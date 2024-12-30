@@ -27,7 +27,6 @@
 # available for other jobs at the same time.
 # 2 xzcat, 2 zstd, and 1 fastq-trim, but xzcat and gzip use less than
 # half a core each
- 
 # Set job array to number of samples.
 #lpjs jobs 18
 #lpjs procs-per-job 2

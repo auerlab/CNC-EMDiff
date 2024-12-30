@@ -1,0 +1,56 @@
+#!/bin/sh -e
+
+#
+#   Dependencies:
+#       Requires hisat2 alignments.  Run after *-hisat2-align.sbatch.
+
+# Computing abundances takes a little while, so we do this in parallel
+# One core for fasda abundance, one for samtools
+# Memory requirements can only be determined by trial and error.
+# Run a sample job and monitor closely in "top" or run under a tool that
+# reports maximum memory use.
+
+# One job per sample
+#lpjs jobs 18
+
+# 3 processors for hisat2, 1 for samtools sort, all must be on the same node
+#lpjs procs-per-job 2
+#lpjs min-procs-per-node procs-per-job
+
+# Chaperone log shows 5.2BG for 4 threads
+# Be sure to adjust if # of threads is changed.  Total should be about
+# the same, but divided by a different # of processors.
+#lpjs pmem-per-proc 200MB
+
+#lpjs log-dir Logs/21-fasda-abundance
+
+# Set a default value for testing outside the SLURM environment
+: ${LPJS_ARRAY_INDEX:=1}
+
+# Document software versions used for publication
+uname -a
+fasda --version
+samtools --version
+pwd
+
+hisat2_dir=Results/17-hisat2-align
+fasda_dir=Results/19-fasda-abundance-hisat2
+
+# Need to fetch gff3 for computing abundances
+gff_filename=$(Reference/gff-filename.sh)
+reference_dir=Results/07-reference
+
+##########################################################################
+#   Compute abundances
+##########################################################################
+
+file=`ls $hisat2_dir/*-sample$LPJS_ARRAY_INDEX-*.bam`
+
+fasda abundance \
+    --output-dir $fasda_dir \
+    100 \
+    $reference_dir/$gff_filename \
+    $file
+
+ab=${file%.bam}-abundance.tsv
+head $fasda_dir/$(basename $ab)
