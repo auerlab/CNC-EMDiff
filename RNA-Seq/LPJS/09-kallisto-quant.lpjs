@@ -70,8 +70,8 @@ if [ ! -e $marker ]; then
     # Recreate directory structure in temp working dir and pull
     # our input files into it
     mkdir -p $input_dir $output_dir $index_dir
-    input1="$input_dir/*sample${LPJS_ARRAY_INDEX}-*R1*.zst"
-    input2="$input_dir/*sample${LPJS_ARRAY_INDEX}-*R2*.zst"
+    input1="$input_dir/*sample${LPJS_ARRAY_INDEX}-*R1*.gz"
+    input2="$input_dir/*sample${LPJS_ARRAY_INDEX}-*R2*.gz"
     set -x
     rsync --copy-links ${LPJS_SUBMIT_HOST}:$LPJS_SUBMIT_DIRECTORY/$input1 $input_dir
     rsync --copy-links ${LPJS_SUBMIT_HOST}:$LPJS_SUBMIT_DIRECTORY/$input2 $input_dir
@@ -99,24 +99,26 @@ gtf=$(Reference/gtf-filename.sh)
 
 # merge-bams.lpjs relies on sample N being in Results/09-kallisto-quant/N
 # The sample number comes after -sample in the filename, e.g.
-# chondro-sample4-rep2-time1-R1.fastq.zst is sample 4
+# chondro-sample4-rep2-time1-R1.fastq.gz is sample 4
 
 # kallisto 0.46.1 can't handle zstd and will simply seg fault rather than
 # issue an error message.  If your trimmed fastq files are in zstd format,
 # this will convert to gzip format.
 # Convert zstd to gz rather than raw to reduce NFS load from compute nodes
 # --fast minimizes CPU usage in exchange for larger files
-printf "Creating .gz files for kallisto...\n"
-zst1=$(echo Results/04-trim/*sample${LPJS_ARRAY_INDEX}-*-R1.fastq.zst)
-zst2=$(echo Results/04-trim/*sample${LPJS_ARRAY_INDEX}-*-R2.fastq.zst)
-gz1=${zst1%.zst}.gz
-gz2=${zst2%.zst}.gz
-
+# printf "Creating .gz files for kallisto...\n"
+# zst1=$(echo Results/04-trim/*sample${LPJS_ARRAY_INDEX}-*-R1.fastq.zst)
+# zst2=$(echo Results/04-trim/*sample${LPJS_ARRAY_INDEX}-*-R2.fastq.zst)
+# gz1=${zst1%.zst}.gz
+# gz2=${zst2%.zst}.gz
 # Run both at the same time, since we allocated 4 cores anyway
 # These are CPU-bound, so disk will not usually be a bottleneck
-test -e $gz1 || zstdcat $zst1 | gzip --fast --stdout > $gz1 &
-test -e $gz2 || zstdcat $zst2 | gzip --fast --stdout > $gz2
-wait
+# test -e $gz1 || zstdcat $zst1 | gzip --fast --stdout > $gz1 &
+# test -e $gz2 || zstdcat $zst2 | gzip --fast --stdout > $gz2
+# wait
+
+gz1=$(echo Results/04-trim/*sample${LPJS_ARRAY_INDEX}-*-R1.fastq.gz)
+gz2=$(echo Results/04-trim/*sample${LPJS_ARRAY_INDEX}-*-R2.fastq.gz)
 
 # Kallisto requires an output subdirectory for each sample
 stem=$(basename ${gz1%-R1*})

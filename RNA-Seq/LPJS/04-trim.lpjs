@@ -105,9 +105,12 @@ fi
 # Using a compression tool on the compute node, so data are compressed before
 # being sent over the network, will reduce NFS traffic considerably.
 
-suffix=.zst
+# zstd is faster than gzip and provides slightly better compression, but
+# kallisto can't read .zst files
+# https://github.com/pachterlab/kallisto/issues/383
 base=$(basename $input1)
 stem=${base%%-R*.fastq.xz}
+suffix=.gz
 output1=Results/04-trim/${stem}-R1.fastq$suffix
 output2=Results/04-trim/${stem}-R2.fastq$suffix
 
