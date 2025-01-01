@@ -21,8 +21,8 @@
 #lpjs jobs 1
 #lpjs procs-per-job 4
 #lpjs min-procs-per-node procs-per-job
-# FIXME: Verify this
-#lpjs pmem-per-proc 6GiB
+# Chaperone reported peak 4993692 KiB / 4 procs-per-job = 1219 MiB
+#lpjs pmem-per-proc 1300MiB
 #lpjs log-dir Logs/16-hisat2-index
 
 # Document software versions used for publication
