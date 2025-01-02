@@ -20,7 +20,7 @@
 # so there isn't much point in trying to optimize further.  Each individual
 # merge can be sped up by using multiple compression threads, though.
 #lpjs jobs 1
-#lpjs procs-per-job 5
+#lpjs procs-per-job 4
 #lpjs min-procs-per-node procs-per-job
 
 # Memory requirements can only be determined by trial and error.

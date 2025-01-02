@@ -61,7 +61,7 @@ bam=${gz_base%-R*}.bam
 # compute node's local disk.  Samtools sort uses this for many large
 # temporary files, so using networked storage will
 # hammer the cluster network and file servers.
-tmpdir=/usr/tmp
+tmpdir=/tmp
 
 # Show exact commands below in stderr output
 set -x

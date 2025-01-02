@@ -24,7 +24,7 @@
 # reports maximum memory use.
 # Guess based on raw and trimmed data mem use
 #lpjs pmem-per-proc 800MiB
-#lpjs log-dir Logs/10-qc-sam
+#lpjs log-dir Logs/10-qc-kallisto
 
 ##############################################################################
 # Update PATH on a chimeric cluster (multiple operating systems used for
@@ -52,5 +52,5 @@ pwd
 printf "Running task $LPJS_ARRAY_INDEX...\n"
 
 infile=Results/09-kallisto-quant/*sample$LPJS_ARRAY_INDEX*/pseudoalignments.bam
-mkdir Results/10-qc-sam/$LPJS_ARRAY_INDEX
-fastqc $infile -o Results/10-qc-sam/$LPJS_ARRAY_INDEX
+mkdir Results/10-qc-kallisto/$LPJS_ARRAY_INDEX
+fastqc $infile -o Results/10-qc-kallisto/$LPJS_ARRAY_INDEX
