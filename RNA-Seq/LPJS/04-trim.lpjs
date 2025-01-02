@@ -110,6 +110,7 @@ fi
 base=$(basename $input1)
 stem=${base%%-R*.fastq.xz}
 suffix=.gz
+export GZIP=--fast  # Minimal compression to avoid CPU bottleneck
 output1=Results/04-trim/${stem}-R1.fastq$suffix
 output2=Results/04-trim/${stem}-R2.fastq$suffix
 
