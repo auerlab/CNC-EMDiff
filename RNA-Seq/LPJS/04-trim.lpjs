@@ -109,10 +109,11 @@ fi
 # https://github.com/pachterlab/kallisto/issues/383
 base=$(basename $input1)
 stem=${base%%-R*.fastq.xz}
-suffix=.gz
-export GZIP=--fast  # Minimal compression to avoid CPU bottleneck
-output1=Results/04-trim/${stem}-R1.fastq$suffix
-output2=Results/04-trim/${stem}-R2.fastq$suffix
+# suffix=gz
+# export GZIP=--fast  # Minimal compression to avoid CPU bottleneck
+suffix=zst
+output1=Results/04-trim/${stem}-R1.fastq.$suffix
+output2=Results/04-trim/${stem}-R2.fastq.$suffix
 
 # This script is used for both RNA-Seq and ATAC-Seq
 if pwd | fgrep -q RNA-Seq; then
