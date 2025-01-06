@@ -28,7 +28,7 @@
 #lpjs pull-command /opt/pkg/bin/rsync -r --copy-links %h:%d/Results/08-kallisto-index %h:%d/Results/04-trim/\*sample%i-\*.zst .
 # This assumes Results/09-kallisto-quant exists on the submit node
 # This is true if 01-organize.sh was run
-#lpjs push-command /opt/pkg/bin/rsync -r %w:Results/09-kallisto-quant %h:%d/Results
+#lpjs push-command /opt/pkg/bin/rsync -r %w/Results/09-kallisto-quant %h:%d/Results
 
 ##############################################################################
 # --genomebam is needed to generate a genome-mapped BAM file for browsing with
