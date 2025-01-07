@@ -116,9 +116,10 @@ gz1=${zst1%.zst}.gz
 gz2=${zst2%.zst}.gz
 # Run both at the same time, since we allocated 4 cores anyway
 # These are CPU-bound, so disk will not usually be a bottleneck
+# Don't try to reuse the .gz files, they may be incomplete from canceled jobs
 printf "$zst1 -> $gz1, $zst2 -> $gz2 for kallisto...\n"
-test -e $gz1 || zstdcat $zst1 | gzip --fast --stdout > $gz1 &
-test -e $gz2 || zstdcat $zst2 | gzip --fast --stdout > $gz2
+zstdcat $zst1 | gzip --fast --stdout > $gz1 &
+zstdcat $zst2 | gzip --fast --stdout > $gz2
 wait
 
 # If 04-trim outputs .gz files
@@ -151,3 +152,4 @@ kallisto quant \
     --threads=$LPJS_PROCS_PER_JOB \
     --index=Results/08-kallisto-index/all-but-xy.index \
     --output-dir=$my_output_dir $gz1 $gz2
+rm -f $gz1 $gz2

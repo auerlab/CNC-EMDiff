@@ -28,13 +28,35 @@
 # 3 processors for hisat2, 1 for samtools sort, all must be on the same node
 #lpjs procs-per-job 4
 #lpjs min-procs-per-node procs-per-job
-
 # Chaperone log shows 5.2GB for 4 threads
 # Be sure to adjust if # of threads is changed.  Total should be about
 # the same, but divided by a different # of processors.
 #lpjs pmem-per-proc 1500MB
-
 #lpjs log-dir Logs/17-hisat2-align
+
+# macOS 12 rsync is broken, can't handle multiple source specs
+# Use pkgsrc rsync instead
+# To simplify the rsync command, drop the input files in . and move
+# them later after creating structure under temp working dir
+#lpjs pull-command /opt/pkg/bin/rsync -r --copy-links %h:%d/Reference %h:%d/Results/16-hisat2-index %h:%d/Results/04-trim/\*sample%i-\*.zst .
+# This assumes Results/17-hisat2-align exists on the submit node
+# This is true if 01-organize.sh was run
+#lpjs push-command /opt/pkg/bin/rsync -r %w/Results/17-hisat2-align %h:%d/Results
+
+##############################################################################
+# Update PATH on a chimeric cluster (multiple operating systems used for
+# compute nodes.
+#
+# The path used by the package manager that installed LPJS is added
+# automatically (/usr/local for FreeBSD ports, usually /usr/pkg or /opt/pkg
+# for pkgsrc).
+#
+# Add the default non-priveleged pkgsrc prefix used by auto-pkgsrc-setup.
+##############################################################################
+
+# Not every sh implementation can combine the two commands below
+PATH=$LPJS_HOME_DIR/Pkgsrc/pkg/bin:$PATH
+export PATH
 
 ##############################################################################
 # Align with hisat2, which can handle splice junctions in RNA reads
@@ -47,11 +69,48 @@ uname -a
 hisat2 --version
 pwd
 
+input_dir=Results/04-trim
+output_dir=Results/17-hisat2-align
+index_dir=Results/16-hisat2-index
+
+marker=lpjs-$LPJS_SUBMIT_HOST-shared-fs-marker
+if [ ! -e $marker ]; then
+    # Using file transfer and temp directories on the compute node
+    printf "$marker does not exist.  Organizing transferred files...\n"
+    # Pull command left everything in .
+    # Set up the same directory structure as on the submit node
+    mkdir -p $input_dir $output_dir
+    mv 16-hisat2-index Results/
+    mv *.zst $input_dir
+else
+    printf "$marker found.  No need to transfer files.\n"
+fi
+
+# hisat2 can't yet handle zstd inputs.
+# If your trimmed fastq files are in zstd
+# format, this will convert to gzip format.
+# Convert zstd to gz rather than raw to reduce NFS load from compute nodes
+# --fast minimizes CPU usage in exchange for larger files
+# It might be possible to use a named pipe, assuming hisat2 doesn't
+# need to do seek operations on the input file.  However, generating
+# gzip files doesn't take that long.
+zst1=$(echo $input_dir/*sample${LPJS_ARRAY_INDEX}-*-R1.fastq.zst)
+zst2=$(echo $input_dir/*sample${LPJS_ARRAY_INDEX}-*-R2.fastq.zst)
+gz1=${zst1%.zst}.gz
+gz2=${zst2%.zst}.gz
+# Run both at the same time, since we allocated 4 cores anyway
+# These are CPU-bound, so disk will not usually be a bottleneck
+# Don't try to reuse the .gz files, they may be incomplete from canceled jobs
+printf "$zst1 -> $gz1, $zst2 -> $gz2 for hisat2...\n"
+zstdcat $zst1 | gzip --fast --stdout > $gz1 &
+zstdcat $zst2 | gzip --fast --stdout > $gz2
+wait
+
 # Adjust this and #lpjs jobs above to rerun limited samples
 sample=$LPJS_ARRAY_INDEX
 
 genome=$(Reference/genome-filename.sh)
-cd Results/17-hisat2-align
+cd $output_dir
 gz1=$(echo ../04-trim/*sample${sample}-*-R1.fastq.gz)
 gz2=$(echo ../04-trim/*sample${sample}-*-R2.fastq.gz)
 gz_base=$(basename $gz1)
@@ -68,6 +127,7 @@ set -x
 
 hisat2 --threads $(($LPJS_PROCS_PER_JOB - 1)) -x ../16-hisat2-index/$genome \
     -1 $gz1 -2 $gz2 | samtools sort -T $tmpdir > $bam
+rm -f $gz1 $gz2
 
 # Not sure how helpful multithreading is here, but since we allocated
 # the cores for hisat2 above, might as well use them.  It's not worth
