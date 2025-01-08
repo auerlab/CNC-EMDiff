@@ -6,9 +6,9 @@
 #       Run after *-fasda-abundance-hisat2.lpjs
 
 #lpjs jobs 1
-#lpjs procs-per-job 1
-#lpjs min-procs-per-node procs-per-job
-#lpjs pmem-per-proc 300MiB
+#lpjs processors-per-job 1
+#lpjs threads-per-process processors-per-job
+#lpjs pmem-per-processor 300MiB
 #lpjs log-dir Logs/22-fasda-fc-hisat2
 
 # Document software versions used for publication

@@ -14,9 +14,9 @@
 ##########################################################################
 
 #lpjs jobs 18
-#lpjs procs-per-job 4
-#lpjs min-procs-per-node procs-per-job
-#lpjs pmem-per-proc 1300MB
+#lpjs processors-per-job 4
+#lpjs threads-per-process processors-per-job
+#lpjs pmem-per-processor 1300MB
 #lpjs log-dir Logs/09-bwa-mem
 
 ##############################################################################

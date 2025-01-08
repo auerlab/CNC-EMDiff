@@ -19,10 +19,10 @@
 # reports maximum memory use.
 
 #lpjs jobs 1
-#lpjs procs-per-job 1
-#lpjs min-procs-per-node procs-per-job
+#lpjs processors-per-job 1
+#lpjs threads-per-process processors-per-job
 # Peak 597708 in chaperone log
-#lpjs pmem-per-proc 600MiB
+#lpjs pmem-per-processor 600MiB
 #lpjs log-dir Logs/07-reference
 
 ##############################################################################

@@ -29,9 +29,9 @@
 # half a core each
 # Set job array to number of samples.
 #lpjs jobs 18
-#lpjs procs-per-job 2
-#lpjs min-procs-per-node procs-per-job
-#lpjs pmem-per-proc 150MiB
+#lpjs processors-per-job 2
+#lpjs threads-per-process processors-per-job
+#lpjs pmem-per-processor 150MiB
 #lpjs log-dir Logs/04-trim
 
 ##############################################################################

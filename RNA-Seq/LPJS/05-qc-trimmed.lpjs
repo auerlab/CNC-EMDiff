@@ -20,12 +20,12 @@
 # Each invocation of this script will run 2 fastqc processes, forward
 # and reverse.
 #lpjs jobs 18
-#lpjs procs-per-job 2
-#lpjs min-procs-per-node procs-per-job
+#lpjs processors-per-job 2
+#lpjs threads-per-process processors-per-job
 # Memory requirements can only be determined by trial and error.
 # Run a sample job and monitor closely in "top" or rununder a tool that
 # reports maximum memory use.
-#lpjs pmem-per-proc 800MiB
+#lpjs pmem-per-processor 800MiB
 #lpjs log-dir Logs/05-qc-trimmed
 
 ##############################################################################

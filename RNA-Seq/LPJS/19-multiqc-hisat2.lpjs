@@ -13,10 +13,10 @@
 ##########################################################################
 
 #lpjs jobs 1
-#lpjs procs-per-job 1
-#lpjs min-procs-per-node procs-per-job
+#lpjs processors-per-job 1
+#lpjs threads-per-process processors-per-job
 # chaperone reported peak of 118MB
-#lpjs pmem-per-proc 150MiB
+#lpjs pmem-per-processor 150MiB
 #lpjs log-dir Logs/19-multiqc-hisat2
 
 ##############################################################################

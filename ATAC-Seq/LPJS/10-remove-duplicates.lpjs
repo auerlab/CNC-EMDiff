@@ -14,9 +14,9 @@
 ##########################################################################
 
 #lpjs jobs 18
-#lpjs procs-per-job 1
-#lpjs min-procs-per-node procs-per-job
-#lpjs pmem-per-proc 4GiB
+#lpjs processors-per-job 1
+#lpjs threads-per-process processors-per-job
+#lpjs pmem-per-processor 4GiB
 #lpjs log-dir Logs/10-remove-duplicates
 
 ##############################################################################

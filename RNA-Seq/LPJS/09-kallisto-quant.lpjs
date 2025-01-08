@@ -15,10 +15,10 @@
 ##########################################################################
 
 #lpjs jobs 18
-#lpjs procs-per-job 4
-#lpjs min-procs-per-node procs-per-job
+#lpjs processors-per-job 4
+#lpjs threads-per-process processors-per-job
 # 09b-kallisto-peak-mem.sh: 1185408 KiB / 1024 / 4 procs 289.40625 MiB
-#lpjs pmem-per-proc 300MiB
+#lpjs pmem-per-processor 300MiB
 #lpjs log-dir Logs/09-kallisto-quant
 
 # macOS 12 rsync is broken, can't handle multiple source specs

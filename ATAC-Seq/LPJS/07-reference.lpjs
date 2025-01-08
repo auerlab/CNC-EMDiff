@@ -19,9 +19,9 @@
 # reports maximum memory use.
 
 #lpjs jobs 1
-#lpjs procs-per-job 1
-#lpjs min-procs-per-node procs-per-job
-#lpjs pmem-per-proc 4GB
+#lpjs processors-per-job 1
+#lpjs threads-per-process processors-per-job
+#lpjs pmem-per-processor 4GB
 #lpjs log-dir Logs/07-reference
 
 ##############################################################################
