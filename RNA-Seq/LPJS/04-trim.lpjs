@@ -33,6 +33,11 @@
 #lpjs threads-per-process processors-per-job
 #lpjs pmem-per-processor 150MiB
 #lpjs log-dir Logs/04-trim
+# Caution: Different versions of rsync behave differently with respect
+# to creating path components at the destination.  Newer rsync requires
+# --mkpath while older ones included with macOS do it by default.
+#lpjs pull-command /opt/pkg/bin/rsync --mkpath --copy-links %h:%s/Results/01-organize/Raw-renamed/\*-sample%i-\*.xz Results/01-organize/Raw-renamed
+#lpjs push-command /opt/pkg/bin/rsync --mkpath -av %w/Results/04-trim %h:%s/Results
 
 ##############################################################################
 # Update PATH on a chimeric cluster (multiple operating systems used for
@@ -69,25 +74,11 @@ pwd
 ls
 
 sample=$LPJS_ARRAY_INDEX
-if [ ! -e $marker ]; then
-    printf "$marker does not exist.  Using rsync to transfer files.\n"
-    
-    # Recreate directory structure in temp working dir and pull
-    # our input files into it
-    input_dir='Results/01-organize/Raw-renamed'
-    output_dir='Results/04-trim'
-    mkdir -p $input_dir $output_dir
-    input1="$input_dir/*sample${sample}-*R1*"
-    input2="$input_dir/*sample${sample}-*R2*"
-    set -x
-    rsync --copy-links ${LPJS_SUBMIT_HOST}:$LPJS_SUBMIT_DIRECTORY/$input1 $input_dir
-    rsync --copy-links ${LPJS_SUBMIT_HOST}:$LPJS_SUBMIT_DIRECTORY/$input2 $input_dir
-    set +x
-else
-    printf "$marker found.  No need to transfer files.\n"
-    input1=$(ls Results/01-organize/Raw-renamed/*sample${sample}-*R1*)
-    input2=$(ls Results/01-organize/Raw-renamed/*sample${sample}-*R2*)
-fi
+input1=$(ls Results/01-organize/Raw-renamed/*sample${sample}-*R1*)
+input2=$(ls Results/01-organize/Raw-renamed/*sample${sample}-*R2*)
+
+# In case this node uses file transfer and a temp working directory
+mkdir -p Results/04-trim
 
 # https://www.rootusers.com/gzip-vs-bzip2-vs-xz-performance-comparison/
 # xz offers the best compression by far, but is slow at mid (-5) to high (-9)

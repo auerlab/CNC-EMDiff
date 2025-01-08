@@ -27,6 +27,11 @@
 # reports maximum memory use.
 #lpjs pmem-per-processor 800MiB
 #lpjs log-dir Logs/05-qc-trimmed
+# Caution: Different versions of rsync behave differently with respect
+# to creating path components at the destination.  Newer rsync requires
+# --mkpath while older ones do not support --mkpath.
+#lpjs pull-command /opt/pkg/bin/rsync --mkpath --copy-links %h:%s/Results/04-trim\*-sample%i-\*.zst Results/04-trim
+#lpjs push-command /opt/pkg/bin/rsync --mkpath -av %w/Results/05-qc-trimmed %h:%s/Results
 
 ##############################################################################
 # Update PATH on a chimeric cluster (multiple operating systems used for
@@ -64,25 +69,12 @@ output_dir='Results/05-qc-trimmed'
 # access security feature.
 ##############################################################################
 
-marker=lpjs-$LPJS_SUBMIT_HOST-shared-fs-marker
-if [ -e $marker ]; then
-    printf "$marker found.  No need to transfer files.\n"
-    input1=$(ls $input_dir/*sample${LPJS_ARRAY_INDEX}-*R1*)
-    input2=$(ls $input_dir/*sample${LPJS_ARRAY_INDEX}-*R2*)
-else
-    printf "$marker does not exist.  Using rsync to transfer files.\n"
-    printf "Fetching $LPJS_SUBMIT_HOST:$LPJS_SUBMIT_DIRECTORY/$infile1\n"
-    
-    # Recreate directory structure in temp working dir and pull
-    # our input files into it
-    mkdir -p $input_dir $output_dir
-    input1="$input_dir/*sample${LPJS_ARRAY_INDEX}-*R1*"
-    input2="$input_dir/*sample${LPJS_ARRAY_INDEX}-*R2*"
-    set -x
-    rsync --copy-links ${LPJS_SUBMIT_HOST}:$LPJS_SUBMIT_DIRECTORY/$input1 $input_dir
-    rsync --copy-links ${LPJS_SUBMIT_HOST}:$LPJS_SUBMIT_DIRECTORY/$input2 $input_dir
-    set +x
-fi
+sample=$LPJS_ARRAY_INDEX
+input1=$(ls $input_dir/*sample${LPJS_ARRAY_INDEX}-*R1*)
+input2=$(ls $input_dir/*sample${LPJS_ARRAY_INDEX}-*R2*)
+
+# In case this node uses file transfer and a temp working directory
+mkdir -p Results/05-qc-trimmed
 
 printf "Processing $input1 and $input2...\n"
 
