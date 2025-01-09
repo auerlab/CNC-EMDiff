@@ -30,7 +30,7 @@
 # Caution: Different versions of rsync behave differently with respect
 # to creating path components at the destination.  Newer rsync requires
 # --mkpath while older ones do not support --mkpath.
-#lpjs pull-command /opt/pkg/bin/rsync --mkpath --copy-links %h:%s/Results/04-trim\*-sample%i-\*.zst Results/04-trim
+#lpjs pull-command /opt/pkg/bin/rsync --mkpath --copy-links %h:%s/Results/04-trim/\*-sample%i-\*.zst Results/04-trim
 #lpjs push-command /opt/pkg/bin/rsync --mkpath -av %w/Results/05-qc-trimmed %h:%s/Results
 
 ##############################################################################
