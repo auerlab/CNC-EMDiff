@@ -25,7 +25,7 @@
 #
 # The path used by the package manager that installed LPJS is added
 # automatically (/usr/local for FreeBSD ports, usually /usr/pkg or /opt/pkg
-# for pkgsrc).
+# for pkgsrc), though this is overridden by "#lpjs path".
 #
 # Add the default non-priveleged pkgsrc prefix used by auto-pkgsrc-setup.
 ##############################################################################

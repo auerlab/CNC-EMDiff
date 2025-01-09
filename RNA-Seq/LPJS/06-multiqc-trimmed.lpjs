@@ -18,6 +18,11 @@
 #lpjs threads-per-process processors-per-job
 #lpjs pmem-per-processor 160MiB
 #lpjs log-dir Logs/06-multiqc-trimmed
+# Caution: Different versions of rsync behave differently with respect
+# to creating path components at the destination.  Newer rsync requires
+# --mkpath while older ones do not support --mkpath.
+#lpjs pull-command /opt/pkg/bin/rsync --mkpath --copy-links %h:%s/Results/05-qc-trimmed/ Results/05-qc-trimmed
+#lpjs push-command /opt/pkg/bin/rsync --mkpath -av %w/Results/06-multiqc-trimmed %h:%s/Results
 
 ##############################################################################
 # Update PATH on a chimeric cluster (multiple operating systems used for
@@ -25,7 +30,7 @@
 #
 # The path used by the package manager that installed LPJS is added
 # automatically (/usr/local for FreeBSD ports, usually /usr/pkg or /opt/pkg
-# for pkgsrc).
+# for pkgsrc), though this is overridden by "#lpjs path".
 #
 # Add the default non-priveleged pkgsrc prefix used by auto-pkgsrc-setup.
 ##############################################################################
@@ -37,6 +42,9 @@ export PATH
 # multiqc: LC_ALL and LANG must be set to a UTF-8 character set
 # in your environment in order for the click module to function.
 export LC_ALL=en_US.UTF-8
+
+# In case we're using file transfer and a temporary working directory
+mkdir -p Results/06-multiqc-trimmed
 
 cd Results/06-multiqc-trimmed
 rm -rf *

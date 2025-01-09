@@ -31,13 +31,13 @@
 #
 # The path used by the package manager that installed LPJS is added
 # automatically (/usr/local for FreeBSD ports, usually /usr/pkg or /opt/pkg
-# for pkgsrc).
+# for pkgsrc), though this is overridden by "#lpjs path".
 #
 # Add the default non-priveleged pkgsrc prefix used by auto-pkgsrc-setup.
 ##############################################################################
 
 # Not every sh implementation can combine the two commands below
-PATH=$LPJS_HOME_DIR/Pkgsrc/pkg/bin:$PATH
+PATH=$LPJS_HOME_DIR/Pkgsrc/pkg/bin:/usr/pkg/bin:/opt/pkg/bin:$PATH
 export PATH
 
 # Set a default value for testing outside the SLURM environment

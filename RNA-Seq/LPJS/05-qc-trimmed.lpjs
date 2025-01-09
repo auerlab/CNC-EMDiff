@@ -29,7 +29,9 @@
 #lpjs log-dir Logs/05-qc-trimmed
 # Caution: Different versions of rsync behave differently with respect
 # to creating path components at the destination.  Newer rsync requires
-# --mkpath while older ones do not support --mkpath.
+# --mkpath while older ones included with macOS do not support this flag.
+# Set path to use pkgsrc rsync in /opt/pkg on macOS
+#lpjs path /opt/pkg/bin:/usr/local/bin:/usr/bin:/bin
 #lpjs pull-command /opt/pkg/bin/rsync --mkpath --copy-links %h:%s/Results/04-trim/\*-sample%i-\*.zst Results/04-trim
 #lpjs push-command /opt/pkg/bin/rsync --mkpath -av %w/Results/05-qc-trimmed %h:%s/Results
 
@@ -39,13 +41,13 @@
 #
 # The path used by the package manager that installed LPJS is added
 # automatically (/usr/local for FreeBSD ports, usually /usr/pkg or /opt/pkg
-# for pkgsrc).
+# for pkgsrc), though this is overridden by "#lpjs path".
 #
 # Add the default non-priveleged pkgsrc prefix used by auto-pkgsrc-setup.
 ##############################################################################
 
 # Not every sh implementation can combine the two commands below
-PATH=$LPJS_HOME_DIR/Pkgsrc/pkg/bin:/usr/pkg/bin:/opt/pkg/bin:/usr/pkg/java/openjdk17/bin:$PATH
+PATH=$LPJS_HOME_DIR/Pkgsrc/pkg/bin:/usr/pkg/bin:/opt/pkg/bin:$PATH
 export PATH
 
 # Set a default value for testing outside the LPJS environment

@@ -25,6 +25,21 @@
 #lpjs pmem-per-processor 1300MiB
 #lpjs log-dir Logs/16-hisat2-index
 
+##############################################################################
+# Update PATH on a chimeric cluster (multiple operating systems used for
+# compute nodes.
+#
+# The path used by the package manager that installed LPJS is added
+# automatically (/usr/local for FreeBSD ports, usually /usr/pkg or /opt/pkg
+# for pkgsrc), though this is overridden by "#lpjs path".
+#
+# Add the default non-priveleged pkgsrc prefix used by auto-pkgsrc-setup.
+##############################################################################
+
+# Not every sh implementation can combine the two commands below
+PATH=$LPJS_HOME_DIR/Pkgsrc/pkg/bin:/usr/pkg/bin:/opt/pkg/bin:$PATH
+export PATH
+
 # Document software versions used for publication
 uname -a
 hisat2 --version

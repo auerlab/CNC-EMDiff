@@ -31,21 +31,19 @@
 #lpjs push-command /opt/pkg/bin/rsync -r %w/Results/09-kallisto-quant %h:%d/Results
 
 ##############################################################################
-# --genomebam is needed to generate a genome-mapped BAM file for browsing with
-# IGV.  It requires --gtf and --chromosomes. --chromosomes requires a TSV file
-# with chromosome name and length on each line.  The chromosome names in the
-# TSV must exactly match the names in the GTF.
-# https://github.com/pachterlab/kallisto/issues/155
+# Update PATH on a chimeric cluster (multiple operating systems used for
+# compute nodes.
 #
-# The format and source of the chromosomes TSV is not clearly documented.
-# I generated one using an Ensemble GFF with Reference/create-chrom-sizes.sh.
-# GTF does not contain chromosome features.
+# The path used by the package manager that installed LPJS is added
+# automatically (/usr/local for FreeBSD ports, usually /usr/pkg or /opt/pkg
+# for pkgsrc), though this is overridden by "#lpjs path".
+#
+# Add the default non-priveleged pkgsrc prefix used by auto-pkgsrc-setup.
+##############################################################################
 
-# Set a default value for testing outside the LPJS environment
-: ${LPJS_ARRAY_INDEX:=1}
-: ${LPJS_PROCS_PER_JOB:=4}
-: ${LPJS_SUBMIT_HOST:=coral.acadix.biz}
-: ${LPJS_SUBMIT_DIRECTORY:=/opt/barracuda/bacon/CNC-EMDiff/RNA-Seq/LPJS}
+# Not every sh implementation can combine the two commands below
+PATH=$LPJS_HOME_DIR/Pkgsrc/pkg/bin:/usr/pkg/bin:/opt/pkg/bin:$PATH
+export PATH
 
 ##############################################################################
 # Update PATH on a chimeric cluster (multiple operating systems used for
