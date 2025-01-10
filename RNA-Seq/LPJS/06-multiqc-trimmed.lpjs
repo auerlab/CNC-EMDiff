@@ -21,8 +21,10 @@
 # Caution: Different versions of rsync behave differently with respect
 # to creating path components at the destination.  Newer rsync requires
 # --mkpath while older ones do not support --mkpath.
-#lpjs pull-command /opt/pkg/bin/rsync --mkpath --copy-links %h:%s/Results/05-qc-trimmed/ Results/05-qc-trimmed
-#lpjs push-command /opt/pkg/bin/rsync --mkpath -av %w/Results/06-multiqc-trimmed %h:%s/Results
+# Set path to use pkgsrc rsync in /opt/pkg on macOS
+#lpjs path /opt/pkg/bin:/usr/local/bin:/usr/bin:/bin
+#lpjs pull-command rsync --mkpath -r --copy-links %h:%s/Results/05-qc-trimmed/ Results/05-qc-trimmed
+#lpjs push-command rsync --mkpath -av %w/ %h:%s
 
 ##############################################################################
 # Update PATH on a chimeric cluster (multiple operating systems used for

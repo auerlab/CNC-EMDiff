@@ -126,8 +126,3 @@ fi
 set -x
 time fastq-trim --3p-adapter1 $adapter --3p-adapter2 $adapter \
     --min-qual 24 --polya-min-length 4 $input1 $output1 $input2 $output2
-
-# Don't rsync the duplicated input files back
-if [ ! -e $marker ]; then
-    rm -rf $input_dir
-fi
