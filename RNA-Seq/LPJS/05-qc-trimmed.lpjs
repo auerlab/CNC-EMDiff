@@ -22,18 +22,14 @@
 #lpjs jobs 18
 #lpjs processors-per-job 2
 #lpjs threads-per-process processors-per-job
-# Memory requirements can only be determined by trial and error.
-# Run a sample job and monitor closely in "top" or rununder a tool that
-# reports maximum memory use.
-#lpjs pmem-per-processor 800MiB
+# lpjs peak-mem: 655812 KiB / 2 procs / 1024 = 320 MiB + 10%
+#lpjs pmem-per-processor 350MiB
 #lpjs log-dir Logs/05-qc-trimmed
-# Caution: Different versions of rsync behave differently with respect
-# to creating path components at the destination.  Newer rsync requires
-# --mkpath while older ones included with macOS do not support this flag.
-# Set path to use pkgsrc rsync in /opt/pkg on macOS
-#lpjs path /opt/pkg/bin:/usr/local/bin:/usr/bin:/bin
-#lpjs pull-command /opt/pkg/bin/rsync --mkpath --copy-links %h:%s/Results/04-trim/\*-sample%i-\*.zst Results/04-trim
-#lpjs push-command /opt/pkg/bin/rsync --mkpath -av %w/Results/05-qc-trimmed %h:%s/Results
+# macOS and RHEL rsync do not support --mkpath
+# Use pkgsrc rsync in /opt/pkg or /Users/Pkgsrc/pkg instead
+#lpjs path /opt/pkg/bin:/Users/pkgsrc/pkg/bin:/usr/local/bin:/usr/bin:/bin
+#lpjs pull-command rsync --mkpath --copy-links %h:%s/Results/04-trim/\*-sample%i-\*.zst Results/04-trim
+#lpjs push-command rsync --mkpath -av %w/Results/05-qc-trimmed %h:%s/Results
 
 ##############################################################################
 # Update PATH on a chimeric cluster (multiple operating systems used for

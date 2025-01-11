@@ -13,3 +13,5 @@
 ##########################################################################
 
 # BAM output is no longer supported by kallisto
+# 10-qc-kallisto, 11-multiqc-kallisto, and 12-kallisto-merge-bams
+# have therefore been removed.

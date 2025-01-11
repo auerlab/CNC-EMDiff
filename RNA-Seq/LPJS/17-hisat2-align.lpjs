@@ -28,20 +28,17 @@
 # 3 processors for hisat2, 1 for samtools sort, all must be on the same node
 #lpjs processors-per-job 4
 #lpjs threads-per-process processors-per-job
-# Chaperone log shows 5.2GB for 4 threads
-# Be sure to adjust if # of threads is changed.  Total should be about
-# the same, but divided by a different # of processors.
-#lpjs pmem-per-processor 1500MB
+# lpjs peak-mem: 5239352 KiB / 4 procs / 1024 = 1279.138671875 MiB
+#lpjs pmem-per-processor 1400MB
 #lpjs log-dir Logs/17-hisat2-align
-
-# macOS 12 rsync is broken, can't handle multiple source specs
-# Use pkgsrc rsync instead
 # To simplify the rsync command, drop the input files in . and move
 # them later after creating structure under temp working dir
-#lpjs pull-command /opt/pkg/bin/rsync -r --copy-links %h:%s/Reference %h:%s/Results/16-hisat2-index %h:%s/Results/04-trim/\*sample%i-\*.zst .
-# This assumes Results/17-hisat2-align exists on the submit node
-# This is true if 01-organize.sh was run
-#lpjs push-command /opt/pkg/bin/rsync -r %w/Results/17-hisat2-align %h:%s/Results
+# macOS 12 rsync is broken, can't handle multiple source specs
+# macOS rsync doesn't support --mkpath
+# Use pkgsrc rsync in /opt/pkg instead
+#lpjs path /opt/pkg/bin:/usr/local/bin:/usr/bin:/bin
+#lpjs pull-command rsync --mkpath -r --copy-links %h:%s/Reference %h:%s/Results/16-hisat2-index %h:%s/Results/04-trim/\*sample%i-\*.zst .
+#lpjs push-command rsync --mkpath -r %w/Results/17-hisat2-align %h:%s/Results
 
 ##############################################################################
 # Update PATH on a chimeric cluster (multiple operating systems used for
@@ -93,7 +90,7 @@ fi
 # --fast minimizes CPU usage in exchange for larger files
 # It might be possible to use a named pipe, assuming hisat2 doesn't
 # need to do seek operations on the input file.  However, generating
-# gzip files doesn't take that long.
+# gzip files doesn't take long.
 zst1=$(echo $input_dir/*sample${LPJS_ARRAY_INDEX}-*-R1.fastq.zst)
 zst2=$(echo $input_dir/*sample${LPJS_ARRAY_INDEX}-*-R2.fastq.zst)
 gz1=${zst1%.zst}.gz
@@ -111,8 +108,6 @@ sample=$LPJS_ARRAY_INDEX
 
 genome=$(Reference/genome-filename.sh)
 cd $output_dir
-gz1=$(echo ../04-trim/*sample${sample}-*-R1.fastq.gz)
-gz2=$(echo ../04-trim/*sample${sample}-*-R2.fastq.gz)
 gz_base=$(basename $gz1)
 bam=${gz_base%-R*}.bam
 
@@ -125,11 +120,11 @@ tmpdir=/tmp
 # Show exact commands below in stderr output
 set -x
 
-hisat2 --threads $(($LPJS_PROCS_PER_JOB - 1)) -x ../16-hisat2-index/$genome \
+hisat2 --threads $(($LPJS_PROCESSORS_PER_JOB - 1)) -x ../16-hisat2-index/$genome \
     -1 $gz1 -2 $gz2 | samtools sort -T $tmpdir > $bam
 rm -f $gz1 $gz2
 
 # Not sure how helpful multithreading is here, but since we allocated
 # the cores for hisat2 above, might as well use them.  It's not worth
 # running a separate job for indexing.
-samtools index -@ $LPJS_PROCS_PER_JOB -c $bam
+samtools index -@ $LPJS_PROCESSORS_PER_JOB -c $bam

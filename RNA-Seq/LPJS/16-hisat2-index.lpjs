@@ -21,7 +21,7 @@
 #lpjs jobs 1
 #lpjs processors-per-job 4
 #lpjs threads-per-process processors-per-job
-# Chaperone reported peak 4993692 KiB / 4 processors-per-job = 1219 MiB
+# lpjs peak-mem: 4993692 KiB / 4 procs / 1024 = 1219 MiB
 #lpjs pmem-per-processor 1300MiB
 #lpjs log-dir Logs/16-hisat2-index
 
@@ -57,7 +57,7 @@ printf "Using reference $genome...\n"
 if [ ! -e $genome.8.ht2 ]; then
     printf "Building $genome.*.ht2...\n"
     set -x
-    hisat2-build -p $LPJS_PROCS_PER_JOB $genome $genome
+    hisat2-build -p $LPJS_PROCESSORS_PER_JOB $genome $genome
     set +x
 fi
 if [ ! -e $genome.fai ]; then

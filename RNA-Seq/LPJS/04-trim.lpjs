@@ -31,8 +31,8 @@
 #lpjs jobs 18
 #lpjs processors-per-job 2
 #lpjs threads-per-process processors-per-job
-# Peak total mem from chaperone logs: 113544 KiB / 2 procs / 1024 = 56 MiB
-#lpjs pmem-per-processor 70MiB
+# lpjs peak-mem: 112984 KiB / 2 procs / 1024 = 55 MiB + 10%
+#lpjs pmem-per-processor 60MiB
 #lpjs log-dir Logs/04-trim
 # Caution: Different versions of rsync behave differently with respect
 # to creating path components at the destination.  Newer rsync requires

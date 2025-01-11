@@ -21,8 +21,8 @@
 #lpjs jobs 1
 #lpjs processors-per-job 1
 #lpjs threads-per-process processors-per-job
-# Peak in chaperone log = 1950500
-#lpjs pmem-per-processor 3GiB
+# lpjs peak-mem Logs/08-kallisto-index: 1714572 / 1024 = 1674 MiB + 10%
+#lpjs pmem-per-processor 1850MiB
 #lpjs log-dir Logs/08-kallisto-index
 
 ##############################################################################

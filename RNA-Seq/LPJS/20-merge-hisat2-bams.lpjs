@@ -70,9 +70,9 @@ for cell_line in chondro neuro; do
 	
 	set -x
 	# One main thread + N compression threads = processors-per-job
-	samtools merge -@ $(($LPJS_PROCS_PER_JOB - 1)) \
+	samtools merge -@ $(($LPJS_PROCESSORS_PER_JOB - 1)) \
 	    -o $output $input1 $input2 $input3
-	samtools index -@ $(($LPJS_PROCS_PER_JOB - 1)) $output
+	samtools index -@ $(($LPJS_PROCESSORS_PER_JOB - 1)) $output
 	set +x
     done
 done

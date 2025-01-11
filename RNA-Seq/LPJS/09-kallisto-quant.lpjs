@@ -18,17 +18,14 @@
 #lpjs processors-per-job 4
 #lpjs threads-per-process processors-per-job
 # lpjs peak-mem Logs/09-kallisto-quant:
-#   1185408 KiB / 1024 / 4 procs 289.40625 MiB
-#lpjs pmem-per-processor 300MiB
+#   1185408 KiB / 1024 / 4 procs 289.40625 MiB + 10%
+#lpjs pmem-per-processor 320MiB
 #lpjs log-dir Logs/09-kallisto-quant
 # macOS 12 rsync is broken, can't handle multiple source specs
+# macOS rsync doesn't support --mkpath
 # Use pkgsrc rsync in /opt/pkg instead
 #lpjs path /opt/pkg/bin:/usr/local/bin:/usr/bin:/bin
-# To simplify the rsync command, drop the input files in . and move
-# them later after creating structure under temp working dir
-#lpjs pull-command rsync -r --copy-links %h:%s/Results/08-kallisto-index %h:%s/Results/04-trim/\*sample%i-\*.zst .
-# This assumes Results/09-kallisto-quant exists on the submit node
-# This should be true, since 01-organize.sh should be run beforehand
+#lpjs pull-command rsync --mkpath -r %h:%s/Results/08-kallisto-index Results && rsync --mkpath %h:%s/Results/04-trim/\*sample%i-\*.zst Results/04-trim/
 #lpjs push-command rsync -r %w/Results/09-kallisto-quant %h:%s/Results
 
 ##############################################################################
@@ -49,19 +46,6 @@ export PATH
 input_dir='Results/04-trim'
 output_dir='Results/09-kallisto-quant'
 index_dir='Results/08-kallisto-index'
-
-# Organize files pulled by rsync, if necessary
-marker=lpjs-$LPJS_SUBMIT_HOST-shared-fs-marker
-if [ ! -e $marker ]; then
-    printf "$marker does not exist.  Organizing transferred files...\n"
-    # Pull command left everything in .
-    # Set up the same directory structure as the submit directory
-    mkdir -p $input_dir $output_dir
-    mv 08-kallisto-index Results/
-    mv *.zst $input_dir
-else
-    printf "$marker found.  No need to transfer files.\n"
-fi
 
 # Document software versions used for publication
 uname -a
@@ -99,7 +83,7 @@ mkdir -p $my_output_dir
 
 set -x
 kallisto quant \
-    --threads=$LPJS_PROCS_PER_JOB \
+    --threads=$LPJS_PROCESSORS_PER_JOB \
     --index=Results/08-kallisto-index/all-but-xy.index \
     --output-dir=$my_output_dir $gz1 $gz2
 
