@@ -37,7 +37,7 @@
 # compute nodes)
 #
 # The PATH used by the package manager that installed LPJS (/usr/local for
-# FreeBSD ports, usually /usr/pkg or /opt/pkg for pkgsrc), is automatically
+# FreeBSD ports, usually /usr/pkg or /*/pkg for pkgsrc), is automatically
 # prepended to the default PATH.  This is overridden by "#lpjs path", so
 # if we use it, we must add all directories ourselves.
 #
@@ -46,7 +46,7 @@
 # Caution: Different versions of rsync behave differently with respect
 # to creating path components at the destination.  Newer rsync requires
 # --mkpath while older ones included with macOS and RHEL do not support
-# this flag. Set path to use pkgsrc rsync in ~/Pkgsrc/pkg or /opt/pkg.
+# this flag. Set path to use pkgsrc rsync in ~/Pkgsrc/pkg or /*/pkg.
 #lpjs path ~/Pkgsrc/pkg/bin:/opt/pkg/bin:/usr/pkg/bin:/usr/local/bin:/usr/bin:/bin
 
 # Set a default value for testing outside the SLURM environment
