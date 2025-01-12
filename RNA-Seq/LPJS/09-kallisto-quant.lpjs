@@ -21,27 +21,24 @@
 #   1185408 KiB / 1024 / 4 procs 289.40625 MiB + 10%
 #lpjs pmem-per-processor 320MiB
 #lpjs log-dir Logs/09-kallisto-quant
-# macOS 12 rsync is broken, can't handle multiple source specs
-# macOS rsync doesn't support --mkpath
-# Use pkgsrc rsync in /opt/pkg instead
-#lpjs path /opt/pkg/bin:/usr/local/bin:/usr/bin:/bin
-#lpjs pull-command rsync --mkpath -r %h:%s/Results/08-kallisto-index Results && rsync --mkpath %h:%s/Results/04-trim/\*sample%i-\*.zst Results/04-trim/
-#lpjs push-command rsync -r %w/Results/09-kallisto-quant %h:%s/Results
-
 ##############################################################################
 # Update PATH on a chimeric cluster (multiple operating systems used for
-# compute nodes.
+# compute nodes)
 #
-# The path used by the package manager that installed LPJS is added
-# automatically (/usr/local for FreeBSD ports, usually /usr/pkg or /opt/pkg
-# for pkgsrc), though this is overridden by "#lpjs path".
+# The PATH used by the package manager that installed LPJS (/usr/local for
+# FreeBSD ports, usually /usr/pkg or /opt/pkg for pkgsrc), is automatically
+# prepended to the default PATH.  This is overridden by "#lpjs path", so
+# if we use it, we must add all directories ourselves.
 #
 # Add the default non-priveleged pkgsrc prefix used by auto-pkgsrc-setup.
-##############################################################################
-
-# Not every sh implementation can combine the two commands below
-PATH=$LPJS_HOME_DIR/Pkgsrc/pkg/bin:/usr/pkg/bin:/opt/pkg/bin:$PATH
-export PATH
+#
+# Caution: Different versions of rsync behave differently with respect
+# to creating path components at the destination.  Newer rsync requires
+# --mkpath while older ones included with macOS and RHEL do not support
+# this flag. Set path to use pkgsrc rsync in ~/Pkgsrc/pkg or /opt/pkg.
+#lpjs path ~/Pkgsrc/pkg/bin:/opt/pkg/bin:/usr/pkg/bin:/usr/local/bin:/usr/bin:/bin
+#lpjs pull-command rsync --mkpath -r %h:%s/Results/08-kallisto-index Results && rsync --mkpath %h:%s/Results/04-trim/\*sample%i-\*.zst Results/04-trim/
+#lpjs push-command rsync -r %w/Results/09-kallisto-quant %h:%s/Results
 
 input_dir='Results/04-trim'
 output_dir='Results/09-kallisto-quant'

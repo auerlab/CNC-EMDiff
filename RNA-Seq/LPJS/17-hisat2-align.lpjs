@@ -31,29 +31,24 @@
 # lpjs peak-mem: 5239352 KiB / 4 procs / 1024 = 1279.138671875 MiB
 #lpjs pmem-per-processor 1400MB
 #lpjs log-dir Logs/17-hisat2-align
-# To simplify the rsync command, drop the input files in . and move
-# them later after creating structure under temp working dir
-# macOS 12 rsync is broken, can't handle multiple source specs
-# macOS rsync doesn't support --mkpath
-# Use pkgsrc rsync in /opt/pkg instead
-#lpjs path /opt/pkg/bin:/usr/local/bin:/usr/bin:/bin
-#lpjs pull-command rsync --mkpath -r --copy-links %h:%s/Reference %h:%s/Results/16-hisat2-index %h:%s/Results/04-trim/\*sample%i-\*.zst .
-#lpjs push-command rsync --mkpath -r %w/Results/17-hisat2-align %h:%s/Results
-
 ##############################################################################
 # Update PATH on a chimeric cluster (multiple operating systems used for
-# compute nodes.
+# compute nodes)
 #
-# The path used by the package manager that installed LPJS is added
-# automatically (/usr/local for FreeBSD ports, usually /usr/pkg or /opt/pkg
-# for pkgsrc), though this is overridden by "#lpjs path".
+# The PATH used by the package manager that installed LPJS (/usr/local for
+# FreeBSD ports, usually /usr/pkg or /opt/pkg for pkgsrc), is automatically
+# prepended to the default PATH.  This is overridden by "#lpjs path", so
+# if we use it, we must add all directories ourselves.
 #
 # Add the default non-priveleged pkgsrc prefix used by auto-pkgsrc-setup.
-##############################################################################
-
-# Not every sh implementation can combine the two commands below
-PATH=$LPJS_HOME_DIR/Pkgsrc/pkg/bin:/usr/pkg/bin:/opt/pkg/bin:$PATH
-export PATH
+#
+# Caution: Different versions of rsync behave differently with respect
+# to creating path components at the destination.  Newer rsync requires
+# --mkpath while older ones included with macOS and RHEL do not support
+# this flag. Set path to use pkgsrc rsync in ~/Pkgsrc/pkg or /opt/pkg.
+#lpjs path ~/Pkgsrc/pkg/bin:/opt/pkg/bin:/usr/pkg/bin:/usr/local/bin:/usr/bin:/bin
+#lpjs pull-command rsync --mkpath -r --copy-links %h:%s/Reference %h:%s/Results/16-hisat2-index %h:%s/Results/04-trim/\*sample%i-\*.zst .
+#lpjs push-command rsync --mkpath -r %w/Results/17-hisat2-align %h:%s/Results
 
 ##############################################################################
 # Align with hisat2, which can handle splice junctions in RNA reads
