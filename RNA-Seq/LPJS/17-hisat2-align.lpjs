@@ -56,6 +56,12 @@
 # Set a default value for testing outside the LPJS environment
 : ${LPJS_ARRAY_INDEX:=1}
 
+# Adjust this and #lpjs jobs above to rerun limited samples
+# E.g. to rerun just sample 9, use 1 job, sample = array_index 1 + 8:
+#   #lpjs jobs 1
+#   sample=$(($LPJS_ARRAY_INDEX + 8))
+sample=$LPJS_ARRAY_INDEX
+
 # Document software versions used for publication
 uname -a
 hisat2 --version
@@ -86,8 +92,8 @@ fi
 # It might be possible to use a named pipe, assuming hisat2 doesn't
 # need to do seek operations on the input file.  However, generating
 # gzip files doesn't take long.
-zst1=$(echo $input_dir/*sample${LPJS_ARRAY_INDEX}-*-R1.fastq.zst)
-zst2=$(echo $input_dir/*sample${LPJS_ARRAY_INDEX}-*-R2.fastq.zst)
+zst1=$(echo $input_dir/*sample${sample}-*-R1.fastq.zst)
+zst2=$(echo $input_dir/*sample${sample}-*-R2.fastq.zst)
 gz1=${zst1%.zst}.gz
 gz2=${zst2%.zst}.gz
 # Run both at the same time, since we allocated 4 cores anyway
@@ -97,9 +103,6 @@ printf "$zst1 -> $gz1, $zst2 -> $gz2 for hisat2...\n"
 zstdcat $zst1 | gzip --fast --stdout > $gz1 &
 zstdcat $zst2 | gzip --fast --stdout > $gz2
 wait
-
-# Adjust this and #lpjs jobs above to rerun limited samples
-sample=$LPJS_ARRAY_INDEX
 
 genome=$(Reference/genome-filename.sh)
 cd $output_dir
@@ -116,8 +119,8 @@ tmpdir=/tmp
 set -x
 
 hisat2 --threads $(($LPJS_PROCESSORS_PER_JOB - 1)) -x ../16-hisat2-index/$genome \
-    -1 $gz1 -2 $gz2 | samtools sort -T $tmpdir > $bam
-rm -f $gz1 $gz2
+    -1 ../../$gz1 -2 ../../$gz2 | samtools sort -T $tmpdir > $bam
+# rm -f ../../$gz1 ../../$gz2
 
 # Not sure how helpful multithreading is here, but since we allocated
 # the cores for hisat2 above, might as well use them.  It's not worth
