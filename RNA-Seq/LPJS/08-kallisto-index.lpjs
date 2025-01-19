@@ -5,7 +5,7 @@
 #       Build kallisto index for reference transcriptome.
 #
 #   Dependencies:
-#       Requires reference transriptome.  Run after *-reference.sbatch.
+#       Requires reference transriptome.  Run after *-reference.lpjs.
 #
 #       All necessary tools are assumed to be in PATH.  If this is not
 #       the case, add whatever code is needed here to gain access.
@@ -21,8 +21,8 @@
 #lpjs jobs 1
 #lpjs processors-per-job 1
 #lpjs threads-per-process processors-per-job
-# lpjs peak-mem Logs/08-kallisto-index: 1714572 / 1024 = 1674 MiB + 10%
-#lpjs pmem-per-processor 1850MiB
+# lpjs peak-mem Logs/08-kallisto-index: 2497836 KiB / 1024 = 2439 MiB + 20%
+#lpjs pmem-per-processor 3000MiB
 #lpjs log-dir Logs/08-kallisto-index
 ##############################################################################
 # Update PATH on a chimeric cluster (multiple operating systems used for

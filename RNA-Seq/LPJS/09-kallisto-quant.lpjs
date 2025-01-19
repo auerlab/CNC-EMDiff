@@ -18,8 +18,8 @@
 #lpjs processors-per-job 4
 #lpjs threads-per-process processors-per-job
 # lpjs peak-mem Logs/09-kallisto-quant:
-#   1185408 KiB / 1024 / 4 procs 289.40625 MiB + 10%
-#lpjs pmem-per-processor 320MiB
+#   1232808 KiB / 1024 / 4 procs 301 MiB + 20%
+#lpjs pmem-per-processor 360MiB
 #lpjs log-dir Logs/09-kallisto-quant
 ##############################################################################
 # Update PATH on a chimeric cluster (multiple operating systems used for
@@ -50,31 +50,18 @@ kallisto version
 pwd
 
 # kallisto can't handle zstd and will simply seg fault rather than
-# issue an error message.  If your trimmed fastq files are in zstd format,
-# this will convert to gzip format.
-# Convert zstd to gz rather than raw to reduce NFS load from compute nodes
-# --fast minimizes CPU usage in exchange for larger files
-# It might be possible to use a named pipe, assuming kallisto doesn't
-# need to do seek operations on the input file.  However, generating
-# gzip files doesn't take that long.
+# issue an error message.  Manually decompress the zstd files into
+# a named pipe and let kallisto read from there.
 zst1=$(echo $input_dir/*sample${LPJS_ARRAY_INDEX}-*-R1.fastq.zst)
 zst2=$(echo $input_dir/*sample${LPJS_ARRAY_INDEX}-*-R2.fastq.zst)
-gz1=${zst1%.zst}.gz
-gz2=${zst2%.zst}.gz
-# Run both at the same time, since we allocated 4 cores anyway
-# These are CPU-bound, so disk will not usually be a bottleneck
-# Don't try to reuse the .gz files, they may be incomplete from canceled jobs
-printf "$zst1 -> $gz1, $zst2 -> $gz2 for kallisto...\n"
-zstdcat $zst1 | gzip --fast --stdout > $gz1 &
-zstdcat $zst2 | gzip --fast --stdout > $gz2
-wait
-
-# If 04-trim.lpjs outputs .gz files, use this instead
-# gz1=$(echo Results/04-trim/*sample${LPJS_ARRAY_INDEX}-*-R1.fastq.gz)
-# gz2=$(echo Results/04-trim/*sample${LPJS_ARRAY_INDEX}-*-R2.fastq.gz)
+pipe1=${zst1%.zst}.fifo
+pipe2=${zst2%.zst}.fifo
+mkfifo $pipe1 $pipe2 || true
+zstdcat $zst1 > $pipe1 &
+zstdcat $zst2 > $pipe2 &
 
 # Kallisto requires an output subdirectory for each sample
-stem=$(basename ${gz1%-R1*})
+stem=$(basename ${zst1%-R1*})
 my_output_dir=$output_dir/$stem
 mkdir -p $my_output_dir
 
@@ -82,7 +69,5 @@ set -x
 kallisto quant \
     --threads=$LPJS_PROCESSORS_PER_JOB \
     --index=Results/08-kallisto-index/all-but-xy.index \
-    --output-dir=$my_output_dir $gz1 $gz2
-
-# Don't try to reuse the .gz files, they may be incomplete from canceled jobs
-rm -f $gz1 $gz2
+    --output-dir=$my_output_dir $pipe1 $pipe2
+rm -f $pipe1 $pipe2

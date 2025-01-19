@@ -2,7 +2,7 @@
 
 #
 #   Dependencies:
-#       Requires hisat2 alignments.  Run after *-hisat2-align.sbatch.
+#       Requires hisat2 alignments.  Run after *-hisat2-align.lpjs.
 
 # Computing abundances takes a little while, so we do this in parallel
 # Memory requirements can only be determined by trial and error.

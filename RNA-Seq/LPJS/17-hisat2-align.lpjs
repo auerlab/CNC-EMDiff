@@ -5,7 +5,7 @@
 #       Run hisat2 aligner on each RNA sample.
 #
 #   Dependencies:
-#       Requires hisat2 index.  Run after *-hisat2-index.sbatch.
+#       Requires hisat2 index.  Run after *-hisat2-index.lpjs.
 #
 #       All necessary tools are assumed to be in PATH.  If this is not
 #       the case, add whatever code is needed here to gain access.
@@ -18,16 +18,14 @@
 #   2021-11-24  Jason Bacon Begin
 ##########################################################################
 
-# Memory requirements can only be determined by trial and error.
-# Run a sample job and monitor closely in "top" or run under a tool that
-# reports maximum memory use.
-
 # One job per sample
 #lpjs jobs 18
-
 # 3 processors for hisat2, 1 for samtools sort, all must be on the same node
 #lpjs processors-per-job 4
 #lpjs threads-per-process processors-per-job
+# Memory requirements can only be determined by trial and error.
+# Run a sample job and monitor closely in "top" or run under a tool that
+# reports maximum memory use.
 # lpjs peak-mem: 5239352 KiB / 4 procs / 1024 = 1279.138671875 MiB
 #lpjs pmem-per-processor 1400MB
 #lpjs log-dir Logs/17-hisat2-align
@@ -47,7 +45,7 @@
 # --mkpath while older ones included with macOS and RHEL do not support
 # this flag. Set path to use pkgsrc rsync in ~/Pkgsrc/pkg or /*/pkg.
 #lpjs path ~/Pkgsrc/pkg/bin:/opt/pkg/bin:/usr/pkg/bin:/usr/local/bin:/usr/bin:/bin
-#lpjs pull-command rsync --mkpath -r --copy-links %h:%s/Reference %h:%s/Results/16-hisat2-index %h:%s/Results/04-trim/\*sample%i-\*.zst .
+#lpjs pull-command rsync -r --copy-links %h:%s/Reference . && rsync --mkpath -r %h:%s/Results/16-hisat2-index Results/16-hisat2-index && rsync --mkpath -r %h:%s/Results/04-trim/\*sample%i-\*.zst Results/04-trim
 #lpjs push-command rsync --mkpath -r %w/Results/17-hisat2-align %h:%s/Results
 
 ##############################################################################
@@ -71,56 +69,49 @@ input_dir=Results/04-trim
 output_dir=Results/17-hisat2-align
 index_dir=Results/16-hisat2-index
 
-marker=lpjs-$LPJS_SUBMIT_HOST-shared-fs-marker
-if [ ! -e $marker ]; then
-    # Using file transfer and temp directories on the compute node
-    printf "$marker does not exist.  Organizing transferred files...\n"
-    # Pull command left everything in .
-    # Set up the same directory structure as on the submit node
-    mkdir -p $input_dir $output_dir
-    mv 16-hisat2-index Results/
-    mv *.zst $input_dir
+# Make sure $tmpdir has enough space for several fastq files of ~2GB each
+# *and* samtools temporary files (comparable in size to fastq inputs).
+# Use compute node's local disk if possible.  Samtools sort uses this for
+# many large temporary files, so using networked storage will
+# hammer the cluster network and file servers.
+if hostname | grep albacore; then
+    # /usr/tmp is on a big partition on our albacore cluster's compute nodes
+    tmpdir=/usr/tmp
 else
-    printf "$marker found.  No need to transfer files.\n"
+    tmpdir=$(pwd)
 fi
 
-# hisat2 can't yet handle zstd inputs.
+# hisat2 can't yet read zstd inputs.
+# https://github.com/DaehwanKimLab/hisat2/issues/412
+# It also cannot read input from a pipe (performs seeks?)
 # If your trimmed fastq files are in zstd
 # format, this will convert to gzip format.
-# Convert zstd to gz rather than raw to reduce NFS load from compute nodes
+# Convert zstd to gz rather than raw to reduce NFS/IO load from compute nodes
 # --fast minimizes CPU usage in exchange for larger files
-# It might be possible to use a named pipe, assuming hisat2 doesn't
-# need to do seek operations on the input file.  However, generating
-# gzip files doesn't take long.
 zst1=$(echo $input_dir/*sample${sample}-*-R1.fastq.zst)
 zst2=$(echo $input_dir/*sample${sample}-*-R2.fastq.zst)
-gz1=${zst1%.zst}.gz
-gz2=${zst2%.zst}.gz
+base1=$(basename $zst1)
+base2=$(basename $zst2)
+gz1=$tmpdir/${base1%.zst}.gz
+gz2=$tmpdir/${base2%.zst}.gz
 # Run both at the same time, since we allocated 4 cores anyway
 # These are CPU-bound, so disk will not usually be a bottleneck
 # Don't try to reuse the .gz files, they may be incomplete from canceled jobs
 printf "$zst1 -> $gz1, $zst2 -> $gz2 for hisat2...\n"
 zstdcat $zst1 | gzip --fast --stdout > $gz1 &
 zstdcat $zst2 | gzip --fast --stdout > $gz2
-wait
+wait    # .gz files must be complete before we start
 
 genome=$(Reference/genome-filename.sh)
-cd $output_dir
 gz_base=$(basename $gz1)
 bam=${gz_base%-R*}.bam
-
-# Set this to a partition with about 15GB of free space, preferably on the
-# compute node's local disk.  Samtools sort uses this for many large
-# temporary files, so using networked storage will
-# hammer the cluster network and file servers.
-tmpdir=/tmp
 
 # Show exact commands below in stderr output
 set -x
 
+cd $output_dir
 hisat2 --threads $(($LPJS_PROCESSORS_PER_JOB - 1)) -x ../16-hisat2-index/$genome \
-    -1 ../../$gz1 -2 ../../$gz2 | samtools sort -T $tmpdir > $bam
-# rm -f ../../$gz1 ../../$gz2
+    -1 $gz1 -2 $gz2 | samtools sort -T $tmpdir > $bam
 
 # Not sure how helpful multithreading is here, but since we allocated
 # the cores for hisat2 above, might as well use them.  It's not worth

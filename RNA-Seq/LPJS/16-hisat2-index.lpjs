@@ -5,7 +5,7 @@
 #       Build hisat2 index for reference genome.
 #
 #   Dependencies:
-#       Requires a reference genome.  Run after *-reference.sbatch.
+#       Requires a reference genome.  Run after *-reference.lpjs.
 #
 #       All necessary tools are assumed to be in PATH.  If this is not
 #       the case, add whatever code is needed here to gain access.
@@ -22,7 +22,7 @@
 #lpjs processors-per-job 4
 #lpjs threads-per-process processors-per-job
 # lpjs peak-mem: 4993692 KiB / 4 procs / 1024 = 1219 MiB
-#lpjs pmem-per-processor 1300MiB
+#lpjs pmem-per-processor 1500MiB
 #lpjs log-dir Logs/16-hisat2-index
 ##############################################################################
 # Update PATH on a chimeric cluster (multiple operating systems used for
@@ -54,7 +54,7 @@ ln -f Results/07-reference/$genome Results/16-hisat2-index
 genome=Results/16-hisat2-index/$genome
 printf "Using reference $genome...\n"
 
-# FIXME: Do this in *-reference.sbatch
+# FIXME: Do this in *-reference.lpjs
 if [ ! -e $genome.8.ht2 ]; then
     printf "Building $genome.*.ht2...\n"
     set -x
