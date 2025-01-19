@@ -1,17 +1,3 @@
-#!/bin/sh -e
-
-##########################################################################
-#   Script description:
-#       QC kallisto alignments
-#
-#   Dependencies:
-#       Requires kallisto pseudobams.  Run after *-kallisto-quant.sbatch.
-#
-#   Usage:
-#       LPJS cluster:
-#           lpjs submit 5-qc.sbatch
-##########################################################################
-
-# BAM output is no longer supported by kallisto
-# 10-qc-kallisto, 11-multiqc-kallisto, and 12-kallisto-merge-bams
-# have therefore been removed.
+BAM output is no longer supported by kallisto
+10-qc-kallisto, 11-multiqc-kallisto, and 12-kallisto-merge-bams
+have therefore been removed.
