@@ -35,13 +35,6 @@ if [ $# != 0 ]; then
     usage
 fi
 
-mkdir -p Results Logs
-scripts=$(ls 0[2-9]-* 1[0-9]-* 2[0-9]-*)
-for script in $scripts; do
-    stage=${script%.*}
-    mkdir -p Results/$stage Logs/$stage
-done
-
 ##############################################################################
 # RNA-Seq:
 #

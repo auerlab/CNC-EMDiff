@@ -11,13 +11,6 @@
 ln -sf ../../Common .
 ln -sf ../../RNA-Seq/Reference .
 
-mkdir -p Results Logs
-scripts=$(ls 0[2-9]-* 1[0-9]*) || true
-for script in $scripts; do
-    stage=${script%.*}
-    mkdir -p Results/$stage Logs/$stage
-done
-
 ##############################################################################
 # ATAC-Seq:
 #

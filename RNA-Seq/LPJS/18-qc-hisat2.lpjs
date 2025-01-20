@@ -50,6 +50,8 @@
 # --mkpath while older ones included with macOS and RHEL do not support
 # this flag. Set path to use pkgsrc rsync in ~/Pkgsrc/pkg or /*/pkg.
 #lpjs path ~/Pkgsrc/pkg/bin:/opt/pkg/bin:/usr/pkg/bin:/usr/local/bin:/usr/bin:/bin
+#lpjs pull-command rsync --mkpath -r %h:%s/Results/17-hisat2-align/\*sample%i-\*.bam* Results/17-hisat2-align
+#lpjs push-command rsync --mkpath -r %w/Results/18-qc-hisat2 %h:%s/Results
 
 : ${LPJS_ARRAY_INDEX:=1}
 
@@ -64,4 +66,6 @@ printf "Running task $LPJS_ARRAY_INDEX...\n"
 # Change this and #lpjs jobs above to rerun limited samples
 sample=$LPJS_ARRAY_INDEX
 infile=Results/17-hisat2-align/*sample$sample*.bam
-fastqc -o Results/18-qc-hisat2 $infile
+out_dir=Results/18-qc-hisat2
+mkdir -p $out_dir
+fastqc -o $out_dir $infile
