@@ -2,11 +2,11 @@
 
 ##########################################################################
 #   Script description:
-#       Generate index for BWA aligner
+#       Generate index for bowtie2 aligner
 #
 #   Usage:
-#       sbatch 08-bwa-index.sbatch
-#       ./08-bwa-index.sbatch |& tee 3.log
+#       sbatch 16-bowtie2-index.sbatch
+#       ./16-bowtie2-index.sbatch |& tee 3.log
 ##########################################################################
 
 ##########################################################################
@@ -17,7 +17,7 @@
 #lpjs processors-per-job 1
 #lpjs threads-per-process processors-per-job
 #lpjs pmem-per-processor 5GiB
-#lpjs log-dir Logs/08-bwa-index
+#lpjs log-dir Logs/16-bowtie2-index
 
 ##############################################################################
 # Update PATH on a chimeric cluster (multiple operating systems used for
@@ -36,16 +36,18 @@ export PATH
 
 # Document software versions used for publication
 uname -a
-bwa || true
+bowtie2 || true
 pwd
 printenv
 
 genome_file=$(Reference/genome-filename.sh)
+bt2_base=${genome_file%.fa}
 genome_dir=Results/07-reference
-output_dir=Results/08-bwa-index
+output_dir=Results/16-bowtie2-index
 
 # FIXME: Add code for non-NFS nodes
 mkdir -p $output_dir
 cd $output_dir
 ln -sf ../../$genome_dir/$genome_file
-bwa index $genome_file
+set -x
+bowtie2-build $genome_file $bt2_base
