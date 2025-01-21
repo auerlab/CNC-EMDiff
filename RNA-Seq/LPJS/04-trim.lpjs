@@ -68,7 +68,6 @@ printenv
 # access security feature.
 ##############################################################################
 
-marker=lpjs-$LPJS_SUBMIT_HOST-shared-fs-marker
 pwd
 ls
 

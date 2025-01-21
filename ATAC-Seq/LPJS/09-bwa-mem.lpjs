@@ -14,10 +14,16 @@
 ##########################################################################
 
 #lpjs jobs 18
+# It's more memory-efficient to use more processors-per-job, e.g.
+# doubling processors-per-job only increases memory use marginally.
+# It also scales well, i.e. doubling processors-per-job will almost
+# cut run time in half.  Set this as high as your compute nodes can support.
 #lpjs processors-per-job 4
 #lpjs threads-per-process processors-per-job
-# lpjs peak-mem: 
-#lpjs pmem-per-processor 2GiB
+# Old, before samtools sort was added:
+#   lpjs peak-mem: 5726664 KiB / 1024 / 4 procs = 1398 MiB + 20%
+#   Adding 2 GiB for samtools
+#lpjs pmem-per-processor 3398MiB
 #lpjs log-dir Logs/09-bwa-mem
 #lpjs pull-command rsync -r --mkpath --copy-links %h:%s/Reference . && rsync -r --mkpath %h:%s/Results/08-bwa-index Results/08-bwa-index' && rsync -r --mkpath %h:%s/Results/04-trim/\*-sample%i\* Results/04-trim
 
@@ -47,6 +53,18 @@ pwd
 bwa || true
 printenv
 
+# Make sure $tmpdir has enough space for several fastq files of ~2GB each
+# *and* samtools temporary files (comparable in size to fastq inputs).
+# Use compute node's local disk if possible.  Samtools sort uses this for
+# many large temporary files, so using networked storage will
+# hammer the cluster network and file servers.
+if hostname | grep albacore; then
+    # /usr/tmp is on a big partition on our albacore cluster's compute nodes
+    tmpdir=/usr/tmp
+else
+    tmpdir=$(pwd)
+fi
+
 ##############################################################################
 # If this node cannot access the input files using NFS, pull them from
 # the submit node.  If all nodes use NFS, this can be removed.  Out macOS
@@ -59,31 +77,36 @@ output_dir='Results/09-bwa-mem'
 index_dir='Results/08-bwa-index'
 
 sample=$LPJS_ARRAY_INDEX
-
 input1=$(ls $input_dir/*-sample$sample-*R1.fastq.zst)
 input2=$(ls $input_dir/*-sample$sample-*R2.fastq.zst)
-
 ref_file=$(Reference/genome-filename.sh)
+# fixmate (used in *-remove-duplicates.*) requires name-sorted input
+# Doing the sort here adds basically no time to this job, since
+# samtools sort is an order of magnitude faster than the BWA alignment.
+# This then saves time and disk beating in the remove-duplicates job
+# that follows.
+outfile=$(basename ${input1%-R1.fastq.zst})-namesort.bam
 
-# One iteration if running under LPJS, all iterations otherwise
-printf "Running task $LPJS_ARRAY_INDEX...\n"
-outfile=$(basename ${input1%-R1.fastq.zst}).sam
+printf "Running sample $LPJS_ARRAY_INDEX...\n"
 
 set -x
+mkdir -p $output_dir
 cd $output_dir
-pipe1=pipe1.$LPJS_JOB_ID
-pipe2=pipe2.$LPJS_JOB_ID
+# Named pipes in an NFS dir work under FreeBSD, but I'm not sure if they
+# do on all platforms.  Put them in the local tmp dir.
+pipe1=$tmpdir/pipe1.$LPJS_JOB_ID
+pipe2=$tmpdir/pipe2.$LPJS_JOB_ID
 rm -f $pipe1 $pipe2
 mkfifo $pipe1
 mkfifo $pipe2
 zstdcat ../../$input1 > $pipe1 &
 zstdcat ../../$input2 > $pipe2 &
+# Adjust samtools memory use with -m.  More mem = less disk I/O.
+# Adjust #lpjs pmem-per-processor accordingly.
+# zstd and samtools use very little CPU time, so allocate all the processors
+# to bwa mem
+set +e  # Remove pipe files whether bwa succeeds or not
 bwa mem -M -t $LPJS_PROCS_PER_JOB \
-    ../08-bwa-index/$ref_file $pipe1 $pipe2 > $outfile
-wait
+    ../08-bwa-index/$ref_file $pipe1 $pipe2 | \
+    samtools sort -n -m 2g -T $tmpdir -o $outfile
 rm -f $pipe1 $pipe2
-
-# Don't waste time and bandwidth sending back input files
-if [ ! -e $marker ]; then
-    rm -rf $input_dir $index_dir Reference
-fi

@@ -33,7 +33,8 @@ uname -a
 samtools --version
 pwd
 
-case $LPJS_ARRAY_INDEX in
+task=$LPJS_ARRAY_INDEX
+case $task in
 1)
     cell_line=chondro
     time=1
@@ -63,25 +64,7 @@ esac
 input_dir='Results/10-remove-duplicates'
 output_dir='Results/13-merge-bams'
 
-marker=lpjs-$LPJS_SUBMIT_HOST-shared-fs-marker
-if [ ! -e $marker ]; then
-    printf "$marker does not exist.  Using rsync to transfer files.\n"
-    
-    # Recreate directory structure in temp working dir and pull
-    # our input files into it
-    mkdir -p $input_dir $output_dir
-    # Example: neuro-sample12-rep3-time1-nodup-mapq1.bam
-    input_bams="$input_dir/$cell_line-sample*-rep*-time$time-nodup-mapq1.bam"
-    set -x
-    rsync --copy-links ${LPJS_SUBMIT_HOST}:$LPJS_SUBMIT_DIRECTORY/$input_bams \
-	$input_dir
-    set +x
-else
-    printf "$marker found.  No need to transfer files.\n"
-    input_bams=$(ls Results/10-remove-duplicates/$cell_line-*-time$time-*-mapq1.bam)
-fi
-
-if [ $LPJS_ARRAY_INDEX -le 3 ]; then
+if [ $task -le 3 ]; then
     output_bam=Results/13-merge-bams/atac-chondro-$time.bam
 else
     output_bam=Results/13-merge-bams/atac-neuro-$time.bam
@@ -90,8 +73,3 @@ fi
 set -x
 samtools merge -f $output_bam $input_bams
 samtools index $output_bam
-
-# Don't waste time and bandwidth sending back input files
-if [ ! -e $marker ]; then
-    rm -rf $input_dir
-fi

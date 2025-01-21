@@ -36,8 +36,9 @@ bedtools --version
 pwd
 
 # One iteration if running under SLURM, all iterations otherwise
-printf "Processing task $LPJS_ARRAY_INDEX...\n"
-case $LPJS_ARRAY_INDEX in
+task=$LPJS_ARRAY_INDEX
+printf "Processing task $task...\n"
+case $task in
 1)
     cell_type=chondro
     ;;
@@ -47,7 +48,7 @@ case $LPJS_ARRAY_INDEX in
     ;;
 
 *)
-    printf "Error: LPJS_ARRAY_INDEX must be 1 or 2.\n"
+    printf "Error: NDEX must be 1 or 2.\n"
     exit 1
 
 esac

@@ -54,23 +54,6 @@ printenv
 input_dir='Results/09-bwa-mem'
 output_dir='Results/10-remove-duplicates'
 
-marker=lpjs-$LPJS_SUBMIT_HOST-shared-fs-marker
-if [ ! -e $marker ]; then
-    printf "$marker does not exist.  Using rsync to transfer files.\n"
-    
-    # Recreate directory structure in temp working dir and pull
-    # our input files into it
-    mkdir -p $input_dir $output_dir
-    # Example: chondro-sample1-rep1-time1.sam
-    saminput="$input_dir/*sample$LPJS_ARRAY_INDEX-*"
-    set -x
-    rsync --copy-links ${LPJS_SUBMIT_HOST}:$LPJS_SUBMIT_DIRECTORY/$saminput $input_dir
-    set +x
-else
-    printf "$marker found.  No need to transfer files.\n"
-    saminput=$(ls $input_dir/*sample$LPJS_ARRAY_INDEX-*)
-fi
-
 # FIXME: Remove duplicate reads before alignment to cut down on redundant
 # alignments.  Still need to run this step since we cannot identify all
 # duplicate alignments before alignment.
@@ -80,19 +63,20 @@ cd Results/10-remove-duplicates
 # This should match only 1 file.  '*' used only to match irrelevant variations.
 # The integer following 'S' in the filename should be unique (1 - 18)
 # Variable assignments don't expand globbing patterns, so insert an ls command
-saminput=$(ls ../09-bwa-mem/*sample$LPJS_ARRAY_INDEX-*.sam)
-sambase=$(basename $saminput)
-sorted=${sambase%.sam}-sorted.bam
-nodup=${sambase%.sam}-nodup.bam
-nodupmapq1=${sambase%.sam}-nodup-mapq1.bam
-printf "saminput=$saminput, sorted=$sorted, nodup=$nodup, nodupmapq1=$nodupmapq1\n"
+sample=$LPJS_ARRAY_INDEX
+baminput=$(ls ../09-bwa-mem/*sample$sample-*-namesort.bam)
+bambase=$(basename $baminput)
+sorted=${bambase%-namesort.bam}-sorted.bam
+nodup=${bambase%-namesort.bam}-nodup.bam
+nodupmapq1=${bambase%-namesort.bam}-nodup-mapq1.bam
+printf "baminput=$baminput, sorted=$sorted, nodup=$nodup, nodupmapq1=$nodupmapq1\n"
 
 # Clean up from prior interrupted sort processes
 rm -f $sorted-*tmp*
 
 # Is there a reason to sort by coordinates before sorting by name?
 # Sort by leftmost coordinate
-# samtools sort $saminput -o $sorted
+# samtools sort $baminput -o $sorted
 # samtools index $sorted
 # Are these even used?
 # samtools idxstats $sorted > $sorted.idxstats
@@ -105,7 +89,10 @@ set -x
 # samtools sort -n -o $sorted-namesort.bam $sorted 
 # -n: Sort by QNAME
 # -m: Specify max memory use.  More mem means fewer temp files
-samtools sort -n -m 2g -o $sorted-namesort.bam $saminput
+# This is now done during alignment
+# samtools sort -n -m 2g -o $sorted-namesort.bam $baminput
+
+# Clean up from previous runs
 rm -f $sorted $sorted.*
 
 # -m: Add mate score tags to help markdup select the best reads to keep
@@ -142,8 +129,3 @@ rm -f $nodup $nodup.*
 samtools index $nodupmapq1
 samtools idxstats $nodupmapq1 > $nodupmapq1.idxstats
 samtools flagstat $nodupmapq1 > $nodupmapq1.flagstat
-
-# Don't waste time and bandwidth sending back input files
-if [ ! -e $marker ]; then
-    rm -rf $input_dir
-fi
