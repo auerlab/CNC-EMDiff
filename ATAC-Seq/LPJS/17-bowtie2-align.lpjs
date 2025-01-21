@@ -1,0 +1,111 @@
+#!/bin/sh -e
+
+##########################################################################
+#   Script description:
+#       Align reads to reference genome
+#
+#   Usage:
+#       LPJS cluster:
+#           lpjs submit 17-bowtie2-align.lpjs
+##########################################################################
+
+##########################################################################
+#   Main
+##########################################################################
+
+#lpjs jobs 18
+# It's more memory-efficient to use more processors-per-job, e.g.
+# doubling processors-per-job only increases memory use marginally.
+# It also scales well, i.e. doubling processors-per-job will almost
+# cut run time in half.  Set this as high as your compute nodes can support.
+#lpjs processors-per-job 4
+#lpjs threads-per-process processors-per-job
+# Old, before samtools sort was added:
+#   lpjs peak-mem: 2986148 KiB / 1024 / 4 procs = 729 + 20% = 875 MiB
+#   Adding 2 GiB for samtools
+#lpjs pmem-per-processor 2875MiB
+#lpjs log-dir Logs/17-bowtie2-align
+#lpjs pull-command rsync -r --mkpath --copy-links %h:%s/Reference . && rsync -r --mkpath %h:%s/Results/16-bowtie2-index Results/16-bowtie2-index' && rsync -r --mkpath %h:%s/Results/04-trim/\*-sample%i\* Results/04-trim
+
+##############################################################################
+# Update PATH on a chimeric cluster (multiple operating systems used for
+# compute nodes.
+#
+# The path used by the package manager that installed LPJS is added
+# automatically (/usr/local for FreeBSD ports, usually /usr/pkg or /opt/pkg
+# for pkgsrc).
+#
+# Add the default non-priveleged pkgsrc prefix used by auto-pkgsrc-setup.
+##############################################################################
+
+# Not every sh implementation can combine the two commands below
+PATH=$LPJS_HOME_DIR/Pkgsrc/pkg/bin:/usr/pkg/bin:/opt/pkg/bin:$PATH
+export PATH
+
+# Set a default value for testing outside the LPJS environment
+: ${LPJS_ARRAY_INDEX:=1}
+: ${LPJS_PROCS_PER_JOB:=4}
+
+# Document software versions used for publication
+uname -a
+hostname
+pwd
+bowtie2 || true
+printenv
+
+# Make sure $tmpdir has enough space for several fastq files of ~2GB each
+# *and* samtools temporary files (comparable in size to fastq inputs).
+# Use compute node's local disk if possible.  Samtools sort uses this for
+# many large temporary files, so using networked storage will
+# hammer the cluster network and file servers.
+if hostname | grep albacore; then
+    # /usr/tmp is on a big partition on our albacore cluster's compute nodes
+    tmpdir=/usr/tmp
+else
+    tmpdir=$(pwd)
+fi
+
+##############################################################################
+# If this node cannot access the input files using NFS, pull them from
+# the submit node.  If all nodes use NFS, this can be removed.  Out macOS
+# node currently does not use NFS due to issues with Apple's full disk
+# access security feature.
+##############################################################################
+
+input_dir='Results/04-trim'
+output_dir='Results/17-bowtie2-align'
+index_dir='Results/16-bowtie2-index'
+
+sample=$LPJS_ARRAY_INDEX
+input1=$(ls $input_dir/*-sample$sample-*R1.fastq.zst)
+input2=$(ls $input_dir/*-sample$sample-*R2.fastq.zst)
+ref_file=$(Reference/genome-filename.sh)
+# fixmate (used in *-remove-duplicates.*) requires name-sorted input
+# Doing the sort here adds basically no time to this job, since
+# samtools sort is an order of magnitude faster than the BWA alignment.
+# This then saves time and disk beating in the remove-duplicates job
+# that follows.
+outfile=$(basename ${input1%-R1.fastq.zst})-namesort.bam
+
+printf "Running sample $sample...\n"
+set -x
+mkdir -p $output_dir
+cd $output_dir
+# Named pipes in an NFS dir work under FreeBSD, but I'm not sure if they
+# do on all platforms.  Put them in the local tmp dir.
+pipe1=$tmpdir/pipe1.$LPJS_JOB_ID
+pipe2=$tmpdir/pipe2.$LPJS_JOB_ID
+rm -f $pipe1 $pipe2
+mkfifo $pipe1
+mkfifo $pipe2
+zstdcat ../../$input1 > $pipe1 &
+zstdcat ../../$input2 > $pipe2 &
+# Adjust samtools memory use with -m.  More mem = less disk I/O.
+# Adjust #lpjs pmem-per-processor accordingly.
+# zstd and samtools use very little CPU time, so allocate all the processors
+# to bwa mem.  Bowtie2 uses 1 more thread than specified with --threads.
+set +e  # Remove pipe files whether bowtie2 succeeds or not
+bowtie2 --threads $(($LPJS_PROCS_PER_JOB - 1)) \
+    -x ../16-bowtie2-index/${ref_file%.fa} -1 $pipe1 -2 $pipe2 | \
+    samtools sort -n -m 2g -T $tmpdir -o $outfile
+rm -f $pipe1 $pipe2
