@@ -19,7 +19,7 @@
 #lpjs processors-per-job 1
 #lpjs threads-per-process processors-per-job
 #lpjs pmem-per-processor 4GB
-#lpjs log-dir Logs/14-macs-peaks
+#lpjs log-dir Logs/14-bwa-macs-peaks
 
 # Not every sh implementation can combine the two commands below
 PATH=$LPJS_HOME_DIR/Pkgsrc/pkg/bin:/usr/pkgsrc:/opt/pkgsrc:$PATH
@@ -49,8 +49,8 @@ case $task in
 
 esac
 
-input_dir=Results/10-remove-duplicates
-output_dir=Results/14-macs-peaks
+input_dir=Results/10-bwa-derep
+output_dir=Results/14-bwa-macs-peaks
 
 # FIXME: Add file transfer capability for nodes with no NFS
 
@@ -59,6 +59,7 @@ printf "$cell_type: Peak calling, merging replicates across all time points, cal
 # BAMPE = BAM Paired End
 # Would it make any difference to use the merged BAMs instead?
 set -x
+mkdir -p $output_dir
 macs3 callpeak --nomodel \
     -t $input_dir/$cell_type-*-mapq1.bam \
     -f BAMPE -g mm --call-summits -n ATAC-$cell_type \

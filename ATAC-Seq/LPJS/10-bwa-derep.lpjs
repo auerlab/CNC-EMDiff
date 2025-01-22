@@ -17,7 +17,7 @@
 #lpjs processors-per-job 1
 #lpjs threads-per-process processors-per-job
 #lpjs pmem-per-processor 4GiB
-#lpjs log-dir Logs/10-remove-duplicates
+#lpjs log-dir Logs/10-bwa-derep
 
 ##############################################################################
 # Update PATH on a chimeric cluster (multiple operating systems used for
@@ -52,21 +52,26 @@ printenv
 ##############################################################################
 
 input_dir='Results/09-bwa-mem'
-output_dir='Results/10-remove-duplicates'
+output_dir='Results/10-bwa-derep'
 
 # FIXME: Remove duplicate reads before alignment to cut down on redundant
 # alignments.  Still need to run this step since we cannot identify all
 # duplicate alignments before alignment.
 
-cd Results/10-remove-duplicates
+mkdir -p $output_dir
+cd $output_dir
 
 # This should match only 1 file.  '*' used only to match irrelevant variations.
 # The integer following 'S' in the filename should be unique (1 - 18)
 # Variable assignments don't expand globbing patterns, so insert an ls command
 sample=$LPJS_ARRAY_INDEX
 baminput=$(ls ../09-bwa-mem/*sample$sample-*-namesort.bam)
+ls $baminput
+
 bambase=$(basename $baminput)
 sorted=${bambase%-namesort.bam}-sorted.bam
+fixmated=${bambase%-namesort.bam}-fixmated.bam
+fixmated_and_sorted=${bambase%-namesort.bam}-fixmated-sorted.bam
 nodup=${bambase%-namesort.bam}-nodup.bam
 nodupmapq1=${bambase%-namesort.bam}-nodup-mapq1.bam
 printf "baminput=$baminput, sorted=$sorted, nodup=$nodup, nodupmapq1=$nodupmapq1\n"
@@ -96,21 +101,22 @@ set -x
 rm -f $sorted $sorted.*
 
 # -m: Add mate score tags to help markdup select the best reads to keep
-samtools fixmate -m $sorted-namesort.bam $sorted-fixmate.bam
+samtools fixmate -m $baminput $fixmated
+
 # Keep name-sorted file for further filtering
 # rm -f $sorted-namesort.bam
 
 # markdup requires coordinate-sorted input
 # -m: Specify max memory use.  More mem means fewer temp files
-samtools sort -m 2g -o $sorted-fixmate-sort.bam $sorted-fixmate.bam
-rm -f $sorted-fixmate.bam
+samtools sort -m 2g $fixmated -o $fixmated_and_sorted
+rm -f $fixmated
 
 # Remove duplicate reads with markdup
 # -l: Expected read length
 # -r: Remove duplicates
 # -s: Print basic stats
-samtools markdup -l 100 -r -s $sorted-fixmate-sort.bam $nodup
-rm -f $sorted-fixmate-sort.bam
+samtools markdup -l 100 -r -s $fixmated_and_sorted $nodup
+rm -f $fixmated_and_sorted
 
 # Generating index and stats
 # Are these used?

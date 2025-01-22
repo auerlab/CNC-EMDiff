@@ -21,7 +21,7 @@
 #lpjs processors-per-job 1
 #lpjs threads-per-process processors-per-job
 #lpjs pmem-per-processor 100MB
-#lpjs log-dir Logs/15-process-peaks/slurm-%A_%a.out
+#lpjs log-dir Logs/15-bwa-process-peaks/slurm-%A_%a.out
 
 # Not every sh implementation can combine the two commands below
 PATH=$LPJS_HOME_DIR/Pkgsrc/pkg/bin:/usr/pkgsrc:/opt/pkgsrc:$PATH
@@ -53,7 +53,7 @@ case $task in
 
 esac
 
-cd Results/15-process-peaks
+cd Results/15-bwa-process-peaks
 macs_dir=../14-macs-peaks
 
 ##########################################################################

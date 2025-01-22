@@ -1,0 +1,71 @@
+#!/bin/sh -e
+
+##########################################################################
+#   Script description:
+#       QC bwa alignments
+#
+#   Dependencies:
+#       Requires bwa bams.  Run after *-bwa-align.lpjs.
+#
+#   Usage:
+#       LPJS cluster:
+#           lpjs submit 18-bwa-qc.lpjs
+#
+#   History:
+#       Based on the work of Dr. Andrea Rau:
+#       https://github.com/andreamrau/OpticRegen_2019
+#   Date        Name        Modification
+#   2020-02-25  Jason Bacon Begin
+##########################################################################
+
+##########################################################################
+#   Main
+##########################################################################
+
+# One job per sample
+#lpjs jobs 18
+#lpjs processors-per-job 2
+#lpjs threads-per-process processors-per-job
+# Memory requirements can only be determined by trial and error.
+# Run a sample job and monitor closely in "top" or run under a tool that
+# reports maximum memory use.
+# Chaperone log shows ??
+# Be sure to adjust if # of threads is changed.  Total should be about
+# the same, but divided by a different # of processors.
+#lpjs pmem-per-processor 800MiB
+#lpjs log-dir Logs/11-bwa-qc
+##############################################################################
+# Update PATH on a chimeric cluster (multiple operating systems used for
+# compute nodes)
+#
+# The PATH used by the package manager that installed LPJS (/usr/local for
+# FreeBSD ports, usually /usr/pkg or /*/pkg for pkgsrc), is automatically
+# prepended to the default PATH.  This is overridden by "#lpjs path", so
+# if we use it, we must add all directories ourselves.
+#
+# Add the default non-priveleged pkgsrc prefix used by auto-pkgsrc-setup.
+#
+# Caution: Different versions of rsync behave differently with respect
+# to creating path components at the destination.  Newer rsync requires
+# --mkpath while older ones included with macOS and RHEL do not support
+# this flag. Set path to use pkgsrc rsync in ~/Pkgsrc/pkg or /*/pkg.
+#lpjs path ~/Pkgsrc/pkg/bin:/opt/pkg/bin:/usr/pkg/bin:/usr/local/bin:/usr/bin:/bin
+#lpjs pull-command rsync --mkpath -r %h:%s/Results/10-bwa-remove-duplicates/\*sample%i-\*.bam* Results/10-bwa-remove-duplicates
+#lpjs push-command rsync --mkpath -r %w/Results/11-bwa-qc %h:%s/Results
+
+: ${LPJS_ARRAY_INDEX:=1}
+
+# Document software versions used for publication
+uname -a
+fastqc --version
+pwd
+
+# One iteration if running under SLURM, all iterations otherwise
+printf "Running task $LPJS_ARRAY_INDEX...\n"
+
+# Change this and #lpjs jobs above to rerun limited samples
+sample=$LPJS_ARRAY_INDEX
+infile=Results/10-bwa-remove-duplicates/*sample$sample*.bam
+out_dir=Results/11-bwa-qc
+mkdir -p $out_dir
+fastqc -o $out_dir $infile

@@ -1,0 +1,137 @@
+#!/bin/sh -e
+
+##########################################################################
+#   Script description:
+#       Filter out replicate reads
+#       This script is I/O-intensive, so use slow nodes and limit
+#       concurrency.
+#
+#       FIXME: Explore using Picard MarkDuplicates for this instead
+##########################################################################
+
+##########################################################################
+#   Main
+##########################################################################
+
+#lpjs jobs 18
+#lpjs processors-per-job 1
+#lpjs threads-per-process processors-per-job
+#lpjs pmem-per-processor 4GiB
+#lpjs log-dir Logs/18-bowtie2-derep
+
+##############################################################################
+# Update PATH on a chimeric cluster (multiple operating systems used for
+# compute nodes.
+#
+# The path used by the package manager that installed LPJS is added
+# automatically (/usr/local for FreeBSD ports, usually /usr/pkg or /opt/pkg
+# for pkgsrc).
+#
+# Add the default non-priveleged pkgsrc prefix used by auto-pkgsrc-setup.
+##############################################################################
+
+# Not every sh implementation can combine the two commands below
+PATH=$LPJS_HOME_DIR/Pkgsrc/pkg/bin:/usr/pkg/bin:/opt/pkg/bin:$PATH
+export PATH
+
+# Set a default value for testing outside the LPJS environment
+: ${LPJS_ARRAY_INDEX:=1}
+
+# Document software versions used for publication
+uname -a
+hostname
+pwd
+samtools --version
+printenv
+
+##############################################################################
+# If this node cannot access the input files using NFS, pull them from
+# the submit node.  If all nodes use NFS, this can be removed.  Out macOS
+# node currently does not use NFS due to issues with Apple's full disk
+# access security feature.
+##############################################################################
+
+input_dir='Results/17-bowtie2-align'
+output_dir='Results/18-bowtie2-derep'
+
+# FIXME: Remove duplicate reads before alignment to cut down on redundant
+# alignments.  Still need to run this step since we cannot identify all
+# duplicate alignments before alignment.
+
+mkdir -p $output_dir
+cd $output_dir
+
+# This should match only 1 file.  '*' used only to match irrelevant variations.
+# The integer following 'S' in the filename should be unique (1 - 18)
+# Variable assignments don't expand globbing patterns, so insert an ls command
+sample=$LPJS_ARRAY_INDEX
+baminput=$(ls ../17-bowtie2-align/*sample$sample-*-namesort.bam)
+ls $baminput
+
+bambase=$(basename $baminput)
+sorted=${bambase%-namesort.bam}-sorted.bam
+fixmated=${bambase%-namesort.bam}-fixmated.bam
+fixmated_and_sorted=${bambase%-namesort.bam}-fixmated-sorted.bam
+nodup=${bambase%-namesort.bam}-nodup.bam
+nodupmapq1=${bambase%-namesort.bam}-nodup-mapq1.bam
+printf "baminput=$baminput, sorted=$sorted, nodup=$nodup, nodupmapq1=$nodupmapq1\n"
+
+# Clean up from prior interrupted sort processes
+rm -f $sorted-*tmp*
+
+# Is there a reason to sort by coordinates before sorting by name?
+# Sort by leftmost coordinate
+# samtools sort $baminput -o $sorted
+# samtools index $sorted
+# Are these even used?
+# samtools idxstats $sorted > $sorted.idxstats
+# samtools flagstat $sorted > $sorted.flagstat
+
+set -x
+
+# fixmate requires name-sorted input
+# Apparently must be in a file, so we can't pipe sorted input to it?
+# samtools sort -n -o $sorted-namesort.bam $sorted 
+# -n: Sort by QNAME
+# -m: Specify max memory use.  More mem means fewer temp files
+# This is now done during alignment
+# samtools sort -n -m 2g -o $sorted-namesort.bam $baminput
+
+# Clean up from previous runs
+rm -f $sorted $sorted.*
+
+# -m: Add mate score tags to help markdup select the best reads to keep
+samtools fixmate -m $baminput $fixmated
+
+# Keep name-sorted file for further filtering
+# rm -f $sorted-namesort.bam
+
+# markdup requires coordinate-sorted input
+# -m: Specify max memory use.  More mem means fewer temp files
+samtools sort -m 2g $fixmated -o $fixmated_and_sorted
+rm -f $fixmated
+
+# Remove duplicate reads with markdup
+# -l: Expected read length
+# -r: Remove duplicates
+# -s: Print basic stats
+samtools markdup -l 100 -r -s $fixmated_and_sorted $nodup
+rm -f $fixmated_and_sorted
+
+# Generating index and stats
+# Are these used?
+samtools index $nodup
+samtools idxstats $nodup > $nodup.idxstats
+samtools flagstat $nodup > $nodup.flagstat
+
+# Remove reads with MAPQ < 1
+# Default quality min (-q) is 0
+# -b: Output BAM format
+# -q: Minimum MAPQ value
+samtools view -b -q 1 $nodup > $nodupmapq1
+rm -f $nodup $nodup.*
+
+# Generating index and stats
+samtools index $nodupmapq1
+samtools idxstats $nodupmapq1 > $nodupmapq1.idxstats
+samtools flagstat $nodupmapq1 > $nodupmapq1.flagstat
