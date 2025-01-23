@@ -53,8 +53,10 @@ case $task in
 
 esac
 
-cd Results/15-bwa-process-peaks
-macs_dir=../14-macs-peaks
+macs_dir=../14-bwa-macs-peaks
+output_dir=Results/15-bwa-process-peaks
+mkdir -p $output_dir
+cd $output_dir
 
 ##########################################################################
 #   Filter for high-confidence peaks: p-value < 1e-10
