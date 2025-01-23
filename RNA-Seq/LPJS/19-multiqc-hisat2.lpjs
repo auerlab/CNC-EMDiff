@@ -15,8 +15,8 @@
 #lpjs jobs 1
 #lpjs processors-per-job 1
 #lpjs threads-per-process processors-per-job
-# chaperone reported peak of 118MB
-#lpjs pmem-per-processor 150MiB
+# lpjs peak-mem:
+#lpjs pmem-per-processor 200MiB
 #lpjs log-dir Logs/19-multiqc-hisat2
 ##############################################################################
 # Update PATH on a chimeric cluster (multiple operating systems used for
@@ -41,5 +41,5 @@ export LC_ALL=en_US.UTF-8
 
 cd Results/19-multiqc-hisat2
 rm -rf *
-multiqc --version > ../../Logs/19-multiqc-hisat2/multiqc-version.txt 2>&1
-multiqc ../18-qc-hisat2 2>&1 | tee ../../Logs/19-multiqc-hisat2/multiqc.out
+multiqc --version > ../../$LPJS_JOB_LOG_DIR/Job-$LPJS_JOB_ID/multiqc-version.txt 2>&1
+multiqc ../18-qc-hisat2 2>&1 | tee ../../$LPJS_JOB_LOG_DIR/Job-$LPJS_JOB_ID/multiqc.out
