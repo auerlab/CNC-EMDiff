@@ -1,0 +1,66 @@
+#!/bin/sh -e
+
+##########################################################################
+#   Script description:
+#       Call peaks in alignments PE ATAC-seq aligned (BWA) reads
+#
+#   History:
+#       Based on the work of Dr. Andrea Rau:
+#       https://github.com/andreamrau/OpticRegen_2019
+#   Date        Name        Modification
+#   2020-03-10  Jason Bacon Begin
+##########################################################################
+
+##########################################################################
+#   Main
+##########################################################################
+
+#lpjs jobs 2
+#lpjs processors-per-job 1
+#lpjs threads-per-process processors-per-job
+#lpjs pmem-per-processor 8GiB
+#lpjs log-dir Logs/22-bowtie2-macs-peaks
+
+# Not every sh implementation can combine the two commands below
+PATH=$LPJS_HOME_DIR/Pkgsrc/pkg/bin:/usr/pkgsrc:/opt/pkgsrc:$PATH
+export PATH
+
+# Set a default value for testing outside the LPJS environment
+: ${LPJS_ARRAY_INDEX:=1}
+
+# Document software versions used for publication
+uname -a
+macs3 --version
+pwd
+
+task=$LPJS_ARRAY_INDEX
+case $task in
+1)
+    cell_type=chondro
+    ;;
+
+2)
+    cell_type=neuro
+    ;;
+
+*)
+    printf "Error: task must be 1 or 2.\n"
+    exit 1
+
+esac
+
+input_dir=Results/18-bowtie2-derep
+output_dir=Results/22-bowtie2-macs-peaks
+
+# FIXME: Add file transfer capability for nodes with no NFS
+
+printf "$cell_type: Peak calling, merging replicates across all time points, calling peaks...\n"
+# "mm" is the compiled-in Mus Musculus genome size.  See MACS3 docs.
+# BAMPE = BAM Paired End
+# Would it make any difference to use the merged BAMs instead?
+set -x
+mkdir -p $output_dir
+macs3 callpeak --nomodel \
+    -t $input_dir/$cell_type-*-mapq1.bam \
+    -f BAMPE -g mm --call-summits -n ATAC-$cell_type \
+    --keep-dup all --outdir $output_dir
