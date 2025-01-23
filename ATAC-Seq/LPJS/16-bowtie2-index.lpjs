@@ -5,8 +5,8 @@
 #       Generate index for bowtie2 aligner
 #
 #   Usage:
-#       sbatch 16-bowtie2-index.sbatch
-#       ./16-bowtie2-index.sbatch |& tee 3.log
+#       lpjs 16-bowtie2-index.lpjs
+#       ./16-bowtie2-index.lpjs |& tee 3.log
 ##########################################################################
 
 ##########################################################################

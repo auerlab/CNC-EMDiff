@@ -49,7 +49,7 @@
 # this flag. Set path to use pkgsrc rsync in ~/Pkgsrc/pkg or /*/pkg.
 #lpjs path ~/Pkgsrc/pkg/bin:/opt/pkg/bin:/usr/pkg/bin:/usr/local/bin:/usr/bin:/bin
 
-# Set a default value for testing outside the SLURM environment
+# Set a default value for testing outside the LPJS environment
 : ${LPJS_ARRAY_INDEX:=1}
 
 # Document software versions used for publication

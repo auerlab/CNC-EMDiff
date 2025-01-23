@@ -39,9 +39,10 @@
 # in your environment in order for the click module to function.
 export LC_ALL=en_US.UTF-8
 
+input_dir=../11-bwa-qc
 output_dir=Results/12-bwa-multiqc
 mkdir -p $output_dir
 cd $output_dir
 rm -rf *
-multiqc --version > ../../$LPJS_JOB_LOG_DIR/multiqc-version.txt 2>&1
-multiqc ../11-bwa-qc 2>&1 | tee ../../$LPJS_JOB_LOG_DIR/multiqc.out
+multiqc --version > ../../$LPJS_JOB_LOG_DIR/Job-$LPJS_JOB_ID/multiqc-version.txt 2>&1
+multiqc $input_dir 2>&1 | tee ../../$LPJS_JOB_LOG_DIR/Job-$LPJS_JOB_ID/multiqc.out

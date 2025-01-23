@@ -21,13 +21,13 @@
 #lpjs processors-per-job 1
 #lpjs threads-per-process processors-per-job
 #lpjs pmem-per-processor 100MB
-#lpjs log-dir Logs/15-bwa-process-peaks/slurm-%A_%a.out
+#lpjs log-dir Logs/15-bwa-process-peaks
 
 # Not every sh implementation can combine the two commands below
 PATH=$LPJS_HOME_DIR/Pkgsrc/pkg/bin:/usr/pkgsrc:/opt/pkgsrc:$PATH
 export PATH
 
-# Set a default value for testing outside the SLURM environment
+# Set a default value for testing outside the LPJS environment
 : ${LPJS_ARRAY_INDEX:=1}
 
 # Document software versions used for publication
@@ -35,7 +35,7 @@ uname -a
 bedtools --version
 pwd
 
-# One iteration if running under SLURM, all iterations otherwise
+# One iteration if running under LPJS, all iterations otherwise
 task=$LPJS_ARRAY_INDEX
 printf "Processing task $task...\n"
 case $task in

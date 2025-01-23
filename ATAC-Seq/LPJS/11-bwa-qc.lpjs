@@ -50,7 +50,7 @@
 # --mkpath while older ones included with macOS and RHEL do not support
 # this flag. Set path to use pkgsrc rsync in ~/Pkgsrc/pkg or /*/pkg.
 #lpjs path ~/Pkgsrc/pkg/bin:/opt/pkg/bin:/usr/pkg/bin:/usr/local/bin:/usr/bin:/bin
-#lpjs pull-command rsync --mkpath -r %h:%s/Results/10-bwa-remove-duplicates/\*sample%i-\*.bam* Results/10-bwa-remove-duplicates
+#lpjs pull-command rsync --mkpath -r %h:%s/Results/10-bwa-derep/\*sample%i-\*.bam* Results/10-bwa-derep
 #lpjs push-command rsync --mkpath -r %w/Results/11-bwa-qc %h:%s/Results
 
 : ${LPJS_ARRAY_INDEX:=1}
@@ -60,12 +60,12 @@ uname -a
 fastqc --version
 pwd
 
-# One iteration if running under SLURM, all iterations otherwise
+# One iteration if running under LPJS, all iterations otherwise
 printf "Running task $LPJS_ARRAY_INDEX...\n"
 
 # Change this and #lpjs jobs above to rerun limited samples
 sample=$LPJS_ARRAY_INDEX
-infile=Results/10-bwa-remove-duplicates/*sample$sample*.bam
+infile=Results/10-bwa-derep/*sample$sample*.bam
 out_dir=Results/11-bwa-qc
 mkdir -p $out_dir
 fastqc -o $out_dir $infile

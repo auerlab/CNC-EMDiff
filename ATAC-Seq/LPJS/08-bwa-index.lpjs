@@ -5,8 +5,8 @@
 #       Generate index for BWA aligner
 #
 #   Usage:
-#       sbatch 08-bwa-index.sbatch
-#       ./08-bwa-index.sbatch |& tee 3.log
+#       lpjs 08-bwa-index.lpjs
+#       ./08-bwa-index.lpjs |& tee 3.log
 ##########################################################################
 
 ##########################################################################
