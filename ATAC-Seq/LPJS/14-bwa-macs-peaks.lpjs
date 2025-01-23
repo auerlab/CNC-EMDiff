@@ -18,7 +18,7 @@
 #lpjs jobs 2
 #lpjs processors-per-job 1
 #lpjs threads-per-process processors-per-job
-#lpjs pmem-per-processor 4GB
+#lpjs pmem-per-processor 8GiB
 #lpjs log-dir Logs/14-bwa-macs-peaks
 
 # Not every sh implementation can combine the two commands below

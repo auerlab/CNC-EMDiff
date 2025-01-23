@@ -51,7 +51,7 @@ printenv
 # access security feature.
 ##############################################################################
 
-input_dir='Results/09-bwa-mem'
+input_dir='Results/09-bwa-align'
 output_dir='Results/10-bwa-derep'
 
 # FIXME: Remove duplicate reads before alignment to cut down on redundant
@@ -65,7 +65,7 @@ cd $output_dir
 # The integer following 'S' in the filename should be unique (1 - 18)
 # Variable assignments don't expand globbing patterns, so insert an ls command
 sample=$LPJS_ARRAY_INDEX
-baminput=$(ls ../09-bwa-mem/*sample$sample-*-namesort.bam)
+baminput=$(ls ../09-bwa-align/*sample$sample-*-namesort.bam)
 ls $baminput
 
 bambase=$(basename $baminput)

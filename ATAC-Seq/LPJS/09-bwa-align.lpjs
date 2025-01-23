@@ -6,7 +6,7 @@
 #
 #   Usage:
 #       LPJS cluster:
-#           lpjs submit 09-bwa-mem.lpjs
+#           lpjs submit 09-bwa-align.lpjs
 ##########################################################################
 
 ##########################################################################
@@ -24,7 +24,7 @@
 #   lpjs peak-mem: 5726664 KiB / 1024 / 4 procs = 1398 MiB + 20%
 #   Adding 2 GiB for samtools
 #lpjs pmem-per-processor 3398MiB
-#lpjs log-dir Logs/09-bwa-mem
+#lpjs log-dir Logs/09-bwa-align
 #lpjs pull-command rsync -r --mkpath --copy-links %h:%s/Reference . && rsync -r --mkpath %h:%s/Results/08-bwa-index Results/08-bwa-index' && rsync -r --mkpath %h:%s/Results/04-trim/\*-sample%i\* Results/04-trim
 
 ##############################################################################
@@ -73,7 +73,7 @@ fi
 ##############################################################################
 
 input_dir='Results/04-trim'
-output_dir='Results/09-bwa-mem'
+output_dir='Results/09-bwa-align'
 index_dir='Results/08-bwa-index'
 
 sample=$LPJS_ARRAY_INDEX
