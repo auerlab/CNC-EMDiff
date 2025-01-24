@@ -78,10 +78,9 @@ ln -sf ../../Common .
 ln -sf ../Reference .
 
 # CE1A_S1_L002-R1.fastq.xz
-cd Results
-rm -rf 01-organize/Raw-renamed
-mkdir -p 01-organize/Raw-renamed
-cd 01-organize/Raw-renamed
+rm -rf Results/01-organize/Raw-renamed
+mkdir -p Results/01-organize/Raw-renamed
+cd Results/01-organize/Raw-renamed
 for rep in 1 2 3; do
     for time in A B C; do
 	numeric_time=$(echo $time | tr "ABC" "123")

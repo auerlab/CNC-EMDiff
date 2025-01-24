@@ -56,10 +56,9 @@ ln -sf ../../RNA-Seq/Reference .
 ##############################################################################
 
 # CCA1A_S1_L001-R1.fastq.xz
-cd Results
-rm -rf 01-organize/Raw-renamed
-mkdir -p 01-organize/Raw-renamed
-cd 01-organize/Raw-renamed
+rm -rf Results/01-organize/Raw-renamed
+mkdir -p Results/01-organize/Raw-renamed
+cd Results/01-organize/Raw-renamed
 
 for time in 1 2 3; do
     for rep in A B C; do
