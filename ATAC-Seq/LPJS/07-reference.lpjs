@@ -22,7 +22,7 @@
 #lpjs processors-per-job 1
 #lpjs threads-per-process processors-per-job
 # lpjs peak-mem: 14712 KiB / 1024 = 14 MiB + 20%
-#lpjs pmem-per-processor 20 MiB
+#lpjs pmem-per-processor 20MiB
 #lpjs log-dir Logs/07-reference
 
 ##############################################################################
