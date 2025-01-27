@@ -18,12 +18,27 @@
 #lpjs jobs 2
 #lpjs processors-per-job 1
 #lpjs threads-per-process processors-per-job
-#lpjs pmem-per-processor 8GiB
+# From lpjs peak-mem:
+#lpjs pmem-per-processor 7363MiB
 #lpjs log-dir Logs/14-bwa-macs-peaks
-
-# Not every sh implementation can combine the two commands below
-PATH=$LPJS_HOME_DIR/Pkgsrc/pkg/bin:/usr/pkgsrc:/opt/pkgsrc:$PATH
-export PATH
+##############################################################################
+# Update PATH on a chimeric cluster (multiple operating systems used for
+# compute nodes)
+#
+# The PATH used by the package manager that installed LPJS (/usr/local for
+# FreeBSD ports, usually /usr/pkg or /*/pkg for pkgsrc), is automatically
+# prepended to the default PATH.  This is overridden by "#lpjs path", so
+# if we use it, we must add all directories ourselves.
+#
+# Add the default non-priveleged pkgsrc prefix used by auto-pkgsrc-setup.
+#
+# Caution: Different versions of rsync behave differently with respect
+# to creating path components at the destination.  Newer rsync requires
+# --mkpath while older ones included with macOS and RHEL do not support
+# this flag. Set path to use pkgsrc rsync in ~/Pkgsrc/pkg or /*/pkg.
+#lpjs path ~/Pkgsrc/pkg/bin:/opt/pkg/bin:/usr/pkg/bin:/usr/local/bin:/usr/bin:/bin
+#lpjs pull-command rsync --mkpath %h:%s/Results/13-bwa-merge-bams/\*-sample%i-\*.bam Results/13-bwa-merge-bams/
+#lpjs push-command rsync --mkpath -av %w/Results/14-bwa-macs-peaks %h:%s/Results
 
 # Set a default value for testing outside the LPJS environment
 : ${LPJS_ARRAY_INDEX:=1}

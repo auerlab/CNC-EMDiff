@@ -26,13 +26,8 @@
 #lpjs jobs 18
 #lpjs processors-per-job 2
 #lpjs threads-per-process processors-per-job
-# Memory requirements can only be determined by trial and error.
-# Run a sample job and monitor closely in "top" or run under a tool that
-# reports maximum memory use.
-# Chaperone log shows ??
-# Be sure to adjust if # of threads is changed.  Total should be about
-# the same, but divided by a different # of processors.
-#lpjs pmem-per-processor 800MiB
+# From lpjs peak-mem:
+#lpjs pmem-per-processor 368MiB
 #lpjs log-dir Logs/19-bowtie2-qc
 ##############################################################################
 # Update PATH on a chimeric cluster (multiple operating systems used for

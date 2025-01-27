@@ -16,23 +16,27 @@
 #lpjs jobs 18
 #lpjs processors-per-job 1
 #lpjs threads-per-process processors-per-job
-#lpjs pmem-per-processor 4GiB
+# From lpjs peak-mem:
+#lpjs pmem-per-processor 2889MiB
 #lpjs log-dir Logs/18-bowtie2-derep
-
 ##############################################################################
 # Update PATH on a chimeric cluster (multiple operating systems used for
-# compute nodes.
+# compute nodes)
 #
-# The path used by the package manager that installed LPJS is added
-# automatically (/usr/local for FreeBSD ports, usually /usr/pkg or /opt/pkg
-# for pkgsrc).
+# The PATH used by the package manager that installed LPJS (/usr/local for
+# FreeBSD ports, usually /usr/pkg or /*/pkg for pkgsrc), is automatically
+# prepended to the default PATH.  This is overridden by "#lpjs path", so
+# if we use it, we must add all directories ourselves.
 #
 # Add the default non-priveleged pkgsrc prefix used by auto-pkgsrc-setup.
-##############################################################################
-
-# Not every sh implementation can combine the two commands below
-PATH=$LPJS_HOME_DIR/Pkgsrc/pkg/bin:/usr/pkg/bin:/opt/pkg/bin:$PATH
-export PATH
+#
+# Caution: Different versions of rsync behave differently with respect
+# to creating path components at the destination.  Newer rsync requires
+# --mkpath while older ones included with macOS and RHEL do not support
+# this flag. Set path to use pkgsrc rsync in ~/Pkgsrc/pkg or /*/pkg.
+#lpjs path ~/Pkgsrc/pkg/bin:/opt/pkg/bin:/usr/pkg/bin:/usr/local/bin:/usr/bin:/bin
+#lpjs pull-command rsync --mkpath --copy-links %h:%s/Results/17-bowtie2-align/\*-sample%i-\*.bam Results/17-bowtie2-align/
+#lpjs push-command rsync --mkpath -av %w/Results/18-bowtie2-derep %h:%s/Results
 
 # Set a default value for testing outside the LPJS environment
 : ${LPJS_ARRAY_INDEX:=1}
@@ -54,9 +58,9 @@ printenv
 input_dir='Results/17-bowtie2-align'
 output_dir='Results/18-bowtie2-derep'
 
-# FIXME: Remove duplicate reads before alignment to cut down on redundant
+# FIXME: Remove replicate reads before alignment to cut down on redundant
 # alignments.  Still need to run this step since we cannot identify all
-# duplicate alignments before alignment.
+# replicate alignments before alignment.
 
 mkdir -p $output_dir
 cd $output_dir
@@ -111,9 +115,9 @@ samtools fixmate -m $baminput $fixmated
 samtools sort -m 2g $fixmated -o $fixmated_and_sorted
 rm -f $fixmated
 
-# Remove duplicate reads with markdup
+# Remove replicate reads with markdup
 # -l: Expected read length
-# -r: Remove duplicates
+# -r: Remove replicates
 # -s: Print basic stats
 samtools markdup -l 100 -r -s $fixmated_and_sorted $nodup
 rm -f $fixmated_and_sorted

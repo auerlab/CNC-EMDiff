@@ -15,8 +15,8 @@
 #lpjs jobs 1
 #lpjs processors-per-job 1
 #lpjs threads-per-process processors-per-job
-# chaperone reported peak of 118MB
-#lpjs pmem-per-processor 200MiB
+# From lpjs peak-mem:
+#lpjs pmem-per-processor 174MiB
 #lpjs log-dir Logs/12-bwa-multiqc
 ##############################################################################
 # Update PATH on a chimeric cluster (multiple operating systems used for
@@ -34,6 +34,8 @@
 # --mkpath while older ones included with macOS and RHEL do not support
 # this flag. Set path to use pkgsrc rsync in ~/Pkgsrc/pkg or /*/pkg.
 #lpjs path ~/Pkgsrc/pkg/bin:/opt/pkg/bin:/usr/pkg/bin:/usr/local/bin:/usr/bin:/bin
+#lpjs pull-command rsync --mkpath -r %h:%s/Results/11-bwa-qc/\*sample%i-\*.bam* Results/11-bwa-qc
+#lpjs push-command rsync --mkpath -r %w/Results/12-bwa-multiqc %h:%s/Results
 
 # multiqc: LC_ALL and LANG must be set to a UTF-8 character set
 # in your environment in order for the click module to function.

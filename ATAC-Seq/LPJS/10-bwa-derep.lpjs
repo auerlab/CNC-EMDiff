@@ -2,7 +2,7 @@
 
 ##########################################################################
 #   Script description:
-#       Filter out duplicate reads
+#       Filter out replicate reads
 #       This script is I/O-intensive, so use slow nodes and limit
 #       concurrency.
 #
@@ -16,7 +16,8 @@
 #lpjs jobs 18
 #lpjs processors-per-job 1
 #lpjs threads-per-process processors-per-job
-#lpjs pmem-per-processor 4GiB
+# From lpjs peak-mem:
+#lpjs pmem-per-processor 2908MiB
 #lpjs log-dir Logs/10-bwa-derep
 ##############################################################################
 # Update PATH on a chimeric cluster (multiple operating systems used for
@@ -57,9 +58,9 @@ printenv
 input_dir='Results/09-bwa-align'
 output_dir='Results/10-bwa-derep'
 
-# FIXME: Remove duplicate reads before alignment to cut down on redundant
+# FIXME: Remove replicate reads before alignment to cut down on redundant
 # alignments.  Still need to run this step since we cannot identify all
-# duplicate alignments before alignment.
+# replicate alignments before alignment.
 
 mkdir -p $output_dir
 cd $output_dir
@@ -114,9 +115,9 @@ samtools fixmate -m $baminput $fixmated
 samtools sort -m 2g $fixmated -o $fixmated_and_sorted
 rm -f $fixmated
 
-# Remove duplicate reads with markdup
+# Remove replicate reads with markdup
 # -l: Expected read length
-# -r: Remove duplicates
+# -r: Remove replicates
 # -s: Print basic stats
 samtools markdup -l 100 -r -s $fixmated_and_sorted $nodup
 rm -f $fixmated_and_sorted

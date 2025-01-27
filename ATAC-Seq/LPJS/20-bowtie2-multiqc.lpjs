@@ -15,8 +15,8 @@
 #lpjs jobs 1
 #lpjs processors-per-job 1
 #lpjs threads-per-process processors-per-job
-# chaperone reported peak of 118MB
-#lpjs pmem-per-processor 200MiB
+# From lpks peak-mem:
+#lpjs pmem-per-processor 146MiB
 #lpjs log-dir Logs/20-bowtie2-multiqc
 ##############################################################################
 # Update PATH on a chimeric cluster (multiple operating systems used for

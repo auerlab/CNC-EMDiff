@@ -31,8 +31,8 @@
 #lpjs jobs 18
 #lpjs processors-per-job 2
 #lpjs threads-per-process processors-per-job
-# lpjs peak-mem: 112984 KiB / 2 procs / 1024 = 55 MiB + 10%
-#lpjs pmem-per-processor 60MiB
+# From lpjs peak-mem:
+#lpjs pmem-per-processor 66MiB
 #lpjs log-dir Logs/04-trim
 ##############################################################################
 # Update PATH on a chimeric cluster (multiple operating systems used for
