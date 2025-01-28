@@ -23,11 +23,8 @@
 # 3 processors for hisat2, 1 for samtools sort, all must be on the same node
 #lpjs processors-per-job 4
 #lpjs threads-per-process processors-per-job
-# Memory requirements can only be determined by trial and error.
-# Run a sample job and monitor closely in "top" or run under a tool that
-# reports maximum memory use.
-# lpjs peak-mem: 5239352 KiB / 4 procs / 1024 = 1279.138671875 MiB
-#lpjs pmem-per-processor 1400MB
+# From lpjs peak-mem:
+#lpjs pmem-per-processor 1516MiB
 #lpjs log-dir Logs/17-hisat2-align
 ##############################################################################
 # Update PATH on a chimeric cluster (multiple operating systems used for

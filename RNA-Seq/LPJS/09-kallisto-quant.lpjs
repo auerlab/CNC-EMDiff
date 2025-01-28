@@ -17,9 +17,8 @@
 #lpjs jobs 18
 #lpjs processors-per-job 4
 #lpjs threads-per-process processors-per-job
-# lpjs peak-mem Logs/09-kallisto-quant:
-#   1232808 KiB / 1024 / 4 procs 301 MiB + 20%
-#lpjs pmem-per-processor 360MiB
+# From lpjs peak-mem:
+#lpjs pmem-per-processor 327MiB
 #lpjs log-dir Logs/09-kallisto-quant
 ##############################################################################
 # Update PATH on a chimeric cluster (multiple operating systems used for

@@ -7,8 +7,8 @@
 #lpjs jobs 1
 #lpjs processors-per-job 1
 #lpjs threads-per-process processors-per-job
-# lpjs peak-mem Logs/13-fasda-kallisto: 234484 KiB / 1024 = 229MiB + 10%
-#lpjs pmem-per-processor 300MiB
+# From lpjs peak-mem:
+#lpjs pmem-per-processor 296MiB
 #lpjs log-dir Logs/13-fasda-kallisto
 #lpjs path /opt/pkg/bin:/usr/local/bin:/usr/bin:/bin
 ##############################################################################

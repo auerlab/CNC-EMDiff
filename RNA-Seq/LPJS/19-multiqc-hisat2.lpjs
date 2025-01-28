@@ -15,8 +15,8 @@
 #lpjs jobs 1
 #lpjs processors-per-job 1
 #lpjs threads-per-process processors-per-job
-# lpjs peak-mem:
-#lpjs pmem-per-processor 200MiB
+# From lpjs peak-mem:
+#lpjs pmem-per-processor 178MiB
 #lpjs log-dir Logs/19-multiqc-hisat2
 ##############################################################################
 # Update PATH on a chimeric cluster (multiple operating systems used for
