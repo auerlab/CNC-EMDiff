@@ -40,6 +40,7 @@
 # in your environment in order for the click module to function.
 export LC_ALL=en_US.UTF-8
 
+mkdir -p Results/03-multiqc-raw
 cd Results/03-multiqc-raw
 rm -rf *
 multiqc --version > ../../Logs/03-multiqc-raw/multiqc-version.txt 2>&1
