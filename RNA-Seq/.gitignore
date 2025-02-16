@@ -6,3 +6,4 @@ Logs
 go.obo
 goa*.gaf
 go-names.tsv
+.*-marker
