@@ -40,7 +40,8 @@
 # to creating path components at the destination.  Newer rsync requires
 # --mkpath while older ones included with macOS and RHEL do not support
 # this flag. Set path to use pkgsrc rsync in ~/Pkgsrc/pkg or /*/pkg.
-#lpjs path ~/Pkgsrc/pkg/bin:/opt/pkg/bin:/usr/pkg/bin:/usr/local/bin:/usr/bin:/bin
+# /usr/pkg/java is for NetBSD
+#lpjs path ~/Pkgsrc/pkg/bin:/opt/pkg/bin:/usr/pkg/bin:/usr/pkg/java/openjdk17/bin:/usr/local/bin:/usr/bin:/bin
 #lpjs pull-command rsync --mkpath --copy-links %h:%s/Results/04-trim/\*-sample%i-\*.zst Results/04-trim
 #lpjs push-command rsync --mkpath -av %w/Results/05-qc-trimmed %h:%s/Results
 
