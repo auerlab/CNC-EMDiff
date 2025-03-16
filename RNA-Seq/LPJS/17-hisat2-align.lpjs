@@ -50,6 +50,8 @@
 
 # Set a default value for testing outside the LPJS environment
 : ${LPJS_ARRAY_INDEX:=1}
+# Set to at least 2
+: ${LPJS_THREADS_PER_PROCESS:=4}
 
 # Adjust this and #lpjs jobs above to rerun limited samples
 # E.g. to rerun just sample 9, use 1 job, sample = array_index 1 + 8:
@@ -107,7 +109,7 @@ bam=${gz_base%-R*}.bam
 set -x
 
 cd $output_dir
-hisat2 --threads $(($LPJS_PROCESSORS_PER_JOB - 1)) -x ../16-hisat2-index/$genome \
+hisat2 --threads $(($LPJS_THREADS_PER_PROCESS - 1)) -x ../16-hisat2-index/$genome \
     -1 $gz1 -2 $gz2 | samtools sort -T $tmpdir > $bam
 
 # Not sure how helpful multithreading is here, but since we allocated
