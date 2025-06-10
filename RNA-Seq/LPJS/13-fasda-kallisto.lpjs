@@ -40,27 +40,32 @@ fasda_dir=Results/13-fasda-kallisto
 
 mkdir -p $fasda_dir
 
-for cell_type in neuro chondro; do
-    for condition in time1 time2 time3; do
-	printf "Normalizing $condition...\n"
-	time fasda normalize \
-	    --output $fasda_dir/$cell_type-$condition-all-norm.tsv \
-	    $kallisto_dir/$cell_type-*-rep*-$condition/abundance.tsv
-    done
+for cell_type in chondro neuro; do
+    printf "Normalizing...\n"
+    set -x
+    time fasda normalize \
+	    --output $fasda_dir/$cell_type-all-norm.tsv \
+	    $kallisto_dir/$cell_type-*/abundance.tsv
+    set +x
+    
+    # Separate the normalized counts by condition (time1 in one file, ...)
+    cut -f 1,2,5,8 $fasda_dir/$cell_type-all-norm.tsv > $fasda_dir/$cell_type-time1-norm.tsv
+    cut -f 1,3,6,9 $fasda_dir/$cell_type-all-norm.tsv > $fasda_dir/$cell_type-time2-norm.tsv
+    cut -f 1,4,6,10 $fasda_dir/$cell_type-all-norm.tsv > $fasda_dir/$cell_type-time3-norm.tsv
 
     printf "Computing fold-change...\n"
     time fasda fold-change \
 	--output $fasda_dir/$cell_type-time1-time2-FC.txt \
-	$fasda_dir/$cell_type-time1-all-norm.tsv \
-	$fasda_dir/$cell_type-time2-all-norm.tsv
+	$fasda_dir/$cell_type-time1-norm.tsv \
+	$fasda_dir/$cell_type-time2-norm.tsv
 
     time fasda fold-change \
 	--output $fasda_dir/$cell_type-time1-time3-FC.txt \
-	$fasda_dir/$cell_type-time1-all-norm.tsv \
-	$fasda_dir/$cell_type-time3-all-norm.tsv
+	$fasda_dir/$cell_type-time1-norm.tsv \
+	$fasda_dir/$cell_type-time3-norm.tsv
 
     time fasda fold-change \
 	--output $fasda_dir/$cell_type-time2-time3-FC.txt \
-	$fasda_dir/$cell_type-time2-all-norm.tsv \
-	$fasda_dir/$cell_type-time3-all-norm.tsv
+	$fasda_dir/$cell_type-time2-norm.tsv \
+	$fasda_dir/$cell_type-time3-norm.tsv
 done
