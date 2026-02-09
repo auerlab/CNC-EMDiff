@@ -18,6 +18,7 @@ transcriptome=$(Reference/transcriptome-filename.sh)
 
 # Can't guarantee this file will always be available.
 # You may need to edit this.
+mkdir -p Results/07-reference
 cd Results/07-reference
 cdna=Mus_musculus.GRCm$build.cdna.all.fa.gz
 if [ ! -e $cdna ]; then

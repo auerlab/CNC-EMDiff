@@ -61,4 +61,5 @@ fi
 
 printf "Building kallisto index...\n"
 set -x
+mkdir -p Results/08-kallisto-index
 kallisto index --index=Results/08-kallisto-index/all-but-xy.index $transcriptome

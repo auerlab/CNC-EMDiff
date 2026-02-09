@@ -12,6 +12,7 @@ gtf=$(Reference/gtf-filename.sh)
 # GTF
 # Can't guarantee this file or the chromosome files will always be available.
 # You may need to edit this.
+mkdir -p Results/07-reference
 cd Results/07-reference
 if [ ! -e $gtf.gz ]; then
     printf "Fetching $gtf.gz...\n"

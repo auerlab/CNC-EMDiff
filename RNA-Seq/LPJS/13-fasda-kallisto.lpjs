@@ -8,7 +8,8 @@
 #lpjs processors-per-job 1
 #lpjs threads-per-process processors-per-job
 # From lpjs peak-mem:
-#lpjs pmem-per-processor 296MiB
+# FIXME: This required only 296 recently.  Find out what changed.
+#lpjs pmem-per-processor 1053MiB
 #lpjs log-dir Logs/13-fasda-kallisto
 #lpjs path /opt/pkg/bin:/usr/local/bin:/usr/bin:/bin
 ##############################################################################

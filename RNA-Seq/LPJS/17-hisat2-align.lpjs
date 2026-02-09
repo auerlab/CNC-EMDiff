@@ -77,7 +77,7 @@ if hostname | grep albacore; then
     # /usr/tmp is on a big partition on our albacore cluster's compute nodes
     tmpdir=/usr/tmp
 else
-    tmpdir=$(pwd)
+    tmpdir=/tmp
 fi
 
 # hisat2 can't yet read zstd inputs.
@@ -109,7 +109,7 @@ bam=${gz_base%-R*}.bam
 set -x
 
 cd $output_dir
-hisat2 --threads $(($LPJS_THREADS_PER_PROCESS - 1)) -x ../16-hisat2-index/$genome \
+hisat2 --threads $LPJS_THREADS_PER_PROCESS -x ../16-hisat2-index/$genome \
     -1 $gz1 -2 $gz2 | samtools sort -T $tmpdir > $bam
 
 # Not sure how helpful multithreading is here, but since we allocated
