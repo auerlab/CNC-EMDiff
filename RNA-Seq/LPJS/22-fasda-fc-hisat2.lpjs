@@ -9,7 +9,9 @@
 #lpjs processors-per-job 1
 #lpjs threads-per-process processors-per-job
 # From lpjs peak-mem:
-#lpjs pmem-per-processor 218MiB
+# FIXME: This required only 218 recently.  Find out what changed.
+# #lpjs pmem-per-processor 218MiB
+#lpjs pmem-per-processor 380MiB
 #lpjs log-dir Logs/22-fasda-fc-hisat2
 ##############################################################################
 # Update PATH on a chimeric cluster (multiple operating systems used for

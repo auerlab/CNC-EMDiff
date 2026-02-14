@@ -52,6 +52,7 @@ pwd
 
 input_dir=Results/17-hisat2-align
 output_dir=Results/20-merge-hisat2-bams
+mkdir -p $output_dir
 
 for cell_line in chondro neuro; do
     for time in 1 2 3; do

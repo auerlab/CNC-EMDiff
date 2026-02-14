@@ -49,6 +49,7 @@ pwd
 
 # Run hisat2-build on a copy in 16-hisat2-index so it will put the .ht2
 # files there
+mkdir -p Results/16-hisat2-index
 genome=$(Reference/genome-filename.sh)
 ln -f Results/07-reference/$genome Results/16-hisat2-index
 genome=Results/16-hisat2-index/$genome

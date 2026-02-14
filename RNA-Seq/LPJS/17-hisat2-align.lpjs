@@ -67,6 +67,7 @@ pwd
 input_dir=Results/04-trim
 output_dir=Results/17-hisat2-align
 index_dir=Results/16-hisat2-index
+mkdir -p $output_dir
 
 # Make sure $tmpdir has enough space for several fastq files of ~2GB each
 # *and* samtools temporary files (comparable in size to fastq inputs).

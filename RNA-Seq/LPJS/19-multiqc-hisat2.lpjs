@@ -39,6 +39,7 @@
 # in your environment in order for the click module to function.
 export LC_ALL=en_US.UTF-8
 
+mkdir -p Results/19-multiqc-hisat2
 cd Results/19-multiqc-hisat2
 rm -rf *
 multiqc --version > ../../$LPJS_JOB_LOG_DIR/Job-$LPJS_JOB_ID/multiqc-version.txt 2>&1
